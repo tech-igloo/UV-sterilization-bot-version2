@@ -2,7 +2,6 @@
 #include "esp_wifi.h"
 #include "esp_system.h"
 #include "esp_event.h"
-#include "esp_event.h"
 #include "nvs_flash.h"
 #include "driver/gpio.h"
 #include <esp_http_server.h>
@@ -13,7 +12,7 @@
 #include "lwip/sys.h"
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
-
+#include "esp_timer.h"
 #include "lwip/err.h"
 #include "lwip/sys.h"
 #define EXAMPLE_ESP_WIFI_SSID      "AndroidAP1"
@@ -28,6 +27,23 @@ static EventGroupHandle_t s_wifi_event_group;
 static const char *TAG = "wifi station";
 static int flag = -1;
 static int s_retry_num = 0;
+static int64_t prev_mili = 0;
+static int64_t curr_mili = 0;
+static float time_duration = 0;
+
+char determine(int flag)
+{
+	char c;
+	switch(flag){
+		case -1: c = 's';break;
+		case 0: c = 'f';break;
+		case 1: c = 'l';break;
+		case 2: c = 'r';break;
+		case 3: c = 'b';break;
+		default:c = 'a';break;
+	}
+	return c;
+}
 
 char* default_page()
 {
@@ -54,12 +70,6 @@ char* default_page()
 
 	strcat(ptr, "</body>\n");
 	strcat(ptr, "</html>\n");
-	/*strcat(ptr, "<h1>ESP32 Web Server</h1>\n");
-	strcat(ptr, "<h3>Using Access Point(AP) Mode</h3>\n");
-	strcat(ptr, "<p>Press to select manual mode</p>\n");
-	strcat(ptr, "<p><a href=\"\&quot;/memorize_path\&quot;\">MANUAL</a></p>\n");
-	strcat(ptr, "<p>Press to select auto mode</p>\n");
-	strcat(ptr, "<p><a href=\"\&quot;/\&quot;\">AUTO</a></p>");*/
 	return ptr;
 }
 
@@ -85,8 +95,6 @@ char* auto_mode()
 
 	strcat(ptr, "</body>\n");
 	strcat(ptr, "</html>\n");
-	/*strcat(ptr, "<h1>ESP32 Web Server</h1>\n");
-	strcat(ptr, "<h3>Using Access Point(AP) Mode</h3>");*/
 	return ptr;
 }
 
@@ -117,16 +125,6 @@ char* manual_mode()
 
 	strcat(ptr, "</body>\n");
 	strcat(ptr, "</html>\n");
-	/*strcat(ptr, "<h1>ESP32 Web Server</h1>\n");
-	strcat(ptr, "<h3>Using Access Point(AP) Mode</h3>\n");
-	strcat(ptr, "<p>Forward: OFF</p>\n");
-	strcat(ptr, "<p><a href=\"\\&quot;/forward\\&quot;\">ON</a></p>\n");
-	strcat(ptr, "<p>Left: OFF</p>\n");
-	strcat(ptr, "<p><a href=\"\\&quot;/left\\&quot;\">ON</a></p>\n");
-	strcat(ptr, "<p>Right: OFF</p>\n");
-	strcat(ptr, "<p><a href=\"\\&quot;/right\\&quot;\">ON</a></p>\n");
-	strcat(ptr, "<p>Back: OFF</p>\n");
-	strcat(ptr, "<p><a href=\"\\&quot;/back\\&quot;\">ON</a></p>");*/
 	return ptr;
 }
 
@@ -173,89 +171,63 @@ char* SendHTML(uint8_t flag)
 
 	strcat(ptr, "</body>\n");
 	strcat(ptr, "</html>\n");
-	/*strcat(ptr,"<h1>ESP32 Web Server</h1>\n");
-	strcat(ptr, "<h3>Using Access Point(AP) Mode</h3>\n");
-	if(flag==0)
-	{
-		strcat(ptr, "<p>Forward: ON</p>\n");
-		strcat(ptr, "<p><a href=\"\\&quot;/memorize_path\\&quot;\">OFF</a></p>\n");
-	}
-	else
-	{
-		strcat(ptr, "<p>Forward: OFF</p>\n");
-		strcat(ptr, "<p><a href=\"\\&quot;/forward\\&quot;\">ON</a></p>\n");
-	}
-
-	if(flag==1)
-	{
-		strcat(ptr, "<p>Left: ON</p>\n");
-		strcat(ptr, "<p><a href=\"\\&quot;/memorize_path\\&quot;\">OFF</a></p>\n");
-	}
-	else
-	{
-		strcat(ptr, "<p>Left: OFF</p>\n");
-		strcat(ptr, "<p><a href=\"\\&quot;/left\\&quot;\">ON</a></p>\n");
-	}
-
-	if(flag==2)
-	{
-		strcat(ptr, "<p>Right: ON</p>\n");
-		strcat(ptr, "<p><a href=\"\\&quot;/memorize_path\\&quot;\">OFF</a></p>\n");
-	}
-	else
-	{
-		strcat(ptr, "<p>Right: OFF</p>\n");
-		strcat(ptr, "<p><a href=\"\\&quot;/right\\&quot;\">ON</a></p>\n");
-	}
-
-	if(flag==3)
-	{
-		strcat(ptr, "<p>Backwards: ON</p>\n");
-		strcat(ptr, "<p><a href=\"\\&quot;/memorize_path\\&quot;\">OFF</a></p>\n");
-	}
-	else
-	{
-		strcat(ptr, "<p>Backwards: OFF</p>\n");
-		strcat(ptr, "<p><a href=\"\\&quot;/back\\&quot;\">ON</a></p>\n");
-	}*/
-
 	return ptr;
 }
 
-/*esp_err_t wifiEventHandler(void *ctx, system_event_t *event)
+static void wifi_event_handler(void* arg, esp_event_base_t event_base,
+                                    int32_t event_id, void* event_data)
 {
-	if (event->event_id == SYSTEM_EVENT_AP_STACONNECTED) {
-		printf("Device Connected");
-	}
-	else if(event->event_id == SYSTEM_EVENT_AP_STADISCONNECTED){
-		printf("Device Disconnected");
-	}
-	return ESP_OK;
+    if (event_id == WIFI_EVENT_AP_STACONNECTED) {
+        wifi_event_ap_staconnected_t* event = (wifi_event_ap_staconnected_t*) event_data;
+        ESP_LOGI(TAG, "station "MACSTR" join, AID=%d",
+                 MAC2STR(event->mac), event->aid);
+    } else if (event_id == WIFI_EVENT_AP_STADISCONNECTED) {
+        wifi_event_ap_stadisconnected_t* event = (wifi_event_ap_stadisconnected_t*) event_data;
+        ESP_LOGI(TAG, "station "MACSTR" leave, AID=%d",
+                 MAC2STR(event->mac), event->aid);
+    }
 }
-
-void init()
+void init_sap()
 {
-    nvs_flash_init();
-    tcpip_adapter_init();
-    ESP_ERROR_CHECK(esp_event_loop_init(wifiEventHandler, NULL));
-    wifi_init_config_t config = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_wifi_init(&config));
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
-    wifi_config_t apConfig = {
-    		.ap = {
-    				.ssid = "ESP-32",
-					.ssid_len = strlen("ESP-32"),
-					.password = "qwerty1234",
-					.channel = 0,
-					.authmode = WIFI_AUTH_WPA_PSK,
-					.ssid_hidden = 0,
-					.max_connection = 2,
-					.beacon_interval = 100
-    		}
+    esp_err_t ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+      ESP_ERROR_CHECK(nvs_flash_erase());
+      ret = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK(ret);
+    ESP_LOGI(TAG, "ESP_WIFI_MODE_AP");
+	ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    esp_netif_create_default_wifi_ap();
+
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT,
+                                                        ESP_EVENT_ANY_ID,
+                                                        &wifi_event_handler,
+                                                        NULL,
+                                                        NULL));
+
+    wifi_config_t wifi_config = {
+        .ap = {
+            .ssid = "myssid",
+            .ssid_len = strlen("myssid"),
+            .password = "qwerty1234",
+            .max_connection = 2,
+            .authmode = WIFI_AUTH_WPA_WPA2_PSK
+        },
     };
-    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &apConfig));
+    if (strlen(EXAMPLE_ESP_WIFI_PASS) == 0) {
+        wifi_config.ap.authmode = WIFI_AUTH_OPEN;
+    }
+
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
+    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config));
     ESP_ERROR_CHECK(esp_wifi_start());
-}*/
+
+    ESP_LOGI(TAG, "wifi_init_softap finished. SSID:myssid password:qwerty1234");
+}
 
 static void event_handler(void* arg, esp_event_base_t event_base,
                                 int32_t event_id, void* event_data)
@@ -357,6 +329,8 @@ esp_err_t handle_OnConnect(httpd_req_t *req)
 esp_err_t handle_manual(httpd_req_t *req)
 {
 	flag = -1;
+	prev_mili = esp_timer_get_time();
+	curr_mili = esp_timer_get_time();
 	char* resp = manual_mode();
     httpd_resp_send(req, resp, strlen(resp));
     return ESP_OK;
@@ -372,6 +346,11 @@ esp_err_t handle_auto(httpd_req_t *req)
 
 esp_err_t handle_forward(httpd_req_t *req)
 {
+	char det = determine(flag);
+	curr_mili = esp_timer_get_time();
+	time_duration = (curr_mili - prev_mili)/1000;;
+	ESP_LOGI(TAG,"%c%f",det,time_duration);
+	prev_mili = esp_timer_get_time();
 	flag = 0;
 	char* resp = SendHTML(flag);
     httpd_resp_send(req, resp, strlen(resp));
@@ -380,6 +359,11 @@ esp_err_t handle_forward(httpd_req_t *req)
 
 esp_err_t handle_left(httpd_req_t *req)
 {
+	char det = determine(flag);
+	curr_mili = esp_timer_get_time();
+	time_duration = (curr_mili - prev_mili)/1000.0;
+	ESP_LOGI(TAG,"%c%f",det,time_duration);
+	prev_mili = esp_timer_get_time();
 	flag = 1;
 	char* resp = SendHTML(flag);
     httpd_resp_send(req, resp, strlen(resp));
@@ -388,6 +372,11 @@ esp_err_t handle_left(httpd_req_t *req)
 
 esp_err_t handle_right(httpd_req_t *req)
 {
+	char det = determine(flag);
+	curr_mili = esp_timer_get_time();
+	time_duration = (curr_mili - prev_mili)/1000.0;
+	ESP_LOGI(TAG,"%c%f",det,time_duration);
+	prev_mili = esp_timer_get_time();
 	flag = 2;
 	char* resp = SendHTML(flag);
     httpd_resp_send(req, resp, strlen(resp));
@@ -396,40 +385,13 @@ esp_err_t handle_right(httpd_req_t *req)
 
 esp_err_t handle_back(httpd_req_t *req)
 {
+	char det = determine(flag);
+	curr_mili = esp_timer_get_time();
+	time_duration = (curr_mili - prev_mili)/1000.0;
+	ESP_LOGI(TAG,"%c%f",det,time_duration);
+	prev_mili = esp_timer_get_time();
 	flag = 3;
 	char* resp = SendHTML(flag);
-    httpd_resp_send(req, resp, strlen(resp));
-    return ESP_OK;
-}
-
-esp_err_t post_handler(httpd_req_t *req)
-{
-    /* Destination buffer for content of HTTP POST request.
-     * httpd_req_recv() accepts char* only, but content could
-     * as well be any binary data (needs type casting).
-     * In case of string data, null termination will be absent, and
-     * content length would give length of string */
-    char content[100];
-
-    /* Truncate if content length larger than the buffer */
-    size_t recv_size = MIN(req->content_len, sizeof(content));
-
-    int ret = httpd_req_recv(req, content, recv_size);
-    if (ret <= 0) {  /* 0 return value indicates connection closed */
-        /* Check if timeout occurred */
-        if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
-            /* In case of timeout one can choose to retry calling
-             * httpd_req_recv(), but to keep it simple, here we
-             * respond with an HTTP 408 (Request Timeout) error */
-            httpd_resp_send_408(req);
-        }
-        /* In case of error, returning ESP_FAIL will
-         * ensure that the underlying socket is closed */
-        return ESP_FAIL;
-    }
-
-    /* Send a simple response */
-    const char resp[] = "URI POST Response";
     httpd_resp_send(req, resp, strlen(resp));
     return ESP_OK;
 }
@@ -483,13 +445,6 @@ httpd_uri_t uri_back = {
     .user_ctx = NULL
 };
 
-httpd_uri_t uri_post = {
-    .uri      = "/uri",
-    .method   = HTTP_POST,
-    .handler  = post_handler,
-    .user_ctx = NULL
-};
-
 httpd_handle_t start_webserver(void)
 {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
@@ -502,7 +457,6 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &uri_left);
         httpd_register_uri_handler(server, &uri_right);
         httpd_register_uri_handler(server, &uri_back);
-        httpd_register_uri_handler(server, &uri_post);
     }
     return server;
 }
@@ -514,7 +468,7 @@ void stop_webserver(httpd_handle_t server)
     }
 }
 
-/*static void disconnect_handler(void* arg, esp_event_base_t event_base,
+static void disconnect_handler(void* arg, esp_event_base_t event_base,
                                int32_t event_id, void* event_data)
 {
     httpd_handle_t* server = (httpd_handle_t*) arg;
@@ -524,7 +478,6 @@ void stop_webserver(httpd_handle_t server)
         *server = NULL;
     }
 }
-
 static void connect_handler(void* arg, esp_event_base_t event_base,
                             int32_t event_id, void* event_data)
 {
@@ -533,20 +486,15 @@ static void connect_handler(void* arg, esp_event_base_t event_base,
         ESP_LOGI(TAG, "Starting webserver");
         *server = start_webserver();
     }
-}*/
+}
 
 void app_main(void)
 {
-	//init();
-	esp_err_t ret = nvs_flash_init();
-	    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-	      ESP_ERROR_CHECK(nvs_flash_erase());
-	      ret = nvs_flash_init();
-	    }
-	    ESP_ERROR_CHECK(ret);
-
-	    ESP_LOGI(TAG, "ESP_WIFI_MODE_STA");
-	    wifi_init_sta();
-	httpd_handle_t server = start_webserver();
+	static httpd_handle_t server = NULL;
+    ESP_ERROR_CHECK(nvs_flash_init());
+	wifi_init_sta();
+//	init_sap();
+	ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &connect_handler, &server));
+    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &disconnect_handler, &server));
+    server = start_webserver();
 }
-
