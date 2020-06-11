@@ -1630,6 +1630,34 @@
     {
         "children": [
             {
+                "children": [],
+                "depends_on": null,
+                "help": "This sets the maximum supported size of headers section in HTTP request packet to be processed by the server",
+                "id": "HTTPD_MAX_REQ_HDR_LEN",
+                "name": "HTTPD_MAX_REQ_HDR_LEN",
+                "range": null,
+                "title": "Max HTTP Request Header Length",
+                "type": "int"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": "This sets the maximum supported size of HTTP request URI to be processed by the server",
+                "id": "HTTPD_MAX_URI_LEN",
+                "name": "HTTPD_MAX_URI_LEN",
+                "range": null,
+                "title": "Max HTTP URI Length",
+                "type": "int"
+            }
+        ],
+        "depends_on": null,
+        "id": "http-server",
+        "title": "HTTP Server",
+        "type": "menu"
+    },
+    {
+        "children": [
+            {
                 "children": [
                     {
                         "children": [],

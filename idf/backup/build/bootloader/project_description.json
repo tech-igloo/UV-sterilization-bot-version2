@@ -1,8 +1,8 @@
 {
     "project_name":       "bootloader",
     "project_path":       "/home/ayan/esp/esp-idf/components/bootloader/subproject",
-    "build_dir":          "/home/ayan/eclipse-workspace/backup/build/bootloader",
-    "config_file":        "/home/ayan/eclipse-workspace/backup/sdkconfig",
+    "build_dir":          "/home/ayan/Desktop/UV-sterilization-bot/idf/backup/build/bootloader",
+    "config_file":        "/home/ayan/Desktop/UV-sterilization-bot/idf/backup/sdkconfig",
     "config_defaults":    "",
     "app_elf":            "bootloader.elf",
     "app_bin":            "bootloader.bin",

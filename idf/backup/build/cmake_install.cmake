@@ -1,4 +1,4 @@
-# Install script for directory: /home/ayan/eclipse-workspace/backup
+# Install script for directory: /home/ayan/Desktop/UV-sterilization-bot/idf/backup
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -34,7 +34,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/ayan/eclipse-workspace/backup/build/esp-idf/cmake_install.cmake")
+  include("/home/ayan/Desktop/UV-sterilization-bot/idf/backup/build/esp-idf/cmake_install.cmake")
 
 endif()
 
@@ -46,5 +46,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/ayan/eclipse-workspace/backup/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/ayan/Desktop/UV-sterilization-bot/idf/backup/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

@@ -1,4 +1,4 @@
-/* * Data converted from /home/ayan/eclipse-workspace/backup/build/esp-idf/mbedtls/x509_crt_bundle
+/* * Data converted from /home/ayan/Desktop/UV-sterilization-bot/idf/backup/build/esp-idf/mbedtls/x509_crt_bundle
  */
 .data
 .section .rodata.embedded

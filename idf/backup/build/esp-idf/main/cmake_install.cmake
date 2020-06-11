@@ -1,4 +1,4 @@
-# Install script for directory: /home/ayan/eclipse-workspace/backup/main
+# Install script for directory: /home/ayan/Desktop/UV-sterilization-bot/idf/backup/main
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
