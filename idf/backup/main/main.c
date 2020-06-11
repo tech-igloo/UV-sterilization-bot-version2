@@ -185,6 +185,7 @@ char* choose_page()
 
     strcat(ptr, "<p>Press to select SAP mode</p><a class=\"button button-on\" href=\"/sap\">SAP</a>\n");
     strcat(ptr, "<p>Press to select STA mode</p><a class=\"button button-on\" href=\"/sta\">STA</a>\n");
+    strcat(ptr, "<p>Click to return to home page</p><a class=\"button button-on\" href=\"/\">ON</a>\n");
 
     strcat(ptr, "</body>\n");
     strcat(ptr, "</html>\n");
@@ -254,6 +255,7 @@ char* manual_mode()
     strcat(ptr, "<p>Left: OFF</p><a class=\"button button-on\" href=\"/left\">ON</a>\n");
     strcat(ptr, "<p>Right: OFF</p><a class=\"button button-on\" href=\"/right\">ON</a>\n");
     strcat(ptr, "<p>Back: OFF</p><a class=\"button button-on\" href=\"/back\">ON</a>\n");
+    strcat(ptr, "<p>Click to return to home page</p><a class=\"button button-on\" href=\"/\">ON</a>\n");
 
     strcat(ptr, "</body>\n");
     strcat(ptr, "</html>\n");
@@ -300,6 +302,7 @@ char* SendHTML(uint8_t flag)
     else
     {strcat(ptr, "<p>Backwards: OFF</p><a class=\"button button-on\" href=\"/back\" onclick=\"callback()\">ON</a>\n");}
 
+    strcat(ptr, "<p>Click to return to home page</p><a class=\"button button-on\" href=\"/\">ON</a>\n");
     strcat(ptr, "</body>\n");
     strcat(ptr, "</html>\n");
     return ptr;
