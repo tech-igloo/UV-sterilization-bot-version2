@@ -42,6 +42,8 @@ static int64_t curr_mili = 0;
 static float time_duration = 0;
 static char buf[107];
 static char copy[107];
+static int conn_flag = 0;
+static int record_flag = 0;
 static char EXAMPLE_ESP_WIFI_SSID[32];
 static char EXAMPLE_ESP_WIFI_PASS[64];
 
@@ -144,7 +146,7 @@ char* default_page()
     strcat(ptr, "<title>Choose Direction</title>\n");
     strcat(ptr, "<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\n");
     strcat(ptr, "body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;} h3 {color: #444444;margin-bottom: 50px;}\n");
-    strcat(ptr, ".button {display: block;width: 80px;background-color: #3498db;border: none;color: white;padding: 13px 30px;text-decoration: none;font-size: 25px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n");
+    strcat(ptr, ".button {display: block;width: 100px;background-color: #3498db;border: none;color: white;padding: 13px 30px;text-decoration: none;font-size: 25px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n");
     strcat(ptr, ".button-on {background-color: #3498db;}\n");
     strcat(ptr, ".button-on:active {background-color: #2980b9;}\n");
     strcat(ptr, ".button-off {background-color: #34495e;}\n");
@@ -154,11 +156,16 @@ char* default_page()
     strcat(ptr, "</head>\n");
     strcat(ptr, "<body>\n");
     strcat(ptr, "<h1>ESP32 Web Server</h1>\n");
-    strcat(ptr, "<h3>Using Access Point(AP) Mode</h3>\n");
+    if(conn_flag == 0)
+        strcat(ptr, "<h3>Using Access Point(AP) Mode</h3>\n");
+    else
+        strcat(ptr, "<h3>Using Station(STA) Mode</h3>\n");
 
-    strcat(ptr, "<p>Press to choose connection mode</p><a class=\"button button-on\" href=\"/choose\">CHOOSE</a>\n");
-    strcat(ptr, "<p>Press to select manual mode</p><a class=\"button button-on\" href=\"/manual\">MANUAL</a>\n");
-    strcat(ptr, "<p>Press to select auto mode</p><a class=\"button button-on\" href=\"/\">AUTO</a>\n");
+/*    strcat(ptr, "<p>Press to choose connection mode</p><a class=\"button button-on\" href=\"/choose\">CHOOSE</a>\n");
+    strcat(ptr, "<p>Press to select manual mode</p><a class=\"button button-on\" href=\"/manual\">MANUAL</a>\n");*/
+    strcat(ptr, "<p>Press to select Manual mode</p><a class=\"button button-on\" href=\"/manual\">MANUAL</a>\n");
+    strcat(ptr, "<p>Press to select Auto mode</p><a class=\"button button-on\" href=\"/auto\">AUTO</a>\n");
+    strcat(ptr, "<p>Press to choose Connection Mode</p><a class=\"button button-on\" href=\"/choose\">SAP/STA</a>\n");
 
     strcat(ptr, "</body>\n");
     strcat(ptr, "</html>\n");
@@ -173,7 +180,7 @@ char* choose_page()
     strcat(ptr, "<title>Choose Direction</title>\n");
     strcat(ptr, "<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\n");
     strcat(ptr, "body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;} h3 {color: #444444;margin-bottom: 50px;}\n");
-    strcat(ptr, ".button {display: block;width: 80px;background-color: #3498db;border: none;color: white;padding: 13px 30px;text-decoration: none;font-size: 25px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n");
+    strcat(ptr, ".button {display: block;width: 100px;background-color: #3498db;border: none;color: white;padding: 13px 30px;text-decoration: none;font-size: 25px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n");
     strcat(ptr, ".button-on {background-color: #3498db;}\n");
     strcat(ptr, ".button-on:active {background-color: #2980b9;}\n");
     strcat(ptr, ".button-off {background-color: #34495e;}\n");
@@ -183,7 +190,10 @@ char* choose_page()
     strcat(ptr, "</head>\n");
     strcat(ptr, "<body>\n");
     strcat(ptr, "<h1>ESP32 Web Server</h1>\n");
-    strcat(ptr, "<h3>Using Access Point(AP) Mode</h3>\n");
+    if(conn_flag == 0)
+        strcat(ptr, "<h3>Using Access Point(AP) Mode</h3>\n");
+    else
+        strcat(ptr, "<h3>Using Station(STA) Mode</h3>\n");
 
     strcat(ptr, "<p>Press to select SAP mode</p><a class=\"button button-on\" href=\"/sap\">SAP</a>\n");
     strcat(ptr, "<p>Press to select STA mode</p><a class=\"button button-on\" href=\"/sta\">STA</a>\n");
@@ -216,7 +226,7 @@ char* auto_mode()
     strcat(ptr, "<title>Choose Direction</title>\n");
     strcat(ptr, "<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\n");
     strcat(ptr, "body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;} h3 {color: #444444;margin-bottom: 50px;}\n");
-    strcat(ptr, ".button {display: block;width: 80px;background-color: #3498db;border: none;color: white;padding: 13px 30px;text-decoration: none;font-size: 25px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n");
+    strcat(ptr, ".button {display: block;width: 100px;background-color: #3498db;border: none;color: white;padding: 13px 30px;text-decoration: none;font-size: 25px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n");
     strcat(ptr, ".button-on {background-color: #3498db;}\n");
     strcat(ptr, ".button-on:active {background-color: #2980b9;}\n");
     strcat(ptr, ".button-off {background-color: #34495e;}\n");
@@ -226,8 +236,11 @@ char* auto_mode()
     strcat(ptr, "</head>\n");
     strcat(ptr, "<body>\n");
     strcat(ptr, "<h1>ESP32 Web Server</h1>\n");
-    strcat(ptr, "<h3>Using Access Point(AP) Mode</h3>\n");
-
+    if(conn_flag == 0)
+        strcat(ptr, "<h3>Using Access Point(AP) Mode</h3>\n");
+    else
+        strcat(ptr, "<h3>Using Station(STA) Mode</h3>\n");
+    strcat(ptr, "<p>Press to return to home</p><a class=\"button button-on\" href=\"/\">HOME</a>\n");
     strcat(ptr, "</body>\n");
     strcat(ptr, "</html>\n");
     return ptr;
@@ -241,7 +254,7 @@ char* manual_mode()
     strcat(ptr, "<title>Choose Direction</title>\n");
     strcat(ptr, "<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\n");
     strcat(ptr, "body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;} h3 {color: #444444;margin-bottom: 50px;}\n");
-    strcat(ptr, ".button {display: block;width: 80px;background-color: #3498db;border: none;color: white;padding: 13px 30px;text-decoration: none;font-size: 25px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n");
+    strcat(ptr, ".button {display: block;width: 100px;background-color: #3498db;border: none;color: white;padding: 13px 30px;text-decoration: none;font-size: 25px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n");
     strcat(ptr, ".button-on {background-color: #3498db;}\n");
     strcat(ptr, ".button-on:active {background-color: #2980b9;}\n");
     strcat(ptr, ".button-off {background-color: #34495e;}\n");
@@ -251,16 +264,50 @@ char* manual_mode()
     strcat(ptr, "</head>\n");
     strcat(ptr, "<body>\n");
     strcat(ptr, "<h1>ESP32 Web Server</h1>\n");
-    strcat(ptr, "<h3>Using Access Point(AP) Mode</h3>\n");
+    if(conn_flag == 0)
+        strcat(ptr, "<h3>Using Access Point(AP) Mode</h3>\n");
+    else
+        strcat(ptr, "<h3>Using Station(STA) Mode</h3>\n");
 
+    if(record_flag == 0)
+        strcat(ptr, "<p>Click to Start</p><a class=\"button button-on\" href=\"/start\">START</a>\n");
+    else
+        strcat(ptr, "<p>Click to Stop</p><a class=\"button button-on\" href=\"/stop\">STOP</a>\n");
     strcat(ptr, "<p>Forward: OFF</p><a class=\"button button-on\" href=\"/forward\">ON</a>\n");
     strcat(ptr, "<p>Left: OFF</p><a class=\"button button-on\" href=\"/left\">ON</a>\n");
     strcat(ptr, "<p>Right: OFF</p><a class=\"button button-on\" href=\"/right\">ON</a>\n");
     strcat(ptr, "<p>Back: OFF</p><a class=\"button button-on\" href=\"/back\">ON</a>\n");
-    strcat(ptr, "<p>Click to return to home page</p><a class=\"button button-on\" href=\"/\">ON</a>\n");
+    if(record_flag == 0)
+        strcat(ptr, "<p>Click to return to home page</p><a class=\"button button-on\" href=\"/\">HOME</a>\n");
 
     strcat(ptr, "</body>\n");
     strcat(ptr, "</html>\n");
+/*    strcat(ptr, "<html><head></head><style>");
+    strcat(ptr, "body {background-color: lightyellow}");
+    strcat(ptr, "h1 {color:blue}");
+    strcat(ptr, "p {color: blue}");
+    strcat(ptr, "button {color: blue;background:lightblue;border: 1px solid #000;border-radius: 8px;position: center;}");
+    strcat(ptr, "</style><body>");
+    strcat(ptr, "<div style=\"text-align:center\">");
+    strcat(ptr, "<h1>Direction Controller</h1><br><br>");
+    strcat(ptr, "<button style=\"height: 50px; width: 100px; font-size: 18px\">Start</button>");
+    strcat(ptr, "<img hspace=\"20\" style=\"padding-left: 200px\">");
+    strcat(ptr, "<button style=\"height: 50px; width: 100px; font-size: 18px\">Stop</button><br><br>");
+    strcat(ptr, "<span style=\"display:inline-block;padding:5px;border:1px solid #ff0000; font-size: 140%;font-weight:bold;\">");
+    strcat(ptr, "<br><button style=\"height: 70px; width: 80px; font-size: 18px\">Forward</button><br><br><br><br>");
+    strcat(ptr, "<img hspace=\"10\" style=\"padding-left: 5px\">");
+    strcat(ptr, "<button style=\"height: 70px; width: 80px; font-size: 18px\">Left</button>");
+    strcat(ptr, "<img hspace=\"20\" style=\"padding-left: 10px\">");
+    strcat(ptr, "<button style=\"height: 70px; width: 80px; font-size: 18px\">Stop</button>");
+    strcat(ptr, "<img hspace=\"20\" style=\"padding-left: 10px\">");
+    strcat(ptr, "<button style=\"height: 70px; width: 80px; font-size: 18px\">Right</button>");
+    strcat(ptr, "<img hspace=\"10\" style=\"padding-left: 5px\"><br><br><br><br>");
+    strcat(ptr, "<button style=\"height: 70px; width: 80px; font-size: 18px\">Back</button><br><br><br>");
+    strcat(ptr, "<p>Additional Options</p>");
+    strcat(ptr, "<img hspace=\"10\" style=\"padding-left: 5px\">");
+    strcat(ptr, "<button style=\"height: 50px; width: 100px; font-size: 18px\">HOME</button>");
+    strcat(ptr, "<img hspace=\"10\" style=\"padding-left: 5px\">");
+    strcat(ptr, "<br><br></span></div></body></html>");*/
     return ptr;
 }
 
@@ -272,7 +319,7 @@ char* SendHTML(uint8_t flag)
     strcat(ptr, "<title>Choose Direction</title>\n");
     strcat(ptr, "<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\n");
     strcat(ptr, "body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;} h3 {color: #444444;margin-bottom: 50px;}\n");
-    strcat(ptr, ".button {display: block;width: 80px;background-color: #3498db;border: none;color: white;padding: 13px 30px;text-decoration: none;font-size: 25px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n");
+    strcat(ptr, ".button {display: block;width: 100px;background-color: #3498db;border: none;color: white;padding: 13px 30px;text-decoration: none;font-size: 25px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n");
     strcat(ptr, ".button-on {background-color: #3498db;}\n");
     strcat(ptr, ".button-on:active {background-color: #2980b9;}\n");
     strcat(ptr, ".button-off {background-color: #34495e;}\n");
@@ -282,7 +329,15 @@ char* SendHTML(uint8_t flag)
     strcat(ptr, "</head>\n");
     strcat(ptr, "<body>\n");
     strcat(ptr, "<h1>ESP32 Web Server</h1>\n");
-    strcat(ptr, "<h3>Using Access Point(AP) Mode</h3>\n");
+    if(conn_flag == 0)
+        strcat(ptr, "<h3>Using Access Point(AP) Mode</h3>\n");
+    else
+        strcat(ptr, "<h3>Using Station(STA) Mode</h3>\n");
+
+    if(record_flag == 0)
+        strcat(ptr, "<p>Click to Start</p><a class=\"button button-on\" href=\"/start\">START</a>\n");
+    else
+        strcat(ptr, "<p>Click to Stop</p><a class=\"button button-on\" href=\"/stop\">STOP</a>\n");
 
     if(flag==0)
     {strcat(ptr, "<p>Forward: ON</p><a class=\"button button-off\" href=\"/manual\">OFF</a>\n");}
@@ -302,9 +357,41 @@ char* SendHTML(uint8_t flag)
     if(flag==3)
     {strcat(ptr, "<p>Backwards: ON</p><a class=\"button button-off\" href=\"/manual\">OFF</a>\n");}
     else
-    {strcat(ptr, "<p>Backwards: OFF</p><a class=\"button button-on\" href=\"/back\" onclick=\"callback()\">ON</a>\n");}
+    {strcat(ptr, "<p>Backwards: OFF</p><a class=\"button button-on\" href=\"/back\">ON</a>\n");}
 
-    strcat(ptr, "<p>Click to return to home page</p><a class=\"button button-on\" href=\"/\">ON</a>\n");
+    if(record_flag == 0)
+        strcat(ptr, "<p>Click to return to home page</p><a class=\"button button-on\" href=\"/\">HOME</a>\n");
+    strcat(ptr, "</body>\n");
+    strcat(ptr, "</html>\n");
+    return ptr;
+}
+
+char* get_stop()
+{
+    char* ptr = (char*)calloc(2048, sizeof(char));
+    strcat(ptr, "<!DOCTYPE html> <html>\n");
+    strcat(ptr, "<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\">\n");
+    strcat(ptr, "<title>Choose Direction</title>\n");
+    strcat(ptr, "<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\n");
+    strcat(ptr, "body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;} h3 {color: #444444;margin-bottom: 50px;}\n");
+    strcat(ptr, ".button {display: block;width: 100px;background-color: #3498db;border: none;color: white;padding: 13px 30px;text-decoration: none;font-size: 25px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n");
+    strcat(ptr, ".button-on {background-color: #3498db;}\n");
+    strcat(ptr, ".button-on:active {background-color: #2980b9;}\n");
+    strcat(ptr, ".button-off {background-color: #34495e;}\n");
+    strcat(ptr, ".button-off:active {background-color: #2c3e50;}\n");
+    strcat(ptr, "p {font-size: 14px;color: #888;margin-bottom: 10px;}\n");
+    strcat(ptr, "</style>\n");
+    strcat(ptr, "</head>\n");
+    strcat(ptr, "<body>\n");
+    strcat(ptr, "<h1>ESP32 Web Server</h1>\n");
+    if(conn_flag == 0)
+        strcat(ptr, "<h3>Using Access Point(AP) Mode</h3>\n");
+    else
+        strcat(ptr, "<h3>Using Station(STA) Mode</h3>\n");
+
+    strcat(ptr, "<p>Press to discard and store new path</p><a class=\"button button-on\" href=\"/manual\">NEW</a>\n");
+    strcat(ptr, "<p>Press to continue to home</p><a class=\"button button-on\" href=\"/\">HOME</a>\n");
+
     strcat(ptr, "</body>\n");
     strcat(ptr, "</html>\n");
     return ptr;
@@ -458,8 +545,28 @@ esp_err_t handle_OnConnect(httpd_req_t *req)
     return ESP_OK;
 }
 
+esp_err_t handle_start(httpd_req_t *req)
+{
+    record_flag = 1;
+    flag = -1;
+    FILE* f = fopen("/spiffs/path.txt", "w");
+    if (f == NULL) {
+        ESP_LOGE(TAG, "Failed to open file for writing");
+        return ESP_FAIL;
+    }
+    ESP_LOGI(TAG, "File opened for writing");
+    ESP_LOGI(TAG, "Record Flag: %d", record_flag);
+    fclose(f);
+    char* resp = manual_mode();
+    httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
+    return ESP_OK;
+}
+
 esp_err_t handle_manual(httpd_req_t *req)
 {
+    record_flag = 0;
+    ESP_LOGI(TAG, "Record Flag: %d", record_flag);
     char det = determine(flag);
     curr_mili = esp_timer_get_time();
     time_duration = (curr_mili - prev_mili)/1000;;
@@ -479,6 +586,19 @@ esp_err_t handle_auto(httpd_req_t *req)
     char* resp = auto_mode();
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    char ch;
+    FILE* f = fopen("/spiffs/path.txt", "r");
+    if (f == NULL) {
+        ESP_LOGE(TAG, "Failed to open file for reading");
+        return ESP_FAIL;
+    }
+    do 
+    {
+        ch = fgetc(f);
+        ESP_LOGI(TAG, "%c", ch);
+
+    }while(ch != '\0');
+    fclose(f);
     return ESP_OK;
 }
 
@@ -493,6 +613,19 @@ esp_err_t handle_forward(httpd_req_t *req)
     char* resp = SendHTML(flag);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "Record Flag: %d", record_flag);
+    if(record_flag == 1)
+    {
+        FILE* f = fopen("/spiffs/path.txt", "a");
+        if (f == NULL) {
+            ESP_LOGE(TAG, "Failed to open file for writing");
+            return ESP_FAIL;
+        }
+        fputc(det, f);
+        fprintf(f, "%f", time_duration);
+        fputc('\n', f);
+        fclose(f);
+    }
     return ESP_OK;
 }
 
@@ -507,6 +640,19 @@ esp_err_t handle_left(httpd_req_t *req)
     char* resp = SendHTML(flag);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "Record Flag: %d", record_flag);
+    if(record_flag == 1)
+    {
+        FILE* f = fopen("/spiffs/path.txt", "a");
+        if (f == NULL) {
+            ESP_LOGE(TAG, "Failed to open file for writing");
+            return ESP_FAIL;
+        }
+        fputc(det, f);
+        fprintf(f, "%f", time_duration);
+        fputc('\n', f);
+        fclose(f);
+    }
     return ESP_OK;
 }
 
@@ -521,6 +667,19 @@ esp_err_t handle_right(httpd_req_t *req)
     char* resp = SendHTML(flag);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "Record Flag: %d", record_flag);
+    if(record_flag == 1)
+    {
+        FILE* f = fopen("/spiffs/path.txt", "a");
+        if (f == NULL) {
+            ESP_LOGE(TAG, "Failed to open file for writing");
+            return ESP_FAIL;
+        }
+        fputc(det, f);
+        fprintf(f, "%f", time_duration);
+        fputc('\n', f);
+        fclose(f);
+    }
     return ESP_OK;
 }
 
@@ -533,6 +692,46 @@ esp_err_t handle_back(httpd_req_t *req)
     prev_mili = esp_timer_get_time();
     flag = 3;
     char* resp = SendHTML(flag);
+    httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
+    ESP_LOGI(TAG, "Record Flag: %d", record_flag);
+    if(record_flag == 1)
+    {
+        FILE* f = fopen("/spiffs/path.txt", "a");
+        if (f == NULL) {
+            ESP_LOGE(TAG, "Failed to open file for writing");
+            return ESP_FAIL;
+        }
+        fputc(det, f);
+        fprintf(f, "%f", time_duration);
+        fputc('\n', f);
+        fclose(f);
+    }
+    return ESP_OK;
+}
+
+esp_err_t handle_stop(httpd_req_t *req)
+{
+    char det = determine(flag);
+    curr_mili = esp_timer_get_time();
+    time_duration = (curr_mili - prev_mili)/1000.0;
+    ESP_LOGI(TAG,"%c%f",det,time_duration);
+    prev_mili = esp_timer_get_time();
+    ESP_LOGI(TAG, "Reading values");
+    if(record_flag == 1)
+    {
+        FILE* f = fopen("/spiffs/path.txt", "a");
+        if (f == NULL) {
+            ESP_LOGE(TAG, "Failed to open file for writing");
+            return ESP_FAIL;
+        }
+        fputc(det, f);
+        fprintf(f, "%f", time_duration);
+        fputc('\n', f);
+        fputc('\0', f);
+        fclose(f);
+    }
+    char* resp = get_stop();
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
     return ESP_OK;
@@ -692,6 +891,20 @@ httpd_uri_t uri_data = {
     .user_ctx = NULL
 };
 
+httpd_uri_t uri_start = {
+    .uri      = "/start",
+    .method   = HTTP_GET,
+    .handler  = handle_start,
+    .user_ctx = NULL
+};
+
+httpd_uri_t uri_stop = {
+    .uri      = "/stop",
+    .method   = HTTP_GET,
+    .handler  = handle_stop,
+    .user_ctx = NULL
+};
+
 httpd_handle_t start_webserver(void)
 {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
@@ -709,6 +922,8 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &uri_sap);
         httpd_register_uri_handler(server, &uri_sta);
         httpd_register_uri_handler(server, &uri_data);
+        httpd_register_uri_handler(server, &uri_start);
+        httpd_register_uri_handler(server, &uri_stop);
     }
     return server;
 }
@@ -744,8 +959,8 @@ void app_main(void)
 {
     static httpd_handle_t server = NULL;
     init_spiffs();
-    int flag = conn_type();
-    if(flag == 0)
+    conn_flag = conn_type();
+    if(conn_flag == 0)
         init_sap();
     else
         wifi_init_sta();
