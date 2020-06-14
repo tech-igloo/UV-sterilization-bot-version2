@@ -586,18 +586,26 @@ esp_err_t handle_auto(httpd_req_t *req)
     char* resp = auto_mode();
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    char ch;
+    //char ch;
     FILE* f = fopen("/spiffs/path.txt", "r");
     if (f == NULL) {
         ESP_LOGE(TAG, "Failed to open file for reading");
         return ESP_FAIL;
     }
-    do 
+/*    do 
     {
         ch = fgetc(f);
         ESP_LOGI(TAG, "%c", ch);
 
-    }while(ch != '\0');
+    }while(ch != '\0');*/
+    char buffer[12];
+    int totalRead;
+    while(fgets(buffer, 12, f) != NULL) 
+    {
+        totalRead = strlen(buffer);
+        buffer[totalRead - 1] = buffer[totalRead - 1] == '\n'?'\0':buffer[totalRead - 1];
+        ESP_LOGI(TAG, "%s", buffer);
+    } 
     fclose(f);
     return ESP_OK;
 }
@@ -622,7 +630,7 @@ esp_err_t handle_forward(httpd_req_t *req)
             return ESP_FAIL;
         }
         fputc(det, f);
-        fprintf(f, "%f", time_duration);
+        fprintf(f, "%.3f", time_duration);
         fputc('\n', f);
         fclose(f);
     }
@@ -649,7 +657,7 @@ esp_err_t handle_left(httpd_req_t *req)
             return ESP_FAIL;
         }
         fputc(det, f);
-        fprintf(f, "%f", time_duration);
+        fprintf(f, "%.3f", time_duration);
         fputc('\n', f);
         fclose(f);
     }
@@ -676,7 +684,7 @@ esp_err_t handle_right(httpd_req_t *req)
             return ESP_FAIL;
         }
         fputc(det, f);
-        fprintf(f, "%f", time_duration);
+        fprintf(f, "%.3f", time_duration);
         fputc('\n', f);
         fclose(f);
     }
@@ -703,7 +711,7 @@ esp_err_t handle_back(httpd_req_t *req)
             return ESP_FAIL;
         }
         fputc(det, f);
-        fprintf(f, "%f", time_duration);
+        fprintf(f, "%.3f", time_duration);
         fputc('\n', f);
         fclose(f);
     }
@@ -726,7 +734,7 @@ esp_err_t handle_stop(httpd_req_t *req)
             return ESP_FAIL;
         }
         fputc(det, f);
-        fprintf(f, "%f", time_duration);
+        fprintf(f, "%.3f", time_duration);
         fputc('\n', f);
         fputc('\0', f);
         fclose(f);
