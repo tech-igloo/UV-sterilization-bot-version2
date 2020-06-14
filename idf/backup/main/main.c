@@ -23,7 +23,10 @@
 #include "esp_err.h"
 #include "mdns.h"
 
-#define EXAMPLE_ESP_MAXIMUM_RETRY  3
+#define EXAMPLE_ESP_MAXIMUM_RETRY 5
+#define DEFAULT_SSID "myssid"
+#define DEFAULT_PASS "qwerty1234"
+#define MAX_CONN 5
 #define BASE_PATH "/spiffs"
 #define MAX_FILES 5
 #define RESET_FLAG true
@@ -37,6 +40,8 @@ static int s_retry_num = 0;
 static int64_t prev_mili = 0;
 static int64_t curr_mili = 0;
 static float time_duration = 0;
+static char buf[107];
+static char copy[107];
 static char EXAMPLE_ESP_WIFI_SSID[32];
 static char EXAMPLE_ESP_WIFI_PASS[64];
 
@@ -342,10 +347,10 @@ void init_sap()
 
     wifi_config_t wifi_config = {
         .ap = {
-            .ssid = "myssid",
-            .ssid_len = strlen("myssid"),
-            .password = "qwerty1234",
-            .max_connection = 2,
+            .ssid = DEFAULT_SSID,
+            .ssid_len = strlen(DEFAULT_SSID),
+            .password = DEFAULT_PASS,
+            .max_connection = MAX_CONN,
             .authmode = WIFI_AUTH_WPA_WPA2_PSK
         },
     };
@@ -354,7 +359,7 @@ void init_sap()
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config));
     ESP_ERROR_CHECK(esp_wifi_start());
 
-    ESP_LOGI(TAG, "wifi_init_softap finished. SSID:myssid password:qwerty1234");
+    ESP_LOGI(TAG, "wifi_init_softap finished. SSID:%s Password:%s", DEFAULT_SSID, DEFAULT_PASS);
 }
 
 static void event_handler(void* arg, esp_event_base_t event_base,
@@ -407,8 +412,8 @@ void wifi_init_sta(void)
 
     wifi_config_t wifi_config = {
         .sta = {
-            .ssid = "AndroidAP1",
-            .password = "ltgj0084",
+            .ssid = DEFAULT_SSID,
+            .password = DEFAULT_PASS,
             .pmf_cfg = {
                 .capable = true,
                 .required = false
@@ -569,7 +574,6 @@ esp_err_t handle_sta(httpd_req_t *req)
 esp_err_t handle_data(httpd_req_t *req)
 {
     int len = req->content_len;
-    char buf[107];
     int ret, remaining = req->content_len;
     while (remaining > 0) {
         if ((ret = httpd_req_recv(req, buf, len)) <= 0) {
@@ -579,27 +583,19 @@ esp_err_t handle_data(httpd_req_t *req)
             return ESP_FAIL;
         }
         remaining -= ret;
-        ESP_LOGI(TAG, "=========== RECEIVED DATA ==========");
-        ESP_LOGI(TAG, "%.*s", ret, buf);
-        ESP_LOGI(TAG, "====================================");
     }
     buf[len] = '\0';
-    char* copy = (char *)calloc(strlen(buf), sizeof(char));
+    //char* copy = (char *)calloc(strlen(buf), sizeof(char));
+    ESP_LOGI(TAG, "Buffer: %s", buf);
     strcpy(copy, buf);
-    ESP_LOGI(TAG, "%s", buf);
-    ESP_LOGI(TAG, "%s", copy);
+    ESP_LOGI(TAG, "Copy: %s", copy);
     char* token = strtok(buf, "&");
     char* ssid = strtok(token, "=");
     ssid = strtok(NULL, "=");
     char* new_token = strtok(copy, "&");
-    ESP_LOGI(TAG, "%s", new_token);
     new_token = strtok(NULL, "&");
-    ESP_LOGI(TAG, "%s", new_token);
     char* pwd = strtok(new_token, "=");
-    ESP_LOGI(TAG, "%s", pwd);
     pwd = strtok(NULL, "=");
-    ESP_LOGI(TAG, "%s", ssid);
-    ESP_LOGI(TAG, "%s", pwd);
     FILE* fp = fopen("/spiffs/wifi_conf.txt", "w");
     if (fp == NULL) {
             ESP_LOGE(TAG, "Failed to handle sta for reading");
@@ -613,14 +609,7 @@ esp_err_t handle_data(httpd_req_t *req)
     fputc('\n', fp);
     fclose(fp);
     ESP_LOGI(TAG, "STA Data Written");
-    //char* resp = "Device will restart using STA mode";
     httpd_resp_send(req, "Device will restart using STA mode", strlen("Device will restart using STA mode"));
-    //free(resp);
-    //free(token);
-/*    free(ssid);
-    free(pwd);
-    free(copy);*/
-    //free(new_token);
     vTaskDelay(100);
     esp_restart();
     return ESP_OK;
