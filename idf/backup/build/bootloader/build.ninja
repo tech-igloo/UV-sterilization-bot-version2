@@ -110,8 +110,6 @@ build CMakeFiles/bootloader.elf.dir/project_elf_src.c.obj: C_COMPILER__bootloade
   INCLUDES = -I/home/ayan/esp/esp-idf/components/esp32/include -Iconfig -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc/micro-ecc -I/home/ayan/esp/esp-idf/components/spi_flash/include -I/home/ayan/esp/esp-idf/components/efuse/include -I/home/ayan/esp/esp-idf/components/efuse/esp32/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include_bootloader
   OBJECT_DIR = CMakeFiles/bootloader.elf.dir
   OBJECT_FILE_DIR = CMakeFiles/bootloader.elf.dir
-  TARGET_COMPILE_PDB = CMakeFiles/bootloader.elf.dir/
-  TARGET_PDB = bootloader.elf.pdb
 
 
 # =============================================================================
@@ -127,9 +125,8 @@ build bootloader.elf: C_EXECUTABLE_LINKER__bootloader.2eelf CMakeFiles/bootloade
   OBJECT_DIR = CMakeFiles/bootloader.elf.dir
   POST_BUILD = :
   PRE_LINK = :
-  TARGET_COMPILE_PDB = CMakeFiles/bootloader.elf.dir/
   TARGET_FILE = bootloader.elf
-  TARGET_PDB = bootloader.elf.pdb
+  TARGET_PDB = bootloader.elf.dbg
 
 
 #############################################
@@ -340,8 +337,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/cpu_util.c.obj: C_COMPILER____idf
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/memory_layout_utils.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/memory_layout_utils.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/memory_layout_utils.c.obj.d
@@ -349,8 +344,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/memory_layout_utils.c.obj: C_COMP
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/lldesc.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/lldesc.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/lldesc.c.obj.d
@@ -358,8 +351,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/lldesc.c.obj: C_COMPILER____idf_s
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/cpu_hal.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/cpu_hal.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/cpu_hal.c.obj.d
@@ -367,8 +358,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/cpu_hal.c.obj: C_COMPILER____
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/rmt_hal.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/rmt_hal.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/rmt_hal.c.obj.d
@@ -376,8 +365,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/rmt_hal.c.obj: C_COMPILER____
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/rtc_io_hal.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/rtc_io_hal.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/rtc_io_hal.c.obj.d
@@ -385,8 +372,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/rtc_io_hal.c.obj: C_COMPILER_
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/dac_hal.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/dac_hal.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/dac_hal.c.obj.d
@@ -394,8 +379,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/dac_hal.c.obj: C_COMPILER____
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/adc_hal.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/adc_hal.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/adc_hal.c.obj.d
@@ -403,8 +386,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/adc_hal.c.obj: C_COMPILER____
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/spi_hal.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/spi_hal.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/spi_hal.c.obj.d
@@ -412,8 +393,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/spi_hal.c.obj: C_COMPILER____
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/spi_hal_iram.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/spi_hal_iram.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/spi_hal_iram.c.obj.d
@@ -421,8 +400,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/spi_hal_iram.c.obj: C_COMPILE
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/spi_slave_hal.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/spi_slave_hal.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/spi_slave_hal.c.obj.d
@@ -430,8 +407,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/spi_slave_hal.c.obj: C_COMPIL
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/spi_slave_hal_iram.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/spi_slave_hal_iram.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/spi_slave_hal_iram.c.obj.d
@@ -439,8 +414,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/spi_slave_hal_iram.c.obj: C_C
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/touch_sensor_hal.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/touch_sensor_hal.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/touch_sensor_hal.c.obj.d
@@ -448,8 +421,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/touch_sensor_hal.c.obj: C_COM
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/soc_include_legacy_warn.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/soc_include_legacy_warn.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/soc_include_legacy_warn.c.obj.d
@@ -457,8 +428,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/soc_include_legacy_warn.c.obj: C_
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/pcnt_hal.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/pcnt_hal.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/pcnt_hal.c.obj.d
@@ -466,8 +435,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/pcnt_hal.c.obj: C_COMPILER___
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/i2s_hal.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/i2s_hal.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/i2s_hal.c.obj.d
@@ -475,8 +442,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/i2s_hal.c.obj: C_COMPILER____
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/sigmadelta_hal.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/sigmadelta_hal.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/sigmadelta_hal.c.obj.d
@@ -484,8 +449,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/sigmadelta_hal.c.obj: C_COMPI
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/timer_hal.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/timer_hal.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/timer_hal.c.obj.d
@@ -493,8 +456,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/timer_hal.c.obj: C_COMPILER__
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/ledc_hal.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/ledc_hal.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/ledc_hal.c.obj.d
@@ -502,8 +463,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/ledc_hal.c.obj: C_COMPILER___
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/ledc_hal_iram.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/ledc_hal_iram.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/ledc_hal_iram.c.obj.d
@@ -511,8 +470,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/ledc_hal_iram.c.obj: C_COMPIL
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/i2c_hal.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/i2c_hal.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/i2c_hal.c.obj.d
@@ -520,8 +477,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/i2c_hal.c.obj: C_COMPILER____
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/i2c_hal_iram.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/i2c_hal_iram.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/i2c_hal_iram.c.obj.d
@@ -529,8 +484,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/i2c_hal_iram.c.obj: C_COMPILE
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/gpio_hal.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/gpio_hal.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/gpio_hal.c.obj.d
@@ -538,8 +491,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/gpio_hal.c.obj: C_COMPILER___
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/uart_hal.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/uart_hal.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/uart_hal.c.obj.d
@@ -547,8 +498,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/uart_hal.c.obj: C_COMPILER___
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/uart_hal_iram.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/uart_hal_iram.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/uart_hal_iram.c.obj.d
@@ -556,8 +505,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/uart_hal_iram.c.obj: C_COMPIL
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/spi_flash_hal.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/spi_flash_hal.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/spi_flash_hal.c.obj.d
@@ -565,8 +512,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/spi_flash_hal.c.obj: C_COMPIL
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/spi_flash_hal_iram.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/spi_flash_hal_iram.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/spi_flash_hal_iram.c.obj.d
@@ -574,8 +519,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/spi_flash_hal_iram.c.obj: C_C
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/mpu_hal.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/mpu_hal.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/mpu_hal.c.obj.d
@@ -583,8 +526,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/mpu_hal.c.obj: C_COMPILER____
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/soc_hal.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/soc_hal.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/soc_hal.c.obj.d
@@ -592,8 +533,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/soc_hal.c.obj: C_COMPILER____
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/wdt_hal_iram.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/wdt_hal_iram.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/wdt_hal_iram.c.obj.d
@@ -601,8 +540,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/wdt_hal_iram.c.obj: C_COMPILE
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/compare_set.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/compare_set.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/compare_set.c.obj.d
@@ -610,8 +547,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/compare_set.c.obj: C_COMPILER____
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/can_hal.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/can_hal.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/can_hal.c.obj.d
@@ -619,8 +554,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/can_hal.c.obj: C_COMPILER____
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/mcpwm_hal.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/mcpwm_hal.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/mcpwm_hal.c.obj.d
@@ -628,8 +561,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/mcpwm_hal.c.obj: C_COMPILER__
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/sdio_slave_hal.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/hal/sdio_slave_hal.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/sdio_slave_hal.c.obj.d
@@ -637,8 +568,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal/sdio_slave_hal.c.obj: C_COMPI
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/hal
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/adc_hal.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/esp32/adc_hal.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/adc_hal.c.obj.d
@@ -646,8 +575,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/adc_hal.c.obj: C_COMPILER__
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/brownout_hal.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/esp32/brownout_hal.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/brownout_hal.c.obj.d
@@ -655,8 +582,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/brownout_hal.c.obj: C_COMPI
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/rtc_clk.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/esp32/rtc_clk.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/rtc_clk.c.obj.d
@@ -664,8 +589,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/rtc_clk.c.obj: C_COMPILER__
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/rtc_clk_init.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/esp32/rtc_clk_init.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/rtc_clk_init.c.obj.d
@@ -673,8 +596,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/rtc_clk_init.c.obj: C_COMPI
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/rtc_init.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/esp32/rtc_init.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/rtc_init.c.obj.d
@@ -682,8 +603,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/rtc_init.c.obj: C_COMPILER_
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/rtc_pm.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/esp32/rtc_pm.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/rtc_pm.c.obj.d
@@ -691,8 +610,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/rtc_pm.c.obj: C_COMPILER___
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/rtc_sleep.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/esp32/rtc_sleep.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/rtc_sleep.c.obj.d
@@ -700,8 +617,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/rtc_sleep.c.obj: C_COMPILER
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/rtc_time.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/esp32/rtc_time.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/rtc_time.c.obj.d
@@ -709,8 +624,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/rtc_time.c.obj: C_COMPILER_
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/rtc_wdt.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/esp32/rtc_wdt.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/rtc_wdt.c.obj.d
@@ -718,8 +631,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/rtc_wdt.c.obj: C_COMPILER__
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/soc_memory_layout.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/esp32/soc_memory_layout.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/soc_memory_layout.c.obj.d
@@ -727,8 +638,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/soc_memory_layout.c.obj: C_
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/touch_sensor_hal.c.obj: C_COMPILER____idf_soc /home/ayan/esp/esp-idf/components/soc/src/esp32/touch_sensor_hal.c || cmake_object_order_depends_target___idf_soc
   DEP_FILE = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/touch_sensor_hal.c.obj.d
@@ -736,8 +645,6 @@ build esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32/touch_sensor_hal.c.obj: C_C
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/../hal -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   OBJECT_FILE_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir/src/esp32
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
 
 
 # =============================================================================
@@ -752,9 +659,8 @@ build esp-idf/soc/libsoc.a: C_STATIC_LIBRARY_LINKER____idf_soc esp-idf/soc/CMake
   OBJECT_DIR = esp-idf/soc/CMakeFiles/__idf_soc.dir
   POST_BUILD = :
   PRE_LINK = :
-  TARGET_COMPILE_PDB = esp-idf/soc/CMakeFiles/__idf_soc.dir/__idf_soc.pdb
   TARGET_FILE = esp-idf/soc/libsoc.a
-  TARGET_PDB = esp-idf/soc/libsoc.pdb
+  TARGET_PDB = soc.a.dbg
 
 # =============================================================================
 # Write statements declared in CMakeLists.txt:
@@ -858,8 +764,6 @@ build esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/adc_periph.c.obj: C_COMPILE
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include
   OBJECT_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
   OBJECT_FILE_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
-  TARGET_COMPILE_PDB = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/soc_esp32.pdb
-  TARGET_PDB = esp-idf/soc/soc/esp32/libsoc_esp32.pdb
 
 build esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/dac_periph.c.obj: C_COMPILER__soc_esp32 /home/ayan/esp/esp-idf/components/soc/soc/esp32/dac_periph.c || cmake_object_order_depends_target_soc_esp32
   DEP_FILE = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/dac_periph.c.obj.d
@@ -867,8 +771,6 @@ build esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/dac_periph.c.obj: C_COMPILE
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include
   OBJECT_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
   OBJECT_FILE_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
-  TARGET_COMPILE_PDB = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/soc_esp32.pdb
-  TARGET_PDB = esp-idf/soc/soc/esp32/libsoc_esp32.pdb
 
 build esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/gpio_periph.c.obj: C_COMPILER__soc_esp32 /home/ayan/esp/esp-idf/components/soc/soc/esp32/gpio_periph.c || cmake_object_order_depends_target_soc_esp32
   DEP_FILE = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/gpio_periph.c.obj.d
@@ -876,8 +778,6 @@ build esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/gpio_periph.c.obj: C_COMPIL
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include
   OBJECT_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
   OBJECT_FILE_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
-  TARGET_COMPILE_PDB = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/soc_esp32.pdb
-  TARGET_PDB = esp-idf/soc/soc/esp32/libsoc_esp32.pdb
 
 build esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/rtc_io_periph.c.obj: C_COMPILER__soc_esp32 /home/ayan/esp/esp-idf/components/soc/soc/esp32/rtc_io_periph.c || cmake_object_order_depends_target_soc_esp32
   DEP_FILE = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/rtc_io_periph.c.obj.d
@@ -885,8 +785,6 @@ build esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/rtc_io_periph.c.obj: C_COMP
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include
   OBJECT_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
   OBJECT_FILE_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
-  TARGET_COMPILE_PDB = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/soc_esp32.pdb
-  TARGET_PDB = esp-idf/soc/soc/esp32/libsoc_esp32.pdb
 
 build esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/rtc_periph.c.obj: C_COMPILER__soc_esp32 /home/ayan/esp/esp-idf/components/soc/soc/esp32/rtc_periph.c || cmake_object_order_depends_target_soc_esp32
   DEP_FILE = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/rtc_periph.c.obj.d
@@ -894,8 +792,6 @@ build esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/rtc_periph.c.obj: C_COMPILE
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include
   OBJECT_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
   OBJECT_FILE_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
-  TARGET_COMPILE_PDB = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/soc_esp32.pdb
-  TARGET_PDB = esp-idf/soc/soc/esp32/libsoc_esp32.pdb
 
 build esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/sdio_slave_periph.c.obj: C_COMPILER__soc_esp32 /home/ayan/esp/esp-idf/components/soc/soc/esp32/sdio_slave_periph.c || cmake_object_order_depends_target_soc_esp32
   DEP_FILE = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/sdio_slave_periph.c.obj.d
@@ -903,8 +799,6 @@ build esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/sdio_slave_periph.c.obj: C_
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include
   OBJECT_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
   OBJECT_FILE_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
-  TARGET_COMPILE_PDB = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/soc_esp32.pdb
-  TARGET_PDB = esp-idf/soc/soc/esp32/libsoc_esp32.pdb
 
 build esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/sdmmc_periph.c.obj: C_COMPILER__soc_esp32 /home/ayan/esp/esp-idf/components/soc/soc/esp32/sdmmc_periph.c || cmake_object_order_depends_target_soc_esp32
   DEP_FILE = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/sdmmc_periph.c.obj.d
@@ -912,8 +806,6 @@ build esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/sdmmc_periph.c.obj: C_COMPI
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include
   OBJECT_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
   OBJECT_FILE_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
-  TARGET_COMPILE_PDB = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/soc_esp32.pdb
-  TARGET_PDB = esp-idf/soc/soc/esp32/libsoc_esp32.pdb
 
 build esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/interrupts.c.obj: C_COMPILER__soc_esp32 /home/ayan/esp/esp-idf/components/soc/soc/esp32/interrupts.c || cmake_object_order_depends_target_soc_esp32
   DEP_FILE = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/interrupts.c.obj.d
@@ -921,8 +813,6 @@ build esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/interrupts.c.obj: C_COMPILE
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include
   OBJECT_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
   OBJECT_FILE_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
-  TARGET_COMPILE_PDB = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/soc_esp32.pdb
-  TARGET_PDB = esp-idf/soc/soc/esp32/libsoc_esp32.pdb
 
 build esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/spi_periph.c.obj: C_COMPILER__soc_esp32 /home/ayan/esp/esp-idf/components/soc/soc/esp32/spi_periph.c || cmake_object_order_depends_target_soc_esp32
   DEP_FILE = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/spi_periph.c.obj.d
@@ -930,8 +820,6 @@ build esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/spi_periph.c.obj: C_COMPILE
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include
   OBJECT_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
   OBJECT_FILE_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
-  TARGET_COMPILE_PDB = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/soc_esp32.pdb
-  TARGET_PDB = esp-idf/soc/soc/esp32/libsoc_esp32.pdb
 
 build esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/ledc_periph.c.obj: C_COMPILER__soc_esp32 /home/ayan/esp/esp-idf/components/soc/soc/esp32/ledc_periph.c || cmake_object_order_depends_target_soc_esp32
   DEP_FILE = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/ledc_periph.c.obj.d
@@ -939,8 +827,6 @@ build esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/ledc_periph.c.obj: C_COMPIL
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include
   OBJECT_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
   OBJECT_FILE_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
-  TARGET_COMPILE_PDB = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/soc_esp32.pdb
-  TARGET_PDB = esp-idf/soc/soc/esp32/libsoc_esp32.pdb
 
 build esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/i2s_periph.c.obj: C_COMPILER__soc_esp32 /home/ayan/esp/esp-idf/components/soc/soc/esp32/i2s_periph.c || cmake_object_order_depends_target_soc_esp32
   DEP_FILE = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/i2s_periph.c.obj.d
@@ -948,8 +834,6 @@ build esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/i2s_periph.c.obj: C_COMPILE
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include
   OBJECT_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
   OBJECT_FILE_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
-  TARGET_COMPILE_PDB = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/soc_esp32.pdb
-  TARGET_PDB = esp-idf/soc/soc/esp32/libsoc_esp32.pdb
 
 build esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/i2c_periph.c.obj: C_COMPILER__soc_esp32 /home/ayan/esp/esp-idf/components/soc/soc/esp32/i2c_periph.c || cmake_object_order_depends_target_soc_esp32
   DEP_FILE = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/i2c_periph.c.obj.d
@@ -957,8 +841,6 @@ build esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/i2c_periph.c.obj: C_COMPILE
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include
   OBJECT_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
   OBJECT_FILE_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
-  TARGET_COMPILE_PDB = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/soc_esp32.pdb
-  TARGET_PDB = esp-idf/soc/soc/esp32/libsoc_esp32.pdb
 
 build esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/uart_periph.c.obj: C_COMPILER__soc_esp32 /home/ayan/esp/esp-idf/components/soc/soc/esp32/uart_periph.c || cmake_object_order_depends_target_soc_esp32
   DEP_FILE = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/uart_periph.c.obj.d
@@ -966,8 +848,6 @@ build esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/uart_periph.c.obj: C_COMPIL
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include
   OBJECT_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
   OBJECT_FILE_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
-  TARGET_COMPILE_PDB = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/soc_esp32.pdb
-  TARGET_PDB = esp-idf/soc/soc/esp32/libsoc_esp32.pdb
 
 build esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/touch_sensor_periph.c.obj: C_COMPILER__soc_esp32 /home/ayan/esp/esp-idf/components/soc/soc/esp32/touch_sensor_periph.c || cmake_object_order_depends_target_soc_esp32
   DEP_FILE = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/touch_sensor_periph.c.obj.d
@@ -975,8 +855,6 @@ build esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/touch_sensor_periph.c.obj: 
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include
   OBJECT_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
   OBJECT_FILE_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
-  TARGET_COMPILE_PDB = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/soc_esp32.pdb
-  TARGET_PDB = esp-idf/soc/soc/esp32/libsoc_esp32.pdb
 
 
 # =============================================================================
@@ -991,9 +869,8 @@ build esp-idf/soc/soc/esp32/libsoc_esp32.a: C_STATIC_LIBRARY_LINKER__soc_esp32 e
   OBJECT_DIR = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir
   POST_BUILD = :
   PRE_LINK = :
-  TARGET_COMPILE_PDB = esp-idf/soc/soc/esp32/CMakeFiles/soc_esp32.dir/soc_esp32.pdb
   TARGET_FILE = esp-idf/soc/soc/esp32/libsoc_esp32.a
-  TARGET_PDB = esp-idf/soc/soc/esp32/libsoc_esp32.pdb
+  TARGET_PDB = soc_esp32.a.dbg
 
 # =============================================================================
 # Write statements declared in CMakeLists.txt:
@@ -1126,8 +1003,6 @@ build esp-idf/log/CMakeFiles/__idf_log.dir/log.c.obj: C_COMPILER____idf_log /hom
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/log/CMakeFiles/__idf_log.dir
   OBJECT_FILE_DIR = esp-idf/log/CMakeFiles/__idf_log.dir
-  TARGET_COMPILE_PDB = esp-idf/log/CMakeFiles/__idf_log.dir/__idf_log.pdb
-  TARGET_PDB = esp-idf/log/liblog.pdb
 
 build esp-idf/log/CMakeFiles/__idf_log.dir/log_buffers.c.obj: C_COMPILER____idf_log /home/ayan/esp/esp-idf/components/log/log_buffers.c || cmake_object_order_depends_target___idf_log
   DEP_FILE = esp-idf/log/CMakeFiles/__idf_log.dir/log_buffers.c.obj.d
@@ -1135,8 +1010,6 @@ build esp-idf/log/CMakeFiles/__idf_log.dir/log_buffers.c.obj: C_COMPILER____idf_
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/log/CMakeFiles/__idf_log.dir
   OBJECT_FILE_DIR = esp-idf/log/CMakeFiles/__idf_log.dir
-  TARGET_COMPILE_PDB = esp-idf/log/CMakeFiles/__idf_log.dir/__idf_log.pdb
-  TARGET_PDB = esp-idf/log/liblog.pdb
 
 build esp-idf/log/CMakeFiles/__idf_log.dir/log_noos.c.obj: C_COMPILER____idf_log /home/ayan/esp/esp-idf/components/log/log_noos.c || cmake_object_order_depends_target___idf_log
   DEP_FILE = esp-idf/log/CMakeFiles/__idf_log.dir/log_noos.c.obj.d
@@ -1144,8 +1017,6 @@ build esp-idf/log/CMakeFiles/__idf_log.dir/log_noos.c.obj: C_COMPILER____idf_log
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/log/CMakeFiles/__idf_log.dir
   OBJECT_FILE_DIR = esp-idf/log/CMakeFiles/__idf_log.dir
-  TARGET_COMPILE_PDB = esp-idf/log/CMakeFiles/__idf_log.dir/__idf_log.pdb
-  TARGET_PDB = esp-idf/log/liblog.pdb
 
 
 # =============================================================================
@@ -1160,9 +1031,8 @@ build esp-idf/log/liblog.a: C_STATIC_LIBRARY_LINKER____idf_log esp-idf/log/CMake
   OBJECT_DIR = esp-idf/log/CMakeFiles/__idf_log.dir
   POST_BUILD = :
   PRE_LINK = :
-  TARGET_COMPILE_PDB = esp-idf/log/CMakeFiles/__idf_log.dir/__idf_log.pdb
   TARGET_FILE = esp-idf/log/liblog.a
-  TARGET_PDB = esp-idf/log/liblog.pdb
+  TARGET_PDB = log.a.dbg
 
 # =============================================================================
 # Write statements declared in CMakeLists.txt:
@@ -1266,8 +1136,6 @@ build esp-idf/micro-ecc/CMakeFiles/__idf_micro-ecc.dir/uECC_verify_antifault.c.o
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc/micro-ecc -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include
   OBJECT_DIR = esp-idf/micro-ecc/CMakeFiles/__idf_micro-ecc.dir
   OBJECT_FILE_DIR = esp-idf/micro-ecc/CMakeFiles/__idf_micro-ecc.dir
-  TARGET_COMPILE_PDB = esp-idf/micro-ecc/CMakeFiles/__idf_micro-ecc.dir/__idf_micro-ecc.pdb
-  TARGET_PDB = esp-idf/micro-ecc/libmicro-ecc.pdb
 
 
 # =============================================================================
@@ -1282,9 +1150,8 @@ build esp-idf/micro-ecc/libmicro-ecc.a: C_STATIC_LIBRARY_LINKER____idf_micro-ecc
   OBJECT_DIR = esp-idf/micro-ecc/CMakeFiles/__idf_micro-ecc.dir
   POST_BUILD = :
   PRE_LINK = :
-  TARGET_COMPILE_PDB = esp-idf/micro-ecc/CMakeFiles/__idf_micro-ecc.dir/__idf_micro-ecc.pdb
   TARGET_FILE = esp-idf/micro-ecc/libmicro-ecc.a
-  TARGET_PDB = esp-idf/micro-ecc/libmicro-ecc.pdb
+  TARGET_PDB = micro-ecc.a.dbg
 
 # =============================================================================
 # Write statements declared in CMakeLists.txt:
@@ -1330,8 +1197,6 @@ build esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir/esp32/spi_flash_rom_patch
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/spi_flash/include -I/home/ayan/esp/esp-idf/components/spi_flash/private_include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include_bootloader -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir
   OBJECT_FILE_DIR = esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir/esp32
-  TARGET_COMPILE_PDB = esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir/__idf_spi_flash.pdb
-  TARGET_PDB = esp-idf/spi_flash/libspi_flash.pdb
 
 
 # =============================================================================
@@ -1346,9 +1211,8 @@ build esp-idf/spi_flash/libspi_flash.a: C_STATIC_LIBRARY_LINKER____idf_spi_flash
   OBJECT_DIR = esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir
   POST_BUILD = :
   PRE_LINK = :
-  TARGET_COMPILE_PDB = esp-idf/spi_flash/CMakeFiles/__idf_spi_flash.dir/__idf_spi_flash.pdb
   TARGET_FILE = esp-idf/spi_flash/libspi_flash.a
-  TARGET_PDB = esp-idf/spi_flash/libspi_flash.pdb
+  TARGET_PDB = spi_flash.a.dbg
 
 # =============================================================================
 # Write statements declared in CMakeLists.txt:
@@ -1400,8 +1264,6 @@ build esp-idf/efuse/CMakeFiles/__idf_efuse.dir/esp32/esp_efuse_table.c.obj: C_CO
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/efuse/include -I/home/ayan/esp/esp-idf/components/efuse/esp32/include -I/home/ayan/esp/esp-idf/components/efuse/private_include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include_bootloader -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/spi_flash/include
   OBJECT_DIR = esp-idf/efuse/CMakeFiles/__idf_efuse.dir
   OBJECT_FILE_DIR = esp-idf/efuse/CMakeFiles/__idf_efuse.dir/esp32
-  TARGET_COMPILE_PDB = esp-idf/efuse/CMakeFiles/__idf_efuse.dir/__idf_efuse.pdb
-  TARGET_PDB = esp-idf/efuse/libefuse.pdb
 
 build esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp32/esp_efuse_api.c.obj: C_COMPILER____idf_efuse /home/ayan/esp/esp-idf/components/efuse/src/esp32/esp_efuse_api.c || cmake_object_order_depends_target___idf_efuse
   DEP_FILE = esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp32/esp_efuse_api.c.obj.d
@@ -1409,8 +1271,6 @@ build esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp32/esp_efuse_api.c.obj: C_
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/efuse/include -I/home/ayan/esp/esp-idf/components/efuse/esp32/include -I/home/ayan/esp/esp-idf/components/efuse/private_include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include_bootloader -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/spi_flash/include
   OBJECT_DIR = esp-idf/efuse/CMakeFiles/__idf_efuse.dir
   OBJECT_FILE_DIR = esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp32
-  TARGET_COMPILE_PDB = esp-idf/efuse/CMakeFiles/__idf_efuse.dir/__idf_efuse.pdb
-  TARGET_PDB = esp-idf/efuse/libefuse.pdb
 
 build esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp32/esp_efuse_fields.c.obj: C_COMPILER____idf_efuse /home/ayan/esp/esp-idf/components/efuse/src/esp32/esp_efuse_fields.c || cmake_object_order_depends_target___idf_efuse
   DEP_FILE = esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp32/esp_efuse_fields.c.obj.d
@@ -1418,8 +1278,6 @@ build esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp32/esp_efuse_fields.c.obj:
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/efuse/include -I/home/ayan/esp/esp-idf/components/efuse/esp32/include -I/home/ayan/esp/esp-idf/components/efuse/private_include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include_bootloader -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/spi_flash/include
   OBJECT_DIR = esp-idf/efuse/CMakeFiles/__idf_efuse.dir
   OBJECT_FILE_DIR = esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp32
-  TARGET_COMPILE_PDB = esp-idf/efuse/CMakeFiles/__idf_efuse.dir/__idf_efuse.pdb
-  TARGET_PDB = esp-idf/efuse/libefuse.pdb
 
 build esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp32/esp_efuse_utility.c.obj: C_COMPILER____idf_efuse /home/ayan/esp/esp-idf/components/efuse/src/esp32/esp_efuse_utility.c || cmake_object_order_depends_target___idf_efuse
   DEP_FILE = esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp32/esp_efuse_utility.c.obj.d
@@ -1427,8 +1285,6 @@ build esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp32/esp_efuse_utility.c.obj
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/efuse/include -I/home/ayan/esp/esp-idf/components/efuse/esp32/include -I/home/ayan/esp/esp-idf/components/efuse/private_include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include_bootloader -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/spi_flash/include
   OBJECT_DIR = esp-idf/efuse/CMakeFiles/__idf_efuse.dir
   OBJECT_FILE_DIR = esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp32
-  TARGET_COMPILE_PDB = esp-idf/efuse/CMakeFiles/__idf_efuse.dir/__idf_efuse.pdb
-  TARGET_PDB = esp-idf/efuse/libefuse.pdb
 
 build esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp_efuse_api.c.obj: C_COMPILER____idf_efuse /home/ayan/esp/esp-idf/components/efuse/src/esp_efuse_api.c || cmake_object_order_depends_target___idf_efuse
   DEP_FILE = esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp_efuse_api.c.obj.d
@@ -1436,8 +1292,6 @@ build esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp_efuse_api.c.obj: C_COMPIL
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/efuse/include -I/home/ayan/esp/esp-idf/components/efuse/esp32/include -I/home/ayan/esp/esp-idf/components/efuse/private_include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include_bootloader -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/spi_flash/include
   OBJECT_DIR = esp-idf/efuse/CMakeFiles/__idf_efuse.dir
   OBJECT_FILE_DIR = esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src
-  TARGET_COMPILE_PDB = esp-idf/efuse/CMakeFiles/__idf_efuse.dir/__idf_efuse.pdb
-  TARGET_PDB = esp-idf/efuse/libefuse.pdb
 
 build esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp_efuse_fields.c.obj: C_COMPILER____idf_efuse /home/ayan/esp/esp-idf/components/efuse/src/esp_efuse_fields.c || cmake_object_order_depends_target___idf_efuse
   DEP_FILE = esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp_efuse_fields.c.obj.d
@@ -1445,8 +1299,6 @@ build esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp_efuse_fields.c.obj: C_COM
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/efuse/include -I/home/ayan/esp/esp-idf/components/efuse/esp32/include -I/home/ayan/esp/esp-idf/components/efuse/private_include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include_bootloader -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/spi_flash/include
   OBJECT_DIR = esp-idf/efuse/CMakeFiles/__idf_efuse.dir
   OBJECT_FILE_DIR = esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src
-  TARGET_COMPILE_PDB = esp-idf/efuse/CMakeFiles/__idf_efuse.dir/__idf_efuse.pdb
-  TARGET_PDB = esp-idf/efuse/libefuse.pdb
 
 build esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp_efuse_utility.c.obj: C_COMPILER____idf_efuse /home/ayan/esp/esp-idf/components/efuse/src/esp_efuse_utility.c || cmake_object_order_depends_target___idf_efuse
   DEP_FILE = esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp_efuse_utility.c.obj.d
@@ -1454,8 +1306,6 @@ build esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp_efuse_utility.c.obj: C_CO
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/efuse/include -I/home/ayan/esp/esp-idf/components/efuse/esp32/include -I/home/ayan/esp/esp-idf/components/efuse/private_include -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include_bootloader -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/spi_flash/include
   OBJECT_DIR = esp-idf/efuse/CMakeFiles/__idf_efuse.dir
   OBJECT_FILE_DIR = esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src
-  TARGET_COMPILE_PDB = esp-idf/efuse/CMakeFiles/__idf_efuse.dir/__idf_efuse.pdb
-  TARGET_PDB = esp-idf/efuse/libefuse.pdb
 
 
 # =============================================================================
@@ -1470,9 +1320,8 @@ build esp-idf/efuse/libefuse.a: C_STATIC_LIBRARY_LINKER____idf_efuse esp-idf/efu
   OBJECT_DIR = esp-idf/efuse/CMakeFiles/__idf_efuse.dir
   POST_BUILD = :
   PRE_LINK = :
-  TARGET_COMPILE_PDB = esp-idf/efuse/CMakeFiles/__idf_efuse.dir/__idf_efuse.pdb
   TARGET_FILE = esp-idf/efuse/libefuse.a
-  TARGET_PDB = esp-idf/efuse/libefuse.pdb
+  TARGET_PDB = efuse.a.dbg
 
 
 #############################################
@@ -1557,8 +1406,6 @@ build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/boo
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/bootloader_support/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include_bootloader -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc/micro-ecc -I/home/ayan/esp/esp-idf/components/spi_flash/include -I/home/ayan/esp/esp-idf/components/efuse/include -I/home/ayan/esp/esp-idf/components/efuse/esp32/include
   OBJECT_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir
   OBJECT_FILE_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src
-  TARGET_COMPILE_PDB = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/__idf_bootloader_support.pdb
-  TARGET_PDB = esp-idf/bootloader_support/libbootloader_support.pdb
 
 build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_common.c.obj: C_COMPILER____idf_bootloader_support /home/ayan/esp/esp-idf/components/bootloader_support/src/bootloader_common.c || cmake_object_order_depends_target___idf_bootloader_support
   DEP_FILE = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_common.c.obj.d
@@ -1566,8 +1413,6 @@ build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/boo
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/bootloader_support/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include_bootloader -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc/micro-ecc -I/home/ayan/esp/esp-idf/components/spi_flash/include -I/home/ayan/esp/esp-idf/components/efuse/include -I/home/ayan/esp/esp-idf/components/efuse/esp32/include
   OBJECT_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir
   OBJECT_FILE_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src
-  TARGET_COMPILE_PDB = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/__idf_bootloader_support.pdb
-  TARGET_PDB = esp-idf/bootloader_support/libbootloader_support.pdb
 
 build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_flash.c.obj: C_COMPILER____idf_bootloader_support /home/ayan/esp/esp-idf/components/bootloader_support/src/bootloader_flash.c || cmake_object_order_depends_target___idf_bootloader_support
   DEP_FILE = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_flash.c.obj.d
@@ -1575,8 +1420,6 @@ build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/boo
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/bootloader_support/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include_bootloader -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc/micro-ecc -I/home/ayan/esp/esp-idf/components/spi_flash/include -I/home/ayan/esp/esp-idf/components/efuse/include -I/home/ayan/esp/esp-idf/components/efuse/esp32/include
   OBJECT_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir
   OBJECT_FILE_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src
-  TARGET_COMPILE_PDB = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/__idf_bootloader_support.pdb
-  TARGET_PDB = esp-idf/bootloader_support/libbootloader_support.pdb
 
 build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_mem.c.obj: C_COMPILER____idf_bootloader_support /home/ayan/esp/esp-idf/components/bootloader_support/src/bootloader_mem.c || cmake_object_order_depends_target___idf_bootloader_support
   DEP_FILE = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_mem.c.obj.d
@@ -1584,8 +1427,6 @@ build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/boo
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/bootloader_support/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include_bootloader -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc/micro-ecc -I/home/ayan/esp/esp-idf/components/spi_flash/include -I/home/ayan/esp/esp-idf/components/efuse/include -I/home/ayan/esp/esp-idf/components/efuse/esp32/include
   OBJECT_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir
   OBJECT_FILE_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src
-  TARGET_COMPILE_PDB = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/__idf_bootloader_support.pdb
-  TARGET_PDB = esp-idf/bootloader_support/libbootloader_support.pdb
 
 build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_random.c.obj: C_COMPILER____idf_bootloader_support /home/ayan/esp/esp-idf/components/bootloader_support/src/bootloader_random.c || cmake_object_order_depends_target___idf_bootloader_support
   DEP_FILE = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_random.c.obj.d
@@ -1593,8 +1434,6 @@ build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/boo
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/bootloader_support/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include_bootloader -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc/micro-ecc -I/home/ayan/esp/esp-idf/components/spi_flash/include -I/home/ayan/esp/esp-idf/components/efuse/include -I/home/ayan/esp/esp-idf/components/efuse/esp32/include
   OBJECT_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir
   OBJECT_FILE_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src
-  TARGET_COMPILE_PDB = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/__idf_bootloader_support.pdb
-  TARGET_PDB = esp-idf/bootloader_support/libbootloader_support.pdb
 
 build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_utility.c.obj: C_COMPILER____idf_bootloader_support /home/ayan/esp/esp-idf/components/bootloader_support/src/bootloader_utility.c || cmake_object_order_depends_target___idf_bootloader_support
   DEP_FILE = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_utility.c.obj.d
@@ -1602,8 +1441,6 @@ build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/boo
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/bootloader_support/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include_bootloader -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc/micro-ecc -I/home/ayan/esp/esp-idf/components/spi_flash/include -I/home/ayan/esp/esp-idf/components/efuse/include -I/home/ayan/esp/esp-idf/components/efuse/esp32/include
   OBJECT_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir
   OBJECT_FILE_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src
-  TARGET_COMPILE_PDB = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/__idf_bootloader_support.pdb
-  TARGET_PDB = esp-idf/bootloader_support/libbootloader_support.pdb
 
 build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/esp_image_format.c.obj: C_COMPILER____idf_bootloader_support /home/ayan/esp/esp-idf/components/bootloader_support/src/esp_image_format.c || cmake_object_order_depends_target___idf_bootloader_support
   DEP_FILE = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/esp_image_format.c.obj.d
@@ -1611,8 +1448,6 @@ build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/esp
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/bootloader_support/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include_bootloader -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc/micro-ecc -I/home/ayan/esp/esp-idf/components/spi_flash/include -I/home/ayan/esp/esp-idf/components/efuse/include -I/home/ayan/esp/esp-idf/components/efuse/esp32/include
   OBJECT_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir
   OBJECT_FILE_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src
-  TARGET_COMPILE_PDB = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/__idf_bootloader_support.pdb
-  TARGET_PDB = esp-idf/bootloader_support/libbootloader_support.pdb
 
 build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/flash_encrypt.c.obj: C_COMPILER____idf_bootloader_support /home/ayan/esp/esp-idf/components/bootloader_support/src/flash_encrypt.c || cmake_object_order_depends_target___idf_bootloader_support
   DEP_FILE = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/flash_encrypt.c.obj.d
@@ -1620,8 +1455,6 @@ build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/fla
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/bootloader_support/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include_bootloader -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc/micro-ecc -I/home/ayan/esp/esp-idf/components/spi_flash/include -I/home/ayan/esp/esp-idf/components/efuse/include -I/home/ayan/esp/esp-idf/components/efuse/esp32/include
   OBJECT_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir
   OBJECT_FILE_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src
-  TARGET_COMPILE_PDB = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/__idf_bootloader_support.pdb
-  TARGET_PDB = esp-idf/bootloader_support/libbootloader_support.pdb
 
 build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/flash_partitions.c.obj: C_COMPILER____idf_bootloader_support /home/ayan/esp/esp-idf/components/bootloader_support/src/flash_partitions.c || cmake_object_order_depends_target___idf_bootloader_support
   DEP_FILE = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/flash_partitions.c.obj.d
@@ -1629,8 +1462,6 @@ build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/fla
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/bootloader_support/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include_bootloader -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc/micro-ecc -I/home/ayan/esp/esp-idf/components/spi_flash/include -I/home/ayan/esp/esp-idf/components/efuse/include -I/home/ayan/esp/esp-idf/components/efuse/esp32/include
   OBJECT_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir
   OBJECT_FILE_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src
-  TARGET_COMPILE_PDB = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/__idf_bootloader_support.pdb
-  TARGET_PDB = esp-idf/bootloader_support/libbootloader_support.pdb
 
 build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/flash_qio_mode.c.obj: C_COMPILER____idf_bootloader_support /home/ayan/esp/esp-idf/components/bootloader_support/src/flash_qio_mode.c || cmake_object_order_depends_target___idf_bootloader_support
   DEP_FILE = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/flash_qio_mode.c.obj.d
@@ -1638,8 +1469,6 @@ build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/fla
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/bootloader_support/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include_bootloader -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc/micro-ecc -I/home/ayan/esp/esp-idf/components/spi_flash/include -I/home/ayan/esp/esp-idf/components/efuse/include -I/home/ayan/esp/esp-idf/components/efuse/esp32/include
   OBJECT_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir
   OBJECT_FILE_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src
-  TARGET_COMPILE_PDB = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/__idf_bootloader_support.pdb
-  TARGET_PDB = esp-idf/bootloader_support/libbootloader_support.pdb
 
 build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_flash_config_esp32.c.obj: C_COMPILER____idf_bootloader_support /home/ayan/esp/esp-idf/components/bootloader_support/src/bootloader_flash_config_esp32.c || cmake_object_order_depends_target___idf_bootloader_support
   DEP_FILE = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_flash_config_esp32.c.obj.d
@@ -1647,8 +1476,6 @@ build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/boo
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/bootloader_support/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include_bootloader -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc/micro-ecc -I/home/ayan/esp/esp-idf/components/spi_flash/include -I/home/ayan/esp/esp-idf/components/efuse/include -I/home/ayan/esp/esp-idf/components/efuse/esp32/include
   OBJECT_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir
   OBJECT_FILE_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src
-  TARGET_COMPILE_PDB = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/__idf_bootloader_support.pdb
-  TARGET_PDB = esp-idf/bootloader_support/libbootloader_support.pdb
 
 build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_efuse_esp32.c.obj: C_COMPILER____idf_bootloader_support /home/ayan/esp/esp-idf/components/bootloader_support/src/bootloader_efuse_esp32.c || cmake_object_order_depends_target___idf_bootloader_support
   DEP_FILE = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_efuse_esp32.c.obj.d
@@ -1656,8 +1483,6 @@ build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/boo
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/bootloader_support/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include_bootloader -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc/micro-ecc -I/home/ayan/esp/esp-idf/components/spi_flash/include -I/home/ayan/esp/esp-idf/components/efuse/include -I/home/ayan/esp/esp-idf/components/efuse/esp32/include
   OBJECT_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir
   OBJECT_FILE_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src
-  TARGET_COMPILE_PDB = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/__idf_bootloader_support.pdb
-  TARGET_PDB = esp-idf/bootloader_support/libbootloader_support.pdb
 
 build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_init.c.obj: C_COMPILER____idf_bootloader_support /home/ayan/esp/esp-idf/components/bootloader_support/src/bootloader_init.c || cmake_object_order_depends_target___idf_bootloader_support
   DEP_FILE = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/bootloader_init.c.obj.d
@@ -1665,8 +1490,6 @@ build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/boo
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/bootloader_support/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include_bootloader -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc/micro-ecc -I/home/ayan/esp/esp-idf/components/spi_flash/include -I/home/ayan/esp/esp-idf/components/efuse/include -I/home/ayan/esp/esp-idf/components/efuse/esp32/include
   OBJECT_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir
   OBJECT_FILE_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src
-  TARGET_COMPILE_PDB = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/__idf_bootloader_support.pdb
-  TARGET_PDB = esp-idf/bootloader_support/libbootloader_support.pdb
 
 build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/esp32/bootloader_sha.c.obj: C_COMPILER____idf_bootloader_support /home/ayan/esp/esp-idf/components/bootloader_support/src/esp32/bootloader_sha.c || cmake_object_order_depends_target___idf_bootloader_support
   DEP_FILE = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/esp32/bootloader_sha.c.obj.d
@@ -1674,8 +1497,6 @@ build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/esp
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/bootloader_support/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include_bootloader -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc/micro-ecc -I/home/ayan/esp/esp-idf/components/spi_flash/include -I/home/ayan/esp/esp-idf/components/efuse/include -I/home/ayan/esp/esp-idf/components/efuse/esp32/include
   OBJECT_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir
   OBJECT_FILE_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/esp32
-  TARGET_COMPILE_PDB = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/__idf_bootloader_support.pdb
-  TARGET_PDB = esp-idf/bootloader_support/libbootloader_support.pdb
 
 build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/esp32/flash_encrypt.c.obj: C_COMPILER____idf_bootloader_support /home/ayan/esp/esp-idf/components/bootloader_support/src/esp32/flash_encrypt.c || cmake_object_order_depends_target___idf_bootloader_support
   DEP_FILE = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/esp32/flash_encrypt.c.obj.d
@@ -1683,8 +1504,6 @@ build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/esp
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/bootloader_support/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include_bootloader -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc/micro-ecc -I/home/ayan/esp/esp-idf/components/spi_flash/include -I/home/ayan/esp/esp-idf/components/efuse/include -I/home/ayan/esp/esp-idf/components/efuse/esp32/include
   OBJECT_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir
   OBJECT_FILE_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/esp32
-  TARGET_COMPILE_PDB = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/__idf_bootloader_support.pdb
-  TARGET_PDB = esp-idf/bootloader_support/libbootloader_support.pdb
 
 build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/esp32/bootloader_esp32.c.obj: C_COMPILER____idf_bootloader_support /home/ayan/esp/esp-idf/components/bootloader_support/src/esp32/bootloader_esp32.c || cmake_object_order_depends_target___idf_bootloader_support
   DEP_FILE = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/esp32/bootloader_esp32.c.obj.d
@@ -1692,8 +1511,6 @@ build esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/esp
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/bootloader_support/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include_bootloader -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc -I/home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc/micro-ecc -I/home/ayan/esp/esp-idf/components/spi_flash/include -I/home/ayan/esp/esp-idf/components/efuse/include -I/home/ayan/esp/esp-idf/components/efuse/esp32/include
   OBJECT_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir
   OBJECT_FILE_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/src/esp32
-  TARGET_COMPILE_PDB = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/__idf_bootloader_support.pdb
-  TARGET_PDB = esp-idf/bootloader_support/libbootloader_support.pdb
 
 
 # =============================================================================
@@ -1708,9 +1525,8 @@ build esp-idf/bootloader_support/libbootloader_support.a: C_STATIC_LIBRARY_LINKE
   OBJECT_DIR = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir
   POST_BUILD = :
   PRE_LINK = :
-  TARGET_COMPILE_PDB = esp-idf/bootloader_support/CMakeFiles/__idf_bootloader_support.dir/__idf_bootloader_support.pdb
   TARGET_FILE = esp-idf/bootloader_support/libbootloader_support.a
-  TARGET_PDB = esp-idf/bootloader_support/libbootloader_support.pdb
+  TARGET_PDB = bootloader_support.a.dbg
 
 # =============================================================================
 # Write statements declared in CMakeLists.txt:
@@ -1785,8 +1601,6 @@ build esp-idf/main/CMakeFiles/__idf_main.dir/bootloader_start.c.obj: C_COMPILER_
   INCLUDES = -Iconfig -I/home/ayan/esp/esp-idf/components/log/include -I/home/ayan/esp/esp-idf/components/esp_rom/include -I/home/ayan/esp/esp-idf/components/esp_common/include -I/home/ayan/esp/esp-idf/components/xtensa/include -I/home/ayan/esp/esp-idf/components/xtensa/esp32/include -I/home/ayan/esp/esp-idf/components/esp32/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include -I/home/ayan/esp/esp-idf/components/bootloader_support/include_bootloader -I/home/ayan/esp/esp-idf/components/soc/src/esp32/. -I/home/ayan/esp/esp-idf/components/soc/src/esp32/include -I/home/ayan/esp/esp-idf/components/soc/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/. -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/include -I/home/ayan/esp/esp-idf/components/soc/soc/esp32/../include
   OBJECT_DIR = esp-idf/main/CMakeFiles/__idf_main.dir
   OBJECT_FILE_DIR = esp-idf/main/CMakeFiles/__idf_main.dir
-  TARGET_COMPILE_PDB = esp-idf/main/CMakeFiles/__idf_main.dir/__idf_main.pdb
-  TARGET_PDB = esp-idf/main/libmain.pdb
 
 
 # =============================================================================
@@ -1801,9 +1615,8 @@ build esp-idf/main/libmain.a: C_STATIC_LIBRARY_LINKER____idf_main esp-idf/main/C
   OBJECT_DIR = esp-idf/main/CMakeFiles/__idf_main.dir
   POST_BUILD = :
   PRE_LINK = :
-  TARGET_COMPILE_PDB = esp-idf/main/CMakeFiles/__idf_main.dir/__idf_main.pdb
   TARGET_FILE = esp-idf/main/libmain.a
-  TARGET_PDB = esp-idf/main/libmain.pdb
+  TARGET_PDB = main.a.dbg
 
 # =============================================================================
 # Target aliases.
@@ -1996,14 +1809,14 @@ default all
 #############################################
 # Re-run CMake if any of its inputs changed.
 
-build build.ninja: RERUN_CMAKE | /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeASMCompiler.cmake.in /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeASMInformation.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeCCompiler.cmake.in /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeCCompilerABI.c /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeCInformation.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeCXXCompiler.cmake.in /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeCXXCompilerABI.cpp /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeCXXInformation.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeCheckCompilerFlagCommonPatterns.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeCommonLanguageInclude.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeCompilerIdDetection.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeDetermineASMCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeDetermineCCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeDetermineCXXCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeDetermineCompileFeatures.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeDetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeDetermineCompilerABI.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeDetermineCompilerId.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeDetermineSystem.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeFindBinUtils.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeGenericSystem.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeInitializeConfigs.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeLanguageInformation.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeNinjaFindMake.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeParseImplicitIncludeInfo.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeParseImplicitLinkInfo.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeSystem.cmake.in /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeSystemSpecificInformation.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeSystemSpecificInitialize.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeTestASMCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeTestCCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeTestCXXCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeTestCompilerCommon.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/ADSP-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/ARMCC-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/ARMClang-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/AppleClang-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/Borland-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/Bruce-C-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/CMakeCommonCompilerMacros.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/Clang-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/Clang-DetermineCompilerInternal.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/Comeau-CXX-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/Compaq-C-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/Compaq-CXX-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/Cray-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/Embarcadero-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/Fujitsu-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/GHS-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/GNU-ASM.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/GNU-C-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/GNU-C.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/GNU-CXX-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/GNU-CXX.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/GNU-FindBinUtils.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/GNU.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/HP-C-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/HP-CXX-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/IAR-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/IBMCPP-C-DetermineVersionInternal.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/IBMCPP-CXX-DetermineVersionInternal.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/Intel-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/MSVC-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/NVIDIA-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/OpenWatcom-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/PGI-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/PathScale-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/SCO-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/SDCC-C-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/SunPro-C-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/SunPro-CXX-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/TI-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/TinyCC-C-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/VisualAge-C-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/VisualAge-CXX-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/Watcom-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/XL-C-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/XL-CXX-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/XLClang-C-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/XLClang-CXX-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/zOS-C-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/zOS-CXX-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/ExternalProject.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/FindGit.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/FindPackageHandleStandardArgs.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/FindPackageMessage.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Internal/CMakeCheckCompilerFlag.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Internal/FeatureTesting.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Platform/Generic.cmake /home/ayan/Desktop/UV-sterilization-bot/idf/backup/sdkconfig /home/ayan/esp/esp-idf/.git/HEAD /home/ayan/esp/esp-idf/.git/modules/components/asio/asio/HEAD /home/ayan/esp/esp-idf/.git/modules/components/bootloader/subproject/components/micro-ecc/micro-ecc/HEAD /home/ayan/esp/esp-idf/.git/modules/components/bt/controller/lib/HEAD /home/ayan/esp/esp-idf/.git/modules/components/bt/host/nimble/nimble/HEAD /home/ayan/esp/esp-idf/.git/modules/components/cbor/tinycbor/HEAD /home/ayan/esp/esp-idf/.git/modules/components/coap/libcoap/HEAD /home/ayan/esp/esp-idf/.git/modules/components/esp_wifi/lib/HEAD /home/ayan/esp/esp-idf/.git/modules/components/esptool_py/esptool/HEAD /home/ayan/esp/esp-idf/.git/modules/components/expat/expat/HEAD /home/ayan/esp/esp-idf/.git/modules/components/json/cJSON/HEAD /home/ayan/esp/esp-idf/.git/modules/components/libsodium/libsodium/HEAD /home/ayan/esp/esp-idf/.git/modules/components/lwip/lwip/HEAD /home/ayan/esp/esp-idf/.git/modules/components/mbedtls/mbedtls/HEAD /home/ayan/esp/esp-idf/.git/modules/components/mqtt/esp-mqtt/HEAD /home/ayan/esp/esp-idf/.git/modules/components/nghttp/nghttp2/HEAD /home/ayan/esp/esp-idf/.git/modules/components/protobuf-c/protobuf-c/HEAD /home/ayan/esp/esp-idf/.git/modules/components/spiffs/spiffs/HEAD /home/ayan/esp/esp-idf/.git/modules/components/tinyusb/tinyusb/HEAD /home/ayan/esp/esp-idf/.git/modules/components/unity/unity/HEAD /home/ayan/esp/esp-idf/.git/modules/examples/build_system/cmake/import_lib/main/lib/tinyxml2/HEAD /home/ayan/esp/esp-idf/.git/modules/examples/peripherals/secure_element/atecc608_ecdsa/components/esp-cryptoauthlib/HEAD /home/ayan/esp/esp-idf/.git/refs/heads/master /home/ayan/esp/esp-idf/CMakeLists.txt /home/ayan/esp/esp-idf/components/asio/asio/.git /home/ayan/esp/esp-idf/components/bootloader/CMakeLists.txt /home/ayan/esp/esp-idf/components/bootloader/project_include.cmake /home/ayan/esp/esp-idf/components/bootloader/subproject/CMakeLists.txt /home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc/CMakeLists.txt /home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc/micro-ecc/.git /home/ayan/esp/esp-idf/components/bootloader/subproject/main/CMakeLists.txt /home/ayan/esp/esp-idf/components/bootloader_support/CMakeLists.txt /home/ayan/esp/esp-idf/components/bt/controller/lib/.git /home/ayan/esp/esp-idf/components/bt/host/nimble/nimble/.git /home/ayan/esp/esp-idf/components/cbor/tinycbor/.git /home/ayan/esp/esp-idf/components/coap/libcoap/.git /home/ayan/esp/esp-idf/components/efuse/CMakeLists.txt /home/ayan/esp/esp-idf/components/efuse/esp32/sources.cmake /home/ayan/esp/esp-idf/components/esp32/CMakeLists.txt /home/ayan/esp/esp-idf/components/esp32/project_include.cmake /home/ayan/esp/esp-idf/components/esp_common/CMakeLists.txt /home/ayan/esp/esp-idf/components/esp_rom/CMakeLists.txt /home/ayan/esp/esp-idf/components/esp_wifi/lib/.git /home/ayan/esp/esp-idf/components/esptool_py/CMakeLists.txt /home/ayan/esp/esp-idf/components/esptool_py/esptool/.git /home/ayan/esp/esp-idf/components/esptool_py/project_include.cmake /home/ayan/esp/esp-idf/components/expat/expat/.git /home/ayan/esp/esp-idf/components/json/cJSON/.git /home/ayan/esp/esp-idf/components/libsodium/libsodium/.git /home/ayan/esp/esp-idf/components/log/CMakeLists.txt /home/ayan/esp/esp-idf/components/lwip/lwip/.git /home/ayan/esp/esp-idf/components/mbedtls/mbedtls/.git /home/ayan/esp/esp-idf/components/mqtt/esp-mqtt/.git /home/ayan/esp/esp-idf/components/nghttp/nghttp2/.git /home/ayan/esp/esp-idf/components/partition_table/CMakeLists.txt /home/ayan/esp/esp-idf/components/partition_table/project_include.cmake /home/ayan/esp/esp-idf/components/protobuf-c/protobuf-c/.git /home/ayan/esp/esp-idf/components/soc/CMakeLists.txt /home/ayan/esp/esp-idf/components/soc/soc/CMakeLists.txt /home/ayan/esp/esp-idf/components/soc/soc/esp32/CMakeLists.txt /home/ayan/esp/esp-idf/components/soc/src/esp32/CMakeLists.txt /home/ayan/esp/esp-idf/components/spi_flash/CMakeLists.txt /home/ayan/esp/esp-idf/components/spiffs/spiffs/.git /home/ayan/esp/esp-idf/components/tinyusb/tinyusb/.git /home/ayan/esp/esp-idf/components/unity/unity/.git /home/ayan/esp/esp-idf/components/xtensa/CMakeLists.txt /home/ayan/esp/esp-idf/examples/build_system/cmake/import_lib/main/lib/tinyxml2/.git /home/ayan/esp/esp-idf/examples/peripherals/secure_element/atecc608_ecdsa/components/esp-cryptoauthlib/.git /home/ayan/esp/esp-idf/tools/cmake/build.cmake /home/ayan/esp/esp-idf/tools/cmake/component.cmake /home/ayan/esp/esp-idf/tools/cmake/crosstool_version_check.cmake /home/ayan/esp/esp-idf/tools/cmake/dfu.cmake /home/ayan/esp/esp-idf/tools/cmake/git_submodules.cmake /home/ayan/esp/esp-idf/tools/cmake/idf.cmake /home/ayan/esp/esp-idf/tools/cmake/kconfig.cmake /home/ayan/esp/esp-idf/tools/cmake/ldgen.cmake /home/ayan/esp/esp-idf/tools/cmake/project.cmake /home/ayan/esp/esp-idf/tools/cmake/project_description.json.in /home/ayan/esp/esp-idf/tools/cmake/targets.cmake /home/ayan/esp/esp-idf/tools/cmake/third_party/GetGitRevisionDescription.cmake /home/ayan/esp/esp-idf/tools/cmake/third_party/GetGitRevisionDescription.cmake.in /home/ayan/esp/esp-idf/tools/cmake/toolchain-esp32.cmake /home/ayan/esp/esp-idf/tools/cmake/utilities.cmake /home/ayan/esp/esp-idf/tools/cmake/version.cmake /home/ayan/esp/esp-idf/tools/kconfig_new/confgen.py /home/ayan/esp/esp-idf/tools/kconfig_new/config.env.in /home/ayan/esp/esp-idf/tools/kconfig_new/kconfiglib.py CMakeCache.txt CMakeFiles/3.16.4/CMakeASMCompiler.cmake CMakeFiles/3.16.4/CMakeCCompiler.cmake CMakeFiles/3.16.4/CMakeCXXCompiler.cmake CMakeFiles/3.16.4/CMakeSystem.cmake CMakeFiles/git-data/grabRef.cmake config/sdkconfig.cmake config/sdkconfig.h
+build build.ninja: RERUN_CMAKE | /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeASMInformation.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeCInformation.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeCXXInformation.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeCheckCompilerFlagCommonPatterns.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeCommonLanguageInclude.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeGenericSystem.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeInitializeConfigs.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeLanguageInformation.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeSystemSpecificInformation.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeSystemSpecificInitialize.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/CMakeCommonCompilerMacros.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/GNU-ASM.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/GNU-C.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/GNU-CXX.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/GNU.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/ExternalProject.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/FindGit.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/FindPackageHandleStandardArgs.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/FindPackageMessage.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Internal/CMakeCheckCompilerFlag.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Platform/Generic.cmake /home/ayan/Desktop/UV-sterilization-bot/idf/backup/sdkconfig /home/ayan/esp/esp-idf/.git/HEAD /home/ayan/esp/esp-idf/.git/modules/components/asio/asio/HEAD /home/ayan/esp/esp-idf/.git/modules/components/bootloader/subproject/components/micro-ecc/micro-ecc/HEAD /home/ayan/esp/esp-idf/.git/modules/components/bt/controller/lib/HEAD /home/ayan/esp/esp-idf/.git/modules/components/bt/host/nimble/nimble/HEAD /home/ayan/esp/esp-idf/.git/modules/components/cbor/tinycbor/HEAD /home/ayan/esp/esp-idf/.git/modules/components/coap/libcoap/HEAD /home/ayan/esp/esp-idf/.git/modules/components/esp_wifi/lib/HEAD /home/ayan/esp/esp-idf/.git/modules/components/esptool_py/esptool/HEAD /home/ayan/esp/esp-idf/.git/modules/components/expat/expat/HEAD /home/ayan/esp/esp-idf/.git/modules/components/json/cJSON/HEAD /home/ayan/esp/esp-idf/.git/modules/components/libsodium/libsodium/HEAD /home/ayan/esp/esp-idf/.git/modules/components/lwip/lwip/HEAD /home/ayan/esp/esp-idf/.git/modules/components/mbedtls/mbedtls/HEAD /home/ayan/esp/esp-idf/.git/modules/components/mqtt/esp-mqtt/HEAD /home/ayan/esp/esp-idf/.git/modules/components/nghttp/nghttp2/HEAD /home/ayan/esp/esp-idf/.git/modules/components/protobuf-c/protobuf-c/HEAD /home/ayan/esp/esp-idf/.git/modules/components/spiffs/spiffs/HEAD /home/ayan/esp/esp-idf/.git/modules/components/tinyusb/tinyusb/HEAD /home/ayan/esp/esp-idf/.git/modules/components/unity/unity/HEAD /home/ayan/esp/esp-idf/.git/modules/examples/build_system/cmake/import_lib/main/lib/tinyxml2/HEAD /home/ayan/esp/esp-idf/.git/modules/examples/peripherals/secure_element/atecc608_ecdsa/components/esp-cryptoauthlib/HEAD /home/ayan/esp/esp-idf/.git/refs/heads/master /home/ayan/esp/esp-idf/CMakeLists.txt /home/ayan/esp/esp-idf/components/asio/asio/.git /home/ayan/esp/esp-idf/components/bootloader/CMakeLists.txt /home/ayan/esp/esp-idf/components/bootloader/project_include.cmake /home/ayan/esp/esp-idf/components/bootloader/subproject/CMakeLists.txt /home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc/CMakeLists.txt /home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc/micro-ecc/.git /home/ayan/esp/esp-idf/components/bootloader/subproject/main/CMakeLists.txt /home/ayan/esp/esp-idf/components/bootloader_support/CMakeLists.txt /home/ayan/esp/esp-idf/components/bt/controller/lib/.git /home/ayan/esp/esp-idf/components/bt/host/nimble/nimble/.git /home/ayan/esp/esp-idf/components/cbor/tinycbor/.git /home/ayan/esp/esp-idf/components/coap/libcoap/.git /home/ayan/esp/esp-idf/components/efuse/CMakeLists.txt /home/ayan/esp/esp-idf/components/efuse/esp32/sources.cmake /home/ayan/esp/esp-idf/components/esp32/CMakeLists.txt /home/ayan/esp/esp-idf/components/esp32/project_include.cmake /home/ayan/esp/esp-idf/components/esp_common/CMakeLists.txt /home/ayan/esp/esp-idf/components/esp_rom/CMakeLists.txt /home/ayan/esp/esp-idf/components/esp_wifi/lib/.git /home/ayan/esp/esp-idf/components/esptool_py/CMakeLists.txt /home/ayan/esp/esp-idf/components/esptool_py/esptool/.git /home/ayan/esp/esp-idf/components/esptool_py/project_include.cmake /home/ayan/esp/esp-idf/components/expat/expat/.git /home/ayan/esp/esp-idf/components/json/cJSON/.git /home/ayan/esp/esp-idf/components/libsodium/libsodium/.git /home/ayan/esp/esp-idf/components/log/CMakeLists.txt /home/ayan/esp/esp-idf/components/lwip/lwip/.git /home/ayan/esp/esp-idf/components/mbedtls/mbedtls/.git /home/ayan/esp/esp-idf/components/mqtt/esp-mqtt/.git /home/ayan/esp/esp-idf/components/nghttp/nghttp2/.git /home/ayan/esp/esp-idf/components/partition_table/CMakeLists.txt /home/ayan/esp/esp-idf/components/partition_table/project_include.cmake /home/ayan/esp/esp-idf/components/protobuf-c/protobuf-c/.git /home/ayan/esp/esp-idf/components/soc/CMakeLists.txt /home/ayan/esp/esp-idf/components/soc/soc/CMakeLists.txt /home/ayan/esp/esp-idf/components/soc/soc/esp32/CMakeLists.txt /home/ayan/esp/esp-idf/components/soc/src/esp32/CMakeLists.txt /home/ayan/esp/esp-idf/components/spi_flash/CMakeLists.txt /home/ayan/esp/esp-idf/components/spiffs/spiffs/.git /home/ayan/esp/esp-idf/components/tinyusb/tinyusb/.git /home/ayan/esp/esp-idf/components/unity/unity/.git /home/ayan/esp/esp-idf/components/xtensa/CMakeLists.txt /home/ayan/esp/esp-idf/examples/build_system/cmake/import_lib/main/lib/tinyxml2/.git /home/ayan/esp/esp-idf/examples/peripherals/secure_element/atecc608_ecdsa/components/esp-cryptoauthlib/.git /home/ayan/esp/esp-idf/tools/cmake/build.cmake /home/ayan/esp/esp-idf/tools/cmake/component.cmake /home/ayan/esp/esp-idf/tools/cmake/crosstool_version_check.cmake /home/ayan/esp/esp-idf/tools/cmake/dfu.cmake /home/ayan/esp/esp-idf/tools/cmake/git_submodules.cmake /home/ayan/esp/esp-idf/tools/cmake/idf.cmake /home/ayan/esp/esp-idf/tools/cmake/kconfig.cmake /home/ayan/esp/esp-idf/tools/cmake/ldgen.cmake /home/ayan/esp/esp-idf/tools/cmake/project.cmake /home/ayan/esp/esp-idf/tools/cmake/project_description.json.in /home/ayan/esp/esp-idf/tools/cmake/targets.cmake /home/ayan/esp/esp-idf/tools/cmake/third_party/GetGitRevisionDescription.cmake /home/ayan/esp/esp-idf/tools/cmake/third_party/GetGitRevisionDescription.cmake.in /home/ayan/esp/esp-idf/tools/cmake/toolchain-esp32.cmake /home/ayan/esp/esp-idf/tools/cmake/utilities.cmake /home/ayan/esp/esp-idf/tools/cmake/version.cmake /home/ayan/esp/esp-idf/tools/kconfig_new/confgen.py /home/ayan/esp/esp-idf/tools/kconfig_new/config.env.in /home/ayan/esp/esp-idf/tools/kconfig_new/kconfiglib.py CMakeCache.txt CMakeFiles/3.16.4/CMakeASMCompiler.cmake CMakeFiles/3.16.4/CMakeCCompiler.cmake CMakeFiles/3.16.4/CMakeCXXCompiler.cmake CMakeFiles/3.16.4/CMakeSystem.cmake CMakeFiles/git-data/grabRef.cmake config/sdkconfig.cmake config/sdkconfig.h
   pool = console
 
 
 #############################################
 # A missing CMake input file is not an error.
 
-build /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeASMCompiler.cmake.in /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeASMInformation.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeCCompiler.cmake.in /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeCCompilerABI.c /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeCInformation.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeCXXCompiler.cmake.in /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeCXXCompilerABI.cpp /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeCXXInformation.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeCheckCompilerFlagCommonPatterns.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeCommonLanguageInclude.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeCompilerIdDetection.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeDetermineASMCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeDetermineCCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeDetermineCXXCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeDetermineCompileFeatures.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeDetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeDetermineCompilerABI.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeDetermineCompilerId.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeDetermineSystem.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeFindBinUtils.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeGenericSystem.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeInitializeConfigs.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeLanguageInformation.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeNinjaFindMake.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeParseImplicitIncludeInfo.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeParseImplicitLinkInfo.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeSystem.cmake.in /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeSystemSpecificInformation.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeSystemSpecificInitialize.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeTestASMCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeTestCCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeTestCXXCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeTestCompilerCommon.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/ADSP-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/ARMCC-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/ARMClang-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/AppleClang-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/Borland-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/Bruce-C-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/CMakeCommonCompilerMacros.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/Clang-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/Clang-DetermineCompilerInternal.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/Comeau-CXX-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/Compaq-C-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/Compaq-CXX-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/Cray-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/Embarcadero-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/Fujitsu-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/GHS-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/GNU-ASM.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/GNU-C-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/GNU-C.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/GNU-CXX-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/GNU-CXX.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/GNU-FindBinUtils.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/GNU.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/HP-C-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/HP-CXX-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/IAR-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/IBMCPP-C-DetermineVersionInternal.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/IBMCPP-CXX-DetermineVersionInternal.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/Intel-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/MSVC-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/NVIDIA-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/OpenWatcom-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/PGI-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/PathScale-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/SCO-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/SDCC-C-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/SunPro-C-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/SunPro-CXX-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/TI-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/TinyCC-C-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/VisualAge-C-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/VisualAge-CXX-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/Watcom-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/XL-C-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/XL-CXX-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/XLClang-C-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/XLClang-CXX-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/zOS-C-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/zOS-CXX-DetermineCompiler.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/ExternalProject.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/FindGit.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/FindPackageHandleStandardArgs.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/FindPackageMessage.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Internal/CMakeCheckCompilerFlag.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Internal/FeatureTesting.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Platform/Generic.cmake /home/ayan/Desktop/UV-sterilization-bot/idf/backup/sdkconfig /home/ayan/esp/esp-idf/.git/HEAD /home/ayan/esp/esp-idf/.git/modules/components/asio/asio/HEAD /home/ayan/esp/esp-idf/.git/modules/components/bootloader/subproject/components/micro-ecc/micro-ecc/HEAD /home/ayan/esp/esp-idf/.git/modules/components/bt/controller/lib/HEAD /home/ayan/esp/esp-idf/.git/modules/components/bt/host/nimble/nimble/HEAD /home/ayan/esp/esp-idf/.git/modules/components/cbor/tinycbor/HEAD /home/ayan/esp/esp-idf/.git/modules/components/coap/libcoap/HEAD /home/ayan/esp/esp-idf/.git/modules/components/esp_wifi/lib/HEAD /home/ayan/esp/esp-idf/.git/modules/components/esptool_py/esptool/HEAD /home/ayan/esp/esp-idf/.git/modules/components/expat/expat/HEAD /home/ayan/esp/esp-idf/.git/modules/components/json/cJSON/HEAD /home/ayan/esp/esp-idf/.git/modules/components/libsodium/libsodium/HEAD /home/ayan/esp/esp-idf/.git/modules/components/lwip/lwip/HEAD /home/ayan/esp/esp-idf/.git/modules/components/mbedtls/mbedtls/HEAD /home/ayan/esp/esp-idf/.git/modules/components/mqtt/esp-mqtt/HEAD /home/ayan/esp/esp-idf/.git/modules/components/nghttp/nghttp2/HEAD /home/ayan/esp/esp-idf/.git/modules/components/protobuf-c/protobuf-c/HEAD /home/ayan/esp/esp-idf/.git/modules/components/spiffs/spiffs/HEAD /home/ayan/esp/esp-idf/.git/modules/components/tinyusb/tinyusb/HEAD /home/ayan/esp/esp-idf/.git/modules/components/unity/unity/HEAD /home/ayan/esp/esp-idf/.git/modules/examples/build_system/cmake/import_lib/main/lib/tinyxml2/HEAD /home/ayan/esp/esp-idf/.git/modules/examples/peripherals/secure_element/atecc608_ecdsa/components/esp-cryptoauthlib/HEAD /home/ayan/esp/esp-idf/.git/refs/heads/master /home/ayan/esp/esp-idf/CMakeLists.txt /home/ayan/esp/esp-idf/components/asio/asio/.git /home/ayan/esp/esp-idf/components/bootloader/CMakeLists.txt /home/ayan/esp/esp-idf/components/bootloader/project_include.cmake /home/ayan/esp/esp-idf/components/bootloader/subproject/CMakeLists.txt /home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc/CMakeLists.txt /home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc/micro-ecc/.git /home/ayan/esp/esp-idf/components/bootloader/subproject/main/CMakeLists.txt /home/ayan/esp/esp-idf/components/bootloader_support/CMakeLists.txt /home/ayan/esp/esp-idf/components/bt/controller/lib/.git /home/ayan/esp/esp-idf/components/bt/host/nimble/nimble/.git /home/ayan/esp/esp-idf/components/cbor/tinycbor/.git /home/ayan/esp/esp-idf/components/coap/libcoap/.git /home/ayan/esp/esp-idf/components/efuse/CMakeLists.txt /home/ayan/esp/esp-idf/components/efuse/esp32/sources.cmake /home/ayan/esp/esp-idf/components/esp32/CMakeLists.txt /home/ayan/esp/esp-idf/components/esp32/project_include.cmake /home/ayan/esp/esp-idf/components/esp_common/CMakeLists.txt /home/ayan/esp/esp-idf/components/esp_rom/CMakeLists.txt /home/ayan/esp/esp-idf/components/esp_wifi/lib/.git /home/ayan/esp/esp-idf/components/esptool_py/CMakeLists.txt /home/ayan/esp/esp-idf/components/esptool_py/esptool/.git /home/ayan/esp/esp-idf/components/esptool_py/project_include.cmake /home/ayan/esp/esp-idf/components/expat/expat/.git /home/ayan/esp/esp-idf/components/json/cJSON/.git /home/ayan/esp/esp-idf/components/libsodium/libsodium/.git /home/ayan/esp/esp-idf/components/log/CMakeLists.txt /home/ayan/esp/esp-idf/components/lwip/lwip/.git /home/ayan/esp/esp-idf/components/mbedtls/mbedtls/.git /home/ayan/esp/esp-idf/components/mqtt/esp-mqtt/.git /home/ayan/esp/esp-idf/components/nghttp/nghttp2/.git /home/ayan/esp/esp-idf/components/partition_table/CMakeLists.txt /home/ayan/esp/esp-idf/components/partition_table/project_include.cmake /home/ayan/esp/esp-idf/components/protobuf-c/protobuf-c/.git /home/ayan/esp/esp-idf/components/soc/CMakeLists.txt /home/ayan/esp/esp-idf/components/soc/soc/CMakeLists.txt /home/ayan/esp/esp-idf/components/soc/soc/esp32/CMakeLists.txt /home/ayan/esp/esp-idf/components/soc/src/esp32/CMakeLists.txt /home/ayan/esp/esp-idf/components/spi_flash/CMakeLists.txt /home/ayan/esp/esp-idf/components/spiffs/spiffs/.git /home/ayan/esp/esp-idf/components/tinyusb/tinyusb/.git /home/ayan/esp/esp-idf/components/unity/unity/.git /home/ayan/esp/esp-idf/components/xtensa/CMakeLists.txt /home/ayan/esp/esp-idf/examples/build_system/cmake/import_lib/main/lib/tinyxml2/.git /home/ayan/esp/esp-idf/examples/peripherals/secure_element/atecc608_ecdsa/components/esp-cryptoauthlib/.git /home/ayan/esp/esp-idf/tools/cmake/build.cmake /home/ayan/esp/esp-idf/tools/cmake/component.cmake /home/ayan/esp/esp-idf/tools/cmake/crosstool_version_check.cmake /home/ayan/esp/esp-idf/tools/cmake/dfu.cmake /home/ayan/esp/esp-idf/tools/cmake/git_submodules.cmake /home/ayan/esp/esp-idf/tools/cmake/idf.cmake /home/ayan/esp/esp-idf/tools/cmake/kconfig.cmake /home/ayan/esp/esp-idf/tools/cmake/ldgen.cmake /home/ayan/esp/esp-idf/tools/cmake/project.cmake /home/ayan/esp/esp-idf/tools/cmake/project_description.json.in /home/ayan/esp/esp-idf/tools/cmake/targets.cmake /home/ayan/esp/esp-idf/tools/cmake/third_party/GetGitRevisionDescription.cmake /home/ayan/esp/esp-idf/tools/cmake/third_party/GetGitRevisionDescription.cmake.in /home/ayan/esp/esp-idf/tools/cmake/toolchain-esp32.cmake /home/ayan/esp/esp-idf/tools/cmake/utilities.cmake /home/ayan/esp/esp-idf/tools/cmake/version.cmake /home/ayan/esp/esp-idf/tools/kconfig_new/confgen.py /home/ayan/esp/esp-idf/tools/kconfig_new/config.env.in /home/ayan/esp/esp-idf/tools/kconfig_new/kconfiglib.py CMakeCache.txt CMakeFiles/3.16.4/CMakeASMCompiler.cmake CMakeFiles/3.16.4/CMakeCCompiler.cmake CMakeFiles/3.16.4/CMakeCXXCompiler.cmake CMakeFiles/3.16.4/CMakeSystem.cmake CMakeFiles/git-data/grabRef.cmake config/sdkconfig.cmake config/sdkconfig.h: phony
+build /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeASMInformation.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeCInformation.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeCXXInformation.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeCheckCompilerFlagCommonPatterns.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeCommonLanguageInclude.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeGenericSystem.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeInitializeConfigs.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeLanguageInformation.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeSystemSpecificInformation.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/CMakeSystemSpecificInitialize.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/CMakeCommonCompilerMacros.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/GNU-ASM.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/GNU-C.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/GNU-CXX.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Compiler/GNU.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/ExternalProject.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/FindGit.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/FindPackageHandleStandardArgs.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/FindPackageMessage.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Internal/CMakeCheckCompilerFlag.cmake /home/ayan/.espressif/tools/cmake/3.16.4/share/cmake-3.16/Modules/Platform/Generic.cmake /home/ayan/Desktop/UV-sterilization-bot/idf/backup/sdkconfig /home/ayan/esp/esp-idf/.git/HEAD /home/ayan/esp/esp-idf/.git/modules/components/asio/asio/HEAD /home/ayan/esp/esp-idf/.git/modules/components/bootloader/subproject/components/micro-ecc/micro-ecc/HEAD /home/ayan/esp/esp-idf/.git/modules/components/bt/controller/lib/HEAD /home/ayan/esp/esp-idf/.git/modules/components/bt/host/nimble/nimble/HEAD /home/ayan/esp/esp-idf/.git/modules/components/cbor/tinycbor/HEAD /home/ayan/esp/esp-idf/.git/modules/components/coap/libcoap/HEAD /home/ayan/esp/esp-idf/.git/modules/components/esp_wifi/lib/HEAD /home/ayan/esp/esp-idf/.git/modules/components/esptool_py/esptool/HEAD /home/ayan/esp/esp-idf/.git/modules/components/expat/expat/HEAD /home/ayan/esp/esp-idf/.git/modules/components/json/cJSON/HEAD /home/ayan/esp/esp-idf/.git/modules/components/libsodium/libsodium/HEAD /home/ayan/esp/esp-idf/.git/modules/components/lwip/lwip/HEAD /home/ayan/esp/esp-idf/.git/modules/components/mbedtls/mbedtls/HEAD /home/ayan/esp/esp-idf/.git/modules/components/mqtt/esp-mqtt/HEAD /home/ayan/esp/esp-idf/.git/modules/components/nghttp/nghttp2/HEAD /home/ayan/esp/esp-idf/.git/modules/components/protobuf-c/protobuf-c/HEAD /home/ayan/esp/esp-idf/.git/modules/components/spiffs/spiffs/HEAD /home/ayan/esp/esp-idf/.git/modules/components/tinyusb/tinyusb/HEAD /home/ayan/esp/esp-idf/.git/modules/components/unity/unity/HEAD /home/ayan/esp/esp-idf/.git/modules/examples/build_system/cmake/import_lib/main/lib/tinyxml2/HEAD /home/ayan/esp/esp-idf/.git/modules/examples/peripherals/secure_element/atecc608_ecdsa/components/esp-cryptoauthlib/HEAD /home/ayan/esp/esp-idf/.git/refs/heads/master /home/ayan/esp/esp-idf/CMakeLists.txt /home/ayan/esp/esp-idf/components/asio/asio/.git /home/ayan/esp/esp-idf/components/bootloader/CMakeLists.txt /home/ayan/esp/esp-idf/components/bootloader/project_include.cmake /home/ayan/esp/esp-idf/components/bootloader/subproject/CMakeLists.txt /home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc/CMakeLists.txt /home/ayan/esp/esp-idf/components/bootloader/subproject/components/micro-ecc/micro-ecc/.git /home/ayan/esp/esp-idf/components/bootloader/subproject/main/CMakeLists.txt /home/ayan/esp/esp-idf/components/bootloader_support/CMakeLists.txt /home/ayan/esp/esp-idf/components/bt/controller/lib/.git /home/ayan/esp/esp-idf/components/bt/host/nimble/nimble/.git /home/ayan/esp/esp-idf/components/cbor/tinycbor/.git /home/ayan/esp/esp-idf/components/coap/libcoap/.git /home/ayan/esp/esp-idf/components/efuse/CMakeLists.txt /home/ayan/esp/esp-idf/components/efuse/esp32/sources.cmake /home/ayan/esp/esp-idf/components/esp32/CMakeLists.txt /home/ayan/esp/esp-idf/components/esp32/project_include.cmake /home/ayan/esp/esp-idf/components/esp_common/CMakeLists.txt /home/ayan/esp/esp-idf/components/esp_rom/CMakeLists.txt /home/ayan/esp/esp-idf/components/esp_wifi/lib/.git /home/ayan/esp/esp-idf/components/esptool_py/CMakeLists.txt /home/ayan/esp/esp-idf/components/esptool_py/esptool/.git /home/ayan/esp/esp-idf/components/esptool_py/project_include.cmake /home/ayan/esp/esp-idf/components/expat/expat/.git /home/ayan/esp/esp-idf/components/json/cJSON/.git /home/ayan/esp/esp-idf/components/libsodium/libsodium/.git /home/ayan/esp/esp-idf/components/log/CMakeLists.txt /home/ayan/esp/esp-idf/components/lwip/lwip/.git /home/ayan/esp/esp-idf/components/mbedtls/mbedtls/.git /home/ayan/esp/esp-idf/components/mqtt/esp-mqtt/.git /home/ayan/esp/esp-idf/components/nghttp/nghttp2/.git /home/ayan/esp/esp-idf/components/partition_table/CMakeLists.txt /home/ayan/esp/esp-idf/components/partition_table/project_include.cmake /home/ayan/esp/esp-idf/components/protobuf-c/protobuf-c/.git /home/ayan/esp/esp-idf/components/soc/CMakeLists.txt /home/ayan/esp/esp-idf/components/soc/soc/CMakeLists.txt /home/ayan/esp/esp-idf/components/soc/soc/esp32/CMakeLists.txt /home/ayan/esp/esp-idf/components/soc/src/esp32/CMakeLists.txt /home/ayan/esp/esp-idf/components/spi_flash/CMakeLists.txt /home/ayan/esp/esp-idf/components/spiffs/spiffs/.git /home/ayan/esp/esp-idf/components/tinyusb/tinyusb/.git /home/ayan/esp/esp-idf/components/unity/unity/.git /home/ayan/esp/esp-idf/components/xtensa/CMakeLists.txt /home/ayan/esp/esp-idf/examples/build_system/cmake/import_lib/main/lib/tinyxml2/.git /home/ayan/esp/esp-idf/examples/peripherals/secure_element/atecc608_ecdsa/components/esp-cryptoauthlib/.git /home/ayan/esp/esp-idf/tools/cmake/build.cmake /home/ayan/esp/esp-idf/tools/cmake/component.cmake /home/ayan/esp/esp-idf/tools/cmake/crosstool_version_check.cmake /home/ayan/esp/esp-idf/tools/cmake/dfu.cmake /home/ayan/esp/esp-idf/tools/cmake/git_submodules.cmake /home/ayan/esp/esp-idf/tools/cmake/idf.cmake /home/ayan/esp/esp-idf/tools/cmake/kconfig.cmake /home/ayan/esp/esp-idf/tools/cmake/ldgen.cmake /home/ayan/esp/esp-idf/tools/cmake/project.cmake /home/ayan/esp/esp-idf/tools/cmake/project_description.json.in /home/ayan/esp/esp-idf/tools/cmake/targets.cmake /home/ayan/esp/esp-idf/tools/cmake/third_party/GetGitRevisionDescription.cmake /home/ayan/esp/esp-idf/tools/cmake/third_party/GetGitRevisionDescription.cmake.in /home/ayan/esp/esp-idf/tools/cmake/toolchain-esp32.cmake /home/ayan/esp/esp-idf/tools/cmake/utilities.cmake /home/ayan/esp/esp-idf/tools/cmake/version.cmake /home/ayan/esp/esp-idf/tools/kconfig_new/confgen.py /home/ayan/esp/esp-idf/tools/kconfig_new/config.env.in /home/ayan/esp/esp-idf/tools/kconfig_new/kconfiglib.py CMakeCache.txt CMakeFiles/3.16.4/CMakeASMCompiler.cmake CMakeFiles/3.16.4/CMakeCCompiler.cmake CMakeFiles/3.16.4/CMakeCXXCompiler.cmake CMakeFiles/3.16.4/CMakeSystem.cmake CMakeFiles/git-data/grabRef.cmake config/sdkconfig.cmake config/sdkconfig.h: phony
 
 
 #############################################

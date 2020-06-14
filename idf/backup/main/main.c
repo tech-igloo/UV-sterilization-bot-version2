@@ -22,34 +22,30 @@
 #include <sys/stat.h>
 #include "esp_err.h"
 
-
-#define LOG_PAGE_SIZE              256
-#define EXAMPLE_ESP_WIFI_SSID      "AndroidAP1"
-#define EXAMPLE_ESP_WIFI_PASS      "ltgj0084"
 #define EXAMPLE_ESP_MAXIMUM_RETRY  3
-
-static EventGroupHandle_t s_wifi_event_group;
-
+#define BASE_PATH "/spiffs"
+#define MAX_FILES 5
+#define RESET_FLAG true
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT      BIT1
 
+static EventGroupHandle_t s_wifi_event_group;
 static const char *TAG = "wifi station";
 static int flag = -1;
 static int s_retry_num = 0;
 static int64_t prev_mili = 0;
 static int64_t curr_mili = 0;
 static float time_duration = 0;
+static char EXAMPLE_ESP_WIFI_SSID[32];
+static char EXAMPLE_ESP_WIFI_PASS[64];
 
-/*void init_spiffs()
+void init_spiffs()
 {
-    char* base_path = "/spiffs";
-    size_t max_files = 5;
-    bool flag = true;
     esp_vfs_spiffs_conf_t conf = {
-        .base_path = base_path,
+        .base_path = BASE_PATH,
         .partition_label = NULL,
-        .max_files = max_files,
-        .format_if_mount_failed = flag
+        .max_files = MAX_FILES,
+        .format_if_mount_failed = RESET_FLAG
     };
     esp_err_t ret = esp_vfs_spiffs_register(&conf);
 
@@ -71,60 +67,60 @@ static float time_duration = 0;
     } else {
         ESP_LOGI(TAG, "Partition size: total: %d, used: %d", total, used);
     }
+}
 
-    // Use POSIX and C standard library functions to work with files.
-    // First create a file.
-    ESP_LOGI(TAG, "Opening file");
-    FILE* f = fopen("/spiffs/hello.txt", "w");
-    if (f == NULL) {
-        ESP_LOGE(TAG, "Failed to open file for writing");
-        return;
-    }
-    fprintf(f, "Hello World!\n");
-    fclose(f);
-    ESP_LOGI(TAG, "File written");
-
-    // Check if destination file exists before renaming
+int conn_type()
+{
+    int flag = 0;
     struct stat st;
-    if (stat("/spiffs/foo.txt", &st) == 0) {
-        // Delete it if it exists
-        unlink("/spiffs/foo.txt");
+    char line[102];
+    ESP_LOGI(TAG, "Checking connection type");
+    if (stat("/spiffs/wifi_conf.txt", &st) != 0) {
+        FILE* f = fopen("/spiffs/wifi_conf.txt", "w");
+        if (f == NULL) {
+            ESP_LOGE(TAG, "Failed to open file for writing");
+            return flag;
+        }
+        fprintf(f, "SAP\n");
+        fclose(f);
+        ESP_LOGI(TAG, "File written");
+        return flag;
     }
-
-    // Rename original file
-    ESP_LOGI(TAG, "Renaming file");
-    if (rename("/spiffs/hello.txt", "/spiffs/foo.txt") != 0) {
-        ESP_LOGE(TAG, "Rename failed");
-        return;
+    else{
+        FILE* f = fopen("/spiffs/wifi_conf.txt", "r");
+        if (f == NULL) {
+            ESP_LOGE(TAG, "Failed to open file for reading");
+            return flag;
+        }
+        fgets(line, sizeof(line), f);
+        fclose(f);
+        char* pos = strchr(line, '\n');
+        if (pos) {
+            *pos = '\0';
+        }
+        char* token = strtok(line, " ");
+        if(strcmp(token, "SAP") == 0){
+            ESP_LOGI(TAG, "SAP mode read");
+            return flag;
+        }
+        else if(strcmp(token, "STA") == 0){
+            flag = 1;
+            ESP_LOGI(TAG, "STA mode read");
+            token = strtok(NULL, " ");
+            strcpy(EXAMPLE_ESP_WIFI_SSID, token);
+            token = strtok(NULL, " ");
+            strcpy(EXAMPLE_ESP_WIFI_PASS, token);
+            return flag;
+        }
+        return flag;
     }
-
-    // Open renamed file for reading
-    ESP_LOGI(TAG, "Reading file");
-    f = fopen("/spiffs/foo.txt", "r");
-    if (f == NULL) {
-        ESP_LOGE(TAG, "Failed to open file for reading");
-        return;
-    }
-    char line[64];
-    fgets(line, sizeof(line), f);
-    fclose(f);
-    // strip newline
-    char* pos = strchr(line, '\n');
-    if (pos) {
-        *pos = '\0';
-    }
-    ESP_LOGI(TAG, "Read from file: '%s'", line);
-
-    // All done, unmount partition and disable SPIFFS
-    esp_vfs_spiffs_unregister(conf.partition_label);
-    ESP_LOGI(TAG, "SPIFFS unmounted");
-}*/
+}
 
 char determine(int flag)
 {
     char c;
     switch(flag){
-        case -1: c = 's';break;
+        case -1:c = 's';break;
         case 0: c = 'f';break;
         case 1: c = 'l';break;
         case 2: c = 'r';break;
@@ -352,9 +348,6 @@ void init_sap()
             .authmode = WIFI_AUTH_WPA_WPA2_PSK
         },
     };
-    if (strlen(EXAMPLE_ESP_WIFI_PASS) == 0) {
-        wifi_config.ap.authmode = WIFI_AUTH_OPEN;
-    }
 
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config));
@@ -413,30 +406,28 @@ void wifi_init_sta(void)
 
     wifi_config_t wifi_config = {
         .sta = {
-            .ssid = EXAMPLE_ESP_WIFI_SSID,
-            .password = EXAMPLE_ESP_WIFI_PASS,
+            .ssid = "AndroidAP1",
+            .password = "ltgj0084",
             .pmf_cfg = {
                 .capable = true,
                 .required = false
             },
         },
     };
+    strcpy((char *)wifi_config.sta.ssid, EXAMPLE_ESP_WIFI_SSID);
+    strcpy((char *)wifi_config.sta.password, EXAMPLE_ESP_WIFI_PASS);
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
     ESP_ERROR_CHECK(esp_wifi_start() );
 
     ESP_LOGI(TAG, "wifi_init_sta finished.");
 
-    /* Waiting until either the connection is established (WIFI_CONNECTED_BIT) or connection failed for the maximum
-     * number of re-tries (WIFI_FAIL_BIT). The bits are set by event_handler() (see above) */
     EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group,
             WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
             pdFALSE,
             pdFALSE,
             portMAX_DELAY);
 
-    /* xEventGroupWaitBits() returns the bits before the call returned, hence we can test which event actually
-     * happened. */
     if (bits & WIFI_CONNECTED_BIT) {
         ESP_LOGI(TAG, "connected to ap SSID:%s password:%s",
                  EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
@@ -447,7 +438,6 @@ void wifi_init_sta(void)
         ESP_LOGE(TAG, "UNEXPECTED EVENT");
     }
 
-    /* The event will not be processed after unregister */
     ESP_ERROR_CHECK(esp_event_handler_instance_unregister(IP_EVENT, IP_EVENT_STA_GOT_IP, instance_got_ip));
     ESP_ERROR_CHECK(esp_event_handler_instance_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, instance_any_id));
     vEventGroupDelete(s_wifi_event_group);
@@ -458,6 +448,7 @@ esp_err_t handle_OnConnect(httpd_req_t *req)
     flag = -1;
     char* resp = default_page();
     httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
     return ESP_OK;
 }
 
@@ -472,6 +463,7 @@ esp_err_t handle_manual(httpd_req_t *req)
     char* resp = manual_mode();
     prev_mili = esp_timer_get_time();
     httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
     return ESP_OK;
 }
 
@@ -480,6 +472,7 @@ esp_err_t handle_auto(httpd_req_t *req)
     flag = 4;
     char* resp = auto_mode();
     httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
     return ESP_OK;
 }
 
@@ -493,6 +486,7 @@ esp_err_t handle_forward(httpd_req_t *req)
     flag = 0;
     char* resp = SendHTML(flag);
     httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
     return ESP_OK;
 }
 
@@ -506,6 +500,7 @@ esp_err_t handle_left(httpd_req_t *req)
     flag = 1;
     char* resp = SendHTML(flag);
     httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
     return ESP_OK;
 }
 
@@ -519,6 +514,7 @@ esp_err_t handle_right(httpd_req_t *req)
     flag = 2;
     char* resp = SendHTML(flag);
     httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
     return ESP_OK;
 }
 
@@ -532,6 +528,7 @@ esp_err_t handle_back(httpd_req_t *req)
     flag = 3;
     char* resp = SendHTML(flag);
     httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
     return ESP_OK;
 }
 
@@ -539,13 +536,24 @@ esp_err_t handle_choose(httpd_req_t *req)
 {
     char* resp = choose_page();
     httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
     return ESP_OK;
 }
 
 esp_err_t handle_sap(httpd_req_t *req)
 {
-    char* resp = "Device will restart using SAP mode";
-    httpd_resp_send(req, resp, strlen(resp));
+    httpd_resp_send(req, "Device will restart using SAP mode", strlen("Device will restart using SAP mode"));
+    FILE* fp = fopen("/spiffs/wifi_conf.txt", "w");
+    if (fp == NULL) {
+            ESP_LOGE(TAG, "Failed to handle sap for reading");
+            esp_restart();
+            return flag;
+        }
+    fputs("SAP\n", fp);
+    fclose(fp);
+    ESP_LOGI(TAG, "SAP Data Written");
+    vTaskDelay(100);
+    esp_restart();
     return ESP_OK;
 }
 
@@ -553,46 +561,67 @@ esp_err_t handle_sta(httpd_req_t *req)
 {
     char* resp = get_form();
     httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
     return ESP_OK;
 }
 
 esp_err_t handle_data(httpd_req_t *req)
 {
-    char buf[100];
+    int len = req->content_len;
+    char buf[107];
     int ret, remaining = req->content_len;
-
     while (remaining > 0) {
-        /* Read the data for the request */
-        if ((ret = httpd_req_recv(req, buf,
-                        MIN(remaining, sizeof(buf)))) <= 0) {
+        if ((ret = httpd_req_recv(req, buf, len)) <= 0) {
             if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
-                /* Retry receiving if timeout occurred */
                 continue;
             }
             return ESP_FAIL;
         }
-
-        /* Send back the same data */
         remaining -= ret;
-
-        /* Log data received */
         ESP_LOGI(TAG, "=========== RECEIVED DATA ==========");
         ESP_LOGI(TAG, "%.*s", ret, buf);
         ESP_LOGI(TAG, "====================================");
     }
-    char* copy = (char *)malloc(strlen(buf));
+    buf[len] = '\0';
+    char* copy = (char *)calloc(strlen(buf), sizeof(char));
     strcpy(copy, buf);
+    ESP_LOGI(TAG, "%s", buf);
+    ESP_LOGI(TAG, "%s", copy);
     char* token = strtok(buf, "&");
     char* ssid = strtok(token, "=");
     ssid = strtok(NULL, "=");
     char* new_token = strtok(copy, "&");
+    ESP_LOGI(TAG, "%s", new_token);
     new_token = strtok(NULL, "&");
+    ESP_LOGI(TAG, "%s", new_token);
     char* pwd = strtok(new_token, "=");
+    ESP_LOGI(TAG, "%s", pwd);
     pwd = strtok(NULL, "=");
     ESP_LOGI(TAG, "%s", ssid);
     ESP_LOGI(TAG, "%s", pwd);
-    char* resp = "Device will restart using STA mode";
-    httpd_resp_send(req, resp, strlen(resp));
+    FILE* fp = fopen("/spiffs/wifi_conf.txt", "w");
+    if (fp == NULL) {
+            ESP_LOGE(TAG, "Failed to handle sta for reading");
+            esp_restart();
+            return flag;
+        }
+    fputs("STA ", fp);
+    fputs(ssid, fp);
+    fputc(' ', fp);
+    fputs(pwd, fp);
+    fputc('\n', fp);
+    fclose(fp);
+    ESP_LOGI(TAG, "STA Data Written");
+    //char* resp = "Device will restart using STA mode";
+    httpd_resp_send(req, "Device will restart using STA mode", strlen("Device will restart using STA mode"));
+    //free(resp);
+    //free(token);
+/*    free(ssid);
+    free(pwd);
+    free(copy);*/
+    //free(new_token);
+    vTaskDelay(100);
+    esp_restart();
     return ESP_OK;
 }
 
@@ -724,9 +753,12 @@ static void connect_handler(void* arg, esp_event_base_t event_base,
 void app_main(void)
 {
     static httpd_handle_t server = NULL;
-    wifi_init_sta();
-//  init_sap();
-//  init_spiffs();
+    init_spiffs();
+    int flag = conn_type();
+    if(flag == 0)
+        init_sap();
+    else
+        wifi_init_sta();
     ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &connect_handler, &server));
     ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &disconnect_handler, &server));
     server = start_webserver();
