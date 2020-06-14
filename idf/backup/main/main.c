@@ -21,6 +21,7 @@
 #include <sys/unistd.h>
 #include <sys/stat.h>
 #include "esp_err.h"
+#include "mdns.h"
 
 #define EXAMPLE_ESP_MAXIMUM_RETRY  3
 #define BASE_PATH "/spiffs"
@@ -759,6 +760,10 @@ void app_main(void)
         init_sap();
     else
         wifi_init_sta();
+    ESP_ERROR_CHECK(mdns_init());
+    ESP_ERROR_CHECK(mdns_hostname_set("esp32"));
+    ESP_LOGI(TAG, "mdns hostname set to: [esp32]");
+    ESP_ERROR_CHECK(mdns_instance_name_set("web_server"));
     ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &connect_handler, &server));
     ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &disconnect_handler, &server));
     server = start_webserver();
