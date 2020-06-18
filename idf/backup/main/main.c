@@ -24,8 +24,7 @@
 #include "mdns.h"
 
 /*TO-DO: Add safety net in case esp fails to connect to SSID
-         Increase button size for connect
-         Increase to 5*/
+         Add a restart button*/
 
 #define EXAMPLE_ESP_MAXIMUM_RETRY 5             //maximum number of times the esp will try to connect to a network in STA mode
 #define DEFAULT_SSID "myssid"                   //default used in SAP and STA mode
@@ -36,7 +35,7 @@
 #define RESET_FLAG true                         //whether partition should be formatted if mount fails
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT      BIT1
-#define WIFI_NUM 3                              //number of wifi credentials to be stored
+#define WIFI_NUM 5                              //number of wifi credentials to be stored
 #define DATA_LEN 108                            //108 = 4 + 1 + 32 + 1 + 4 + 1 + 64 + 1
 #define LINE_LEN 98                             //98 = 32 + 1 + 64 + 1
 #define SSID_LEN 32                             //the maximum length of ssid that can be used by the esp is 32
@@ -382,6 +381,7 @@ char* get_sta()
         strcat(ptr, str);
         strcat(ptr, "</a>\n");
     }
+    strcat(ptr, "<p>Press to go back</p><a class=\"button button-on\" href=\"/choose\">BACK</a>\n");
     return ptr;
 }
 
@@ -393,7 +393,7 @@ char* get_sta_data(int local_flag) //local_flag min value is 1
     strcat(ptr, "<title>Choose Direction</title>\n");
     strcat(ptr, "<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\n");
     strcat(ptr, "body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;} h3 {color: #444444;margin-bottom: 50px;}\n");
-    strcat(ptr, ".button {display: block;width: 100px;background-color: #3498db;border: none;color: white;padding: 13px 30px;text-decoration: none;font-size: 25px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n");
+    strcat(ptr, ".button {display: block;width: 120px;background-color: #3498db;border: none;color: white;padding: 13px 30px;text-decoration: none;font-size: 25px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n");
     strcat(ptr, ".button-on {background-color: #3498db;}\n");
     strcat(ptr, ".button-on:active {background-color: #2980b9;}\n");
     strcat(ptr, ".button-off {background-color: #34495e;}\n");
@@ -422,7 +422,7 @@ char* get_sta_data(int local_flag) //local_flag min value is 1
     strcat(ptr, "<p>Press to connect</p><a class=\"button button-on\" href=\"/sta_choose_");
     strcat(ptr, str);
     strcat(ptr, "\">CONNECT</a>\n");
-
+    strcat(ptr, "<p>Press to go back</p><a class=\"button button-on\" href=\"/sta\">BACK</a>\n");
     return ptr;
 }
 
@@ -1017,6 +1017,96 @@ esp_err_t handle_choose3(httpd_req_t *req)
     return ESP_OK;
 }
 
+esp_err_t handle_sta_data4(httpd_req_t *req)
+{
+    char* resp = get_sta_data(4);
+    httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
+    return ESP_OK;
+}
+
+esp_err_t handle_modify4(httpd_req_t *req)
+{
+    char* resp = get_form(4);
+    httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
+    return ESP_OK;
+}
+
+esp_err_t handle_delete4(httpd_req_t *req)
+{
+    char* resp = auto_mode(2);
+    httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
+    total = total - 1;
+    char str[20];
+    sprintf(str, "%d", total);
+    ESP_ERROR_CHECK(replace(str, WIFI_NUM+3));
+    ESP_ERROR_CHECK(delete(5));
+    ESP_ERROR_CHECK(update());
+    if(total == 0)
+        ESP_ERROR_CHECK(handle_sap(req));
+    return ESP_OK;
+}
+
+esp_err_t handle_choose4(httpd_req_t *req)
+{
+    char str[20];
+    sprintf(str, "%d", 4);
+    ESP_ERROR_CHECK(replace(str, WIFI_NUM+2));
+    ESP_ERROR_CHECK(replace("STA", 1));
+    ESP_LOGI(TAG, "STA Wifi 4");
+    httpd_resp_send(req, "Device will restart now and connect to wifi network", strlen("Device will restart now and connect to wifi network"));
+    vTaskDelay(100);
+    esp_restart();
+    return ESP_OK;
+}
+
+esp_err_t handle_sta_data5(httpd_req_t *req)
+{
+    char* resp = get_sta_data(5);
+    httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
+    return ESP_OK;
+}
+
+esp_err_t handle_modify5(httpd_req_t *req)
+{
+    char* resp = get_form(5);
+    httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
+    return ESP_OK;
+}
+
+esp_err_t handle_delete5(httpd_req_t *req)
+{
+    char* resp = auto_mode(2);
+    httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
+    total = total - 1;
+    char str[20];
+    sprintf(str, "%d", total);
+    ESP_ERROR_CHECK(replace(str, WIFI_NUM+3));
+    ESP_ERROR_CHECK(delete(6));
+    ESP_ERROR_CHECK(update());
+    if(total == 0)
+        ESP_ERROR_CHECK(handle_sap(req));
+    return ESP_OK;
+}
+
+esp_err_t handle_choose5(httpd_req_t *req)
+{
+    char str[20];
+    sprintf(str, "%d", 5);
+    ESP_ERROR_CHECK(replace(str, WIFI_NUM+2));
+    ESP_ERROR_CHECK(replace("STA", 1));
+    ESP_LOGI(TAG, "STA Wifi 5");
+    httpd_resp_send(req, "Device will restart now and connect to wifi network", strlen("Device will restart now and connect to wifi network"));
+    vTaskDelay(100);
+    esp_restart();
+    return ESP_OK;
+}
+
 esp_err_t handle_data_1(httpd_req_t *req)
 {
     strcpy(line_str, "");
@@ -1128,7 +1218,82 @@ esp_err_t handle_data_3(httpd_req_t *req)
     char* resp = auto_mode(4);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    conn_type();
+    return ESP_OK;
+}
+
+esp_err_t handle_data_4(httpd_req_t *req)
+{
+    strcpy(line_str, "");
+    int len = req->content_len;
+    int ret, remaining = req->content_len;
+    while (remaining > 0) {
+        if ((ret = httpd_req_recv(req, buf, len)) <= 0) {
+            if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
+                continue;
+            }
+            return ESP_FAIL;
+        }
+        remaining -= ret;
+    }
+    buf[len] = '\0';
+    ESP_LOGI(TAG, "Buffer: %s", buf);
+    strcpy(copy, buf);
+    ESP_LOGI(TAG, "Copy: %s", copy);
+    char* token = strtok(buf, "&");
+    char* ssid_data = strtok(token, "=");
+    ssid_data = strtok(NULL, "=");
+    char* new_token = strtok(copy, "&");
+    new_token = strtok(NULL, "&");
+    char* pwd = strtok(new_token, "=");
+    pwd = strtok(NULL, "=");
+    ESP_LOGI(TAG, "SSID: %s", ssid_data);
+    ESP_LOGI(TAG, "PASS: %s", pwd);
+    strcat(line_str, ssid_data);
+    strcat(line_str, " ");
+    strcat(line_str, pwd);
+    ESP_ERROR_CHECK(replace(line_str, 5));
+    ESP_ERROR_CHECK(update());
+    char* resp = auto_mode(4);
+    httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
+    return ESP_OK;
+}
+
+esp_err_t handle_data_5(httpd_req_t *req)
+{
+    strcpy(line_str, "");
+    int len = req->content_len;
+    int ret, remaining = req->content_len;
+    while (remaining > 0) {
+        if ((ret = httpd_req_recv(req, buf, len)) <= 0) {
+            if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
+                continue;
+            }
+            return ESP_FAIL;
+        }
+        remaining -= ret;
+    }
+    buf[len] = '\0';
+    ESP_LOGI(TAG, "Buffer: %s", buf);
+    strcpy(copy, buf);
+    ESP_LOGI(TAG, "Copy: %s", copy);
+    char* token = strtok(buf, "&");
+    char* ssid_data = strtok(token, "=");
+    ssid_data = strtok(NULL, "=");
+    char* new_token = strtok(copy, "&");
+    new_token = strtok(NULL, "&");
+    char* pwd = strtok(new_token, "=");
+    pwd = strtok(NULL, "=");
+    ESP_LOGI(TAG, "SSID: %s", ssid_data);
+    ESP_LOGI(TAG, "PASS: %s", pwd);
+    strcat(line_str, ssid_data);
+    strcat(line_str, " ");
+    strcat(line_str, pwd);
+    ESP_ERROR_CHECK(replace(line_str, 6));
+    ESP_ERROR_CHECK(update());
+    char* resp = auto_mode(4);
+    httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
     return ESP_OK;
 }
 
@@ -1244,6 +1409,20 @@ httpd_uri_t uri_sta3 = {
     .user_ctx = NULL
 };
 
+httpd_uri_t uri_sta4 = {
+    .uri      = "/sta4",
+    .method   = HTTP_GET,
+    .handler  = handle_sta_data4,
+    .user_ctx = NULL
+};
+
+httpd_uri_t uri_sta5 = {
+    .uri      = "/sta5",
+    .method   = HTTP_GET,
+    .handler  = handle_sta_data5,
+    .user_ctx = NULL
+};
+
 httpd_uri_t uri_sta_mod1 = {
     .uri      = "/sta_mod_1",
     .method   = HTTP_GET,
@@ -1262,6 +1441,20 @@ httpd_uri_t uri_sta_mod3 = {
     .uri      = "/sta_mod_3",
     .method   = HTTP_GET,
     .handler  = handle_modify3,
+    .user_ctx = NULL
+};
+
+httpd_uri_t uri_sta_mod4 = {
+    .uri      = "/sta_mod_4",
+    .method   = HTTP_GET,
+    .handler  = handle_modify4,
+    .user_ctx = NULL
+};
+
+httpd_uri_t uri_sta_mod5 = {
+    .uri      = "/sta_mod_5",
+    .method   = HTTP_GET,
+    .handler  = handle_modify5,
     .user_ctx = NULL
 };
 
@@ -1286,6 +1479,20 @@ httpd_uri_t uri_sta_delete3 = {
     .user_ctx = NULL
 };
 
+httpd_uri_t uri_sta_delete4 = {
+    .uri      = "/sta_delete_4",
+    .method   = HTTP_GET,
+    .handler  = handle_delete4,
+    .user_ctx = NULL
+};
+
+httpd_uri_t uri_sta_delete5 = {
+    .uri      = "/sta_delete_5",
+    .method   = HTTP_GET,
+    .handler  = handle_delete5,
+    .user_ctx = NULL
+};
+
 httpd_uri_t uri_sta_choose1 = {
     .uri      = "/sta_choose_1",
     .method   = HTTP_GET,
@@ -1304,6 +1511,20 @@ httpd_uri_t uri_sta_choose3 = {
     .uri      = "/sta_choose_3",
     .method   = HTTP_GET,
     .handler  = handle_choose3,
+    .user_ctx = NULL
+};
+
+httpd_uri_t uri_sta_choose4 = {
+    .uri      = "/sta_choose_4",
+    .method   = HTTP_GET,
+    .handler  = handle_choose4,
+    .user_ctx = NULL
+};
+
+httpd_uri_t uri_sta_choose5 = {
+    .uri      = "/sta_choose_5",
+    .method   = HTTP_GET,
+    .handler  = handle_choose5,
     .user_ctx = NULL
 };
 
@@ -1328,11 +1549,25 @@ httpd_uri_t uri_sta_data3 = {
     .user_ctx = NULL
 };
 
+httpd_uri_t uri_sta_data4 = {
+    .uri      = "/data_4",
+    .method   = HTTP_POST,
+    .handler  = handle_data_4,
+    .user_ctx = NULL
+};
+
+httpd_uri_t uri_sta_data5 = {
+    .uri      = "/data_5",
+    .method   = HTTP_POST,
+    .handler  = handle_data_5,
+    .user_ctx = NULL
+};
+
 httpd_handle_t start_webserver(void)
 {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     httpd_handle_t server = NULL;
-    config.max_uri_handlers = 30;
+    config.max_uri_handlers = 40;
     if (httpd_start(&server, &config) == ESP_OK) {
         httpd_register_uri_handler(server, &uri_home);
         httpd_register_uri_handler(server, &uri_manual);
@@ -1350,18 +1585,28 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &uri_sta1);
         httpd_register_uri_handler(server, &uri_sta2);
         httpd_register_uri_handler(server, &uri_sta3);
+        httpd_register_uri_handler(server, &uri_sta4);
+        httpd_register_uri_handler(server, &uri_sta5);
         httpd_register_uri_handler(server, &uri_sta_mod1);
         httpd_register_uri_handler(server, &uri_sta_mod2);
         httpd_register_uri_handler(server, &uri_sta_mod3);
+        httpd_register_uri_handler(server, &uri_sta_mod4);
+        httpd_register_uri_handler(server, &uri_sta_mod5);
         httpd_register_uri_handler(server, &uri_sta_delete1);
         httpd_register_uri_handler(server, &uri_sta_delete2);
         httpd_register_uri_handler(server, &uri_sta_delete3);
+        httpd_register_uri_handler(server, &uri_sta_delete4);
+        httpd_register_uri_handler(server, &uri_sta_delete5);
         httpd_register_uri_handler(server, &uri_sta_choose1);
         httpd_register_uri_handler(server, &uri_sta_choose2);
         httpd_register_uri_handler(server, &uri_sta_choose3);
+        httpd_register_uri_handler(server, &uri_sta_choose4);
+        httpd_register_uri_handler(server, &uri_sta_choose5);
         httpd_register_uri_handler(server, &uri_sta_data1);
         httpd_register_uri_handler(server, &uri_sta_data2);
         httpd_register_uri_handler(server, &uri_sta_data3);
+        httpd_register_uri_handler(server, &uri_sta_data4);
+        httpd_register_uri_handler(server, &uri_sta_data5);
     }
     return server;
 }
