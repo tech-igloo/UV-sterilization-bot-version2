@@ -201,7 +201,54 @@ int conn_type()
             *pos = '\0';
         }
         if(strcmp(line, "SAP") == 0){
+/*          char* token;
             ESP_LOGI(TAG, "SAP mode");
+            for(i = 0; i <= WIFI_NUM+1; i++){
+                fgets(line, sizeof(line), f);
+                pos = strchr(line, '\n');
+                if(pos){
+                *pos = '\0';
+                }
+                if(i == WIFI_NUM+1){
+                    total = atoi(line);
+                    continue;
+                }
+                token = strtok(line, " ");
+                strcpy(ssid[i], token);
+                token = strtok(NULL, " ");
+                strcpy(pass[i], token);
+            }
+            fclose(f);
+            return conn_flag_local;*/
+            char* token;
+            for(i = 0; i <= WIFI_NUM+1; i++){
+                fgets(line, sizeof(line), f);
+                pos = strchr(line, '\n');
+                if(pos){
+                *pos = '\0';
+                }
+                if(i == WIFI_NUM)
+                    continue;
+                if(i == WIFI_NUM+1){
+                    total = atoi(line); //denote total number of saved networks
+                    continue;
+                }
+                ESP_LOGI(TAG, "%s", line);
+                token = strtok(line, " ");
+                strcpy(ssid[i], token);
+                token = strtok(NULL, " ");
+                strcpy(pass[i], token);
+            }
+            ESP_LOGI(TAG, "STA Mode");
+            for(i = 0; i < WIFI_NUM; i++){
+                if((i+1) == conn_flag_local) //(i+1) is done because i is from 0:WIFI_NUM while conn_flag_local is from 1:WIFI_NUM
+                {
+                    strcpy(EXAMPLE_ESP_WIFI_SSID, ssid[i]);
+                    strcpy(EXAMPLE_ESP_WIFI_PASS, pass[i]);
+                }
+                ESP_LOGI(TAG, "%dth Network SSID: %s\n", (i+1), ssid[i]);
+                ESP_LOGI(TAG, "%dth Network Password: %s\n", (i+1), pass[i]);
+            }
             fclose(f);
             return conn_flag_local;
         }
@@ -308,6 +355,7 @@ char* default_page()
     strcat(ptr, "<p>Press to select Manual mode</p><a class=\"button button-on\" href=\"/manual\">MANUAL</a>\n");
     strcat(ptr, "<p>Press to select Auto mode</p><a class=\"button button-on\" href=\"/auto\">AUTO</a>\n");
     strcat(ptr, "<p>Press to choose Connection Mode</p><a class=\"button button-on\" href=\"/choose\">SAP/STA</a>\n");
+    strcat(ptr, "<p>Press to reset the ESP</p><a class=\"button button-on\" href=\"/reset\">FACTORY\nRESET</a>\n");
 
     strcat(ptr, "</body>\n");
     strcat(ptr, "</html>\n");
@@ -637,6 +685,16 @@ esp_err_t handle_OnConnect(httpd_req_t *req)
     char* resp = default_page();
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    return ESP_OK;
+}
+
+esp_err_t handle_reset(httpd_req_t *req)
+{
+    remove("/spiffs/wifi_conf.txt");
+    remove("/spiffs/path.txt");
+    httpd_resp_send(req, "Device will restart now", strlen("Device will restart now"));
+    vTaskDelay(100);
+    esp_restart();
     return ESP_OK;
 }
 
@@ -1297,6 +1355,13 @@ esp_err_t handle_data_5(httpd_req_t *req)
     return ESP_OK;
 }
 
+httpd_uri_t uri_reset = {
+    .uri      = "/reset",
+    .method   = HTTP_GET,
+    .handler  = handle_reset,
+    .user_ctx = NULL
+};
+
 httpd_uri_t uri_home = {
     .uri      = "/",
     .method   = HTTP_GET,
@@ -1569,6 +1634,7 @@ httpd_handle_t start_webserver(void)
     httpd_handle_t server = NULL;
     config.max_uri_handlers = 40;
     if (httpd_start(&server, &config) == ESP_OK) {
+        httpd_register_uri_handler(server, &uri_reset);
         httpd_register_uri_handler(server, &uri_home);
         httpd_register_uri_handler(server, &uri_manual);
         httpd_register_uri_handler(server, &uri_auto);
@@ -1768,6 +1834,10 @@ void wifi_init_sta(void)
     } else if (bits & WIFI_FAIL_BIT) {
         ESP_LOGI(TAG, "Failed to connect to SSID:%s, password:%s",
                  EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
+        ESP_ERROR_CHECK(replace("SAP", 1));
+        ESP_LOGI(TAG, "SAP Data Written");
+        vTaskDelay(100);
+        esp_restart();
     } else {
         ESP_LOGE(TAG, "UNEXPECTED EVENT");
     }
