@@ -22,7 +22,7 @@
 #include <sys/stat.h>
 #include "esp_err.h"
 #include "mdns.h"
-//todo: read the stored paths
+
 #define EXAMPLE_ESP_MAXIMUM_RETRY 5             //maximum number of times the esp will try to connect to a network in STA mode
 #define DEFAULT_SSID "myssid"                   //default used in SAP and STA mode
 #define DEFAULT_PASS "qwerty1234"               //default used in SAP and STA mode
@@ -99,8 +99,8 @@ esp_err_t update_number(int n){
     char line[2];
     char str[LINE_LEN];
     int linectr = 0;
-    total = total + n;
-    sprintf(line, "%d", total);
+    total_paths = total_paths + n;
+    sprintf(line, "%d", total_paths);
     FILE* f_r = fopen("/spiffs/paths.txt", "r");
     FILE* f_w = fopen("/spiffs/temp.txt", "w");
     if(f_r == NULL){
@@ -259,7 +259,6 @@ int main_update()
         fprintf(f, "0\n0\n");
         fclose(f);
         ESP_LOGI(TAG, "File written");
-        // return conn_flag_local;
     }
     else{
         FILE* f = fopen("/spiffs/wifi_conf.txt", "r");
@@ -298,7 +297,6 @@ int main_update()
                 ESP_LOGI(TAG, "%dth Network Password: %s\n", (i+1), pass[i]);
             }
             fclose(f);
-            // return conn_flag_local;
         }
         else{
             char* token;
@@ -332,7 +330,6 @@ int main_update()
                 ESP_LOGI(TAG, "%dth Network Password: %s\n", (i+1), pass[i]);
             }
             fclose(f);
-            // return conn_flag_local;
         }
     }
     if (stat("/spiffs/paths.txt", &st1) != 0){
@@ -578,7 +575,72 @@ char* get_form(int local_flag)  //local_flag min value is 1. Note: Need to set m
     return ptr;
 }
 
-char* auto_mode(int local_flag)
+char* get_auto()
+{
+    char* ptr = (char*)calloc(2048, sizeof(char));
+    int i;
+    char str[20];
+    strcat(ptr, "<!DOCTYPE html> <html>\n");
+    strcat(ptr, "<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\">\n");
+    strcat(ptr, "<title>Choose Direction</title>\n");
+    strcat(ptr, "<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\n");
+    strcat(ptr, "body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;} h3 {color: #444444;margin-bottom: 50px;}\n");
+    strcat(ptr, ".button {display: block;width: 100px;background-color: #3498db;border: none;color: white;padding: 13px 30px;text-decoration: none;font-size: 25px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n");
+    strcat(ptr, ".button-on {background-color: #3498db;}\n");
+    strcat(ptr, ".button-on:active {background-color: #2980b9;}\n");
+    strcat(ptr, ".button-off {background-color: #34495e;}\n");
+    strcat(ptr, ".button-off:active {background-color: #2c3e50;}\n");
+    strcat(ptr, "p {font-size: 14px;color: #888;margin-bottom: 10px;}\n");
+    strcat(ptr, "</style>\n");
+    strcat(ptr, "</head>\n");
+    strcat(ptr, "<body>\n");
+    strcat(ptr, "<h1>ESP32 Web Server</h1>\n");
+    if(conn_flag == 0)
+        strcat(ptr, "<h3>Using Access Point(AP) Mode</h3>\n");
+    else{
+        strcat(ptr, "<h3>Using Station(STA) Mode</h3>\n");
+    }
+    for(i = 1; i <= total_paths; i++)
+    {
+        sprintf(str, "%d", i);
+        strcat(ptr, "<p>Press to execute this path</p><a class=\"button button-on\" href=\"/path");
+        strcat(ptr, str);
+        strcat(ptr, "\">Path ");
+        strcat(ptr, str);
+        strcat(ptr, "</a>\n");
+    }    
+    strcat(ptr, "<p>Press to return to home</p><a class=\"button button-on\" href=\"/\">HOME</a>\n");
+    strcat(ptr, "</body>\n");
+    strcat(ptr, "</html>\n");
+    return ptr;
+}
+
+esp_err_t get_path(int local_flag)
+{
+    char str[LINE_LEN];
+    int linectr = 0;
+    FILE* f_r = fopen("/spiffs/paths.txt", "r");
+    if (f_r == NULL) {
+        ESP_LOGE(TAG, "Failed to open file for reading");
+        return ESP_FAIL;
+    }
+    while(!feof(f_r))
+    {
+        strcpy(str, "\0");
+        fgets(str, LINE_LEN, f_r);
+        if(!feof(f_r))
+        {
+            linectr++;
+            if(linectr == (local_flag+1))
+                break;
+        }
+    }
+    ESP_LOGI(TAG, "%s", str);
+    fclose(f_r);
+    return ESP_OK;
+}
+
+char* get_home(int local_flag)
 {
     char* ptr = (char*)calloc(2048, sizeof(char));
     strcat(ptr, "<!DOCTYPE html> <html>\n");
@@ -600,18 +662,19 @@ char* auto_mode(int local_flag)
         strcat(ptr, "<h3>Using Access Point(AP) Mode</h3>\n");
     else
         strcat(ptr, "<h3>Using Station(STA) Mode</h3>\n");
+
     if(local_flag == 1)
         strcat(ptr, "<h3>Maximum number of connections reached</h3>\n");
-    if(local_flag == 2)
+    else if(local_flag == 2)
         strcat(ptr, "<h3>Deleted Successfully</h3>\n");
-    if(local_flag == 3)
+    else if(local_flag == 3)
         strcat(ptr, "<h3>Saved Successfully</h3>\n");
-    if(local_flag == 4)
+    else if(local_flag == 4)
         strcat(ptr, "<h3>Added Successfully</h3>\n");
     strcat(ptr, "<p>Press to return to home</p><a class=\"button button-on\" href=\"/\">HOME</a>\n");
     strcat(ptr, "</body>\n");
     strcat(ptr, "</html>\n");
-    return ptr;
+    return ptr; 
 }
 
 char* manual_mode()
@@ -730,22 +793,22 @@ char* SendHTML(uint8_t local_flag)
     }
 
     if(local_flag==0)
-    {strcat(ptr, "<p>Forward: ON</p><a class=\"button button-off\" href=\"/manual\">OFF</a>\n");}
+    {strcat(ptr, "<p>Forward: ON</p><a class=\"button button-off\" href=\"/pause\">OFF</a>\n");}
     else
     {strcat(ptr, "<p>Forward: OFF</p><a class=\"button button-on\" href=\"/forward\">ON</a>\n");}
 
     if(local_flag==1)
-    {strcat(ptr, "<p>Left: ON</p><a class=\"button button-off\" href=\"/manual\">OFF</a>\n");}
+    {strcat(ptr, "<p>Left: ON</p><a class=\"button button-off\" href=\"/pause\">OFF</a>\n");}
     else
     {strcat(ptr, "<p>Left: OFF</p><a class=\"button button-on\" href=\"/left\">ON</a>\n");}
 
     if(local_flag==2)
-    {strcat(ptr, "<p>Right: ON</p><a class=\"button button-off\" href=\"/manual\">OFF</a>\n");}
+    {strcat(ptr, "<p>Right: ON</p><a class=\"button button-off\" href=\"/pause\">OFF</a>\n");}
     else
     {strcat(ptr, "<p>Right: OFF</p><a class=\"button button-on\" href=\"/right\">ON</a>\n");}
 
     if(local_flag==3)
-    {strcat(ptr, "<p>Backwards: ON</p><a class=\"button button-off\" href=\"/manual\">OFF</a>\n");}
+    {strcat(ptr, "<p>Backwards: ON</p><a class=\"button button-off\" href=\"/pause\">OFF</a>\n");}
     else
     {strcat(ptr, "<p>Backwards: OFF</p><a class=\"button button-on\" href=\"/back\">ON</a>\n");}
 
@@ -824,6 +887,51 @@ esp_err_t handle_start(httpd_req_t *req)
     return ESP_OK;
 }
 
+esp_err_t handle_path1(httpd_req_t *req)
+{
+    ESP_ERROR_CHECK(get_path(1));
+    char* resp = get_home(0);
+    httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
+    return ESP_OK;
+}
+
+esp_err_t handle_path2(httpd_req_t *req)
+{
+    ESP_ERROR_CHECK(get_path(2));
+    char* resp = get_home(0);
+    httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
+    return ESP_OK;
+}
+
+esp_err_t handle_path3(httpd_req_t *req)
+{
+    ESP_ERROR_CHECK(get_path(3));
+    char* resp = get_home(0);
+    httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
+    return ESP_OK;
+}
+
+esp_err_t handle_path4(httpd_req_t *req)
+{
+    ESP_ERROR_CHECK(get_path(4));
+    char* resp = get_home(0);
+    httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
+    return ESP_OK;
+}
+
+esp_err_t handle_path5(httpd_req_t *req)
+{
+    ESP_ERROR_CHECK(get_path(5));
+    char* resp = get_home(0);
+    httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
+    return ESP_OK;
+}
+
 esp_err_t handle_manual(httpd_req_t *req)
 {
     record_flag = 0;
@@ -842,26 +950,39 @@ esp_err_t handle_manual(httpd_req_t *req)
     return ESP_OK;
 }
 
+esp_err_t handle_pause(httpd_req_t *req)
+{
+    char det = determine(flag);
+    curr_mili = esp_timer_get_time();
+    time_duration = (curr_mili - prev_mili)/1000.0;
+    ESP_LOGI(TAG,"%c%f",det,time_duration);
+    prev_mili = esp_timer_get_time();
+    flag = -1;
+    char* resp = manual_mode();
+    httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
+    ESP_LOGI(TAG, "Record Flag: %d", record_flag);
+    if(record_flag == 1)
+    {
+        FILE* f = fopen("/spiffs/paths.txt", "a");
+        if (f == NULL) {
+            ESP_LOGE(TAG, "Failed to open file for writing");
+            return ESP_FAIL;
+        }
+        fputc(det, f);
+        fprintf(f, "%.3f", time_duration);
+        fputc('\t', f);
+        fclose(f);
+    }
+    return ESP_OK;  
+}
+
 esp_err_t handle_auto(httpd_req_t *req)//to change
 {
     flag = 4;
-    char* resp = auto_mode(0);
+    char* resp = get_auto();
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    FILE* f = fopen("/spiffs/path.txt", "r");
-    if (f == NULL) {
-        ESP_LOGE(TAG, "Failed to open file for reading");
-        return ESP_FAIL;
-    }
-    char buffer[12];
-    int totalRead;
-    while(fgets(buffer, 12, f) != NULL) 
-    {
-        totalRead = strlen(buffer);
-        buffer[totalRead - 1] = buffer[totalRead - 1] == '\n'?'\0':buffer[totalRead - 1];
-        ESP_LOGI(TAG, "%s", buffer);
-    } 
-    fclose(f);
     return ESP_OK;
 }
 
@@ -1003,8 +1124,8 @@ esp_err_t handle_stop(httpd_req_t *req)
 esp_err_t handle_save(httpd_req_t *req)
 {
     update_number(1);
-    update_paths();
-    char* resp = auto_mode(3);
+    //update_paths();
+    char* resp = get_home(3);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
     return ESP_OK;
@@ -1040,7 +1161,7 @@ esp_err_t handle_new(httpd_req_t *req)
 {
     if(total == WIFI_NUM)
     {
-        char* resp = auto_mode(1);
+        char* resp = get_home(1);
         httpd_resp_send(req, resp, strlen(resp));
         free(resp);
         return ESP_OK;
@@ -1077,7 +1198,7 @@ esp_err_t handle_modify1(httpd_req_t *req)
 
 esp_err_t handle_delete1(httpd_req_t *req)
 {
-    char* resp = auto_mode(2);
+    char* resp = get_home(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
     total = total - 1;
@@ -1122,7 +1243,7 @@ esp_err_t handle_modify2(httpd_req_t *req)
 
 esp_err_t handle_delete2(httpd_req_t *req)
 {
-    char* resp = auto_mode(2);
+    char* resp = get_home(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
     total = total - 1;
@@ -1167,7 +1288,7 @@ esp_err_t handle_modify3(httpd_req_t *req)
 
 esp_err_t handle_delete3(httpd_req_t *req)
 {
-    char* resp = auto_mode(2);
+    char* resp = get_home(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
     total = total - 1;
@@ -1212,7 +1333,7 @@ esp_err_t handle_modify4(httpd_req_t *req)
 
 esp_err_t handle_delete4(httpd_req_t *req)
 {
-    char* resp = auto_mode(2);
+    char* resp = get_home(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
     total = total - 1;
@@ -1257,7 +1378,7 @@ esp_err_t handle_modify5(httpd_req_t *req)
 
 esp_err_t handle_delete5(httpd_req_t *req)
 {
-    char* resp = auto_mode(2);
+    char* resp = get_home(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
     total = total - 1;
@@ -1316,7 +1437,7 @@ esp_err_t handle_data_1(httpd_req_t *req)
     strcat(line_str, pwd);
     ESP_ERROR_CHECK(replace_wifi(line_str, 2));
     ESP_ERROR_CHECK(update_wifi());
-    char* resp = auto_mode(4);
+    char* resp = get_home(4);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
     return ESP_OK;
@@ -1354,7 +1475,7 @@ esp_err_t handle_data_2(httpd_req_t *req)
     strcat(line_str, pwd);
     ESP_ERROR_CHECK(replace_wifi(line_str, 3));
     ESP_ERROR_CHECK(update_wifi());
-    char* resp = auto_mode(4);
+    char* resp = get_home(4);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
     return ESP_OK;
@@ -1392,7 +1513,7 @@ esp_err_t handle_data_3(httpd_req_t *req)
     strcat(line_str, pwd);
     ESP_ERROR_CHECK(replace_wifi(line_str, 4));
     ESP_ERROR_CHECK(update_wifi());
-    char* resp = auto_mode(4);
+    char* resp = get_home(4);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
     return ESP_OK;
@@ -1430,7 +1551,7 @@ esp_err_t handle_data_4(httpd_req_t *req)
     strcat(line_str, pwd);
     ESP_ERROR_CHECK(replace_wifi(line_str, 5));
     ESP_ERROR_CHECK(update_wifi());
-    char* resp = auto_mode(4);
+    char* resp = get_home(4);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
     return ESP_OK;
@@ -1468,7 +1589,7 @@ esp_err_t handle_data_5(httpd_req_t *req)
     strcat(line_str, pwd);
     ESP_ERROR_CHECK(replace_wifi(line_str, 6));
     ESP_ERROR_CHECK(update_wifi());
-    char* resp = auto_mode(4);
+    char* resp = get_home(4);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
     return ESP_OK;
@@ -1492,6 +1613,13 @@ httpd_uri_t uri_manual = {
     .uri      = "/manual",
     .method   = HTTP_GET,
     .handler  = handle_manual,
+    .user_ctx = NULL
+};
+
+httpd_uri_t uri_pause = {
+    .uri      = "/pause",
+    .method   = HTTP_GET,
+    .handler  = handle_pause,
     .user_ctx = NULL
 };
 
@@ -1548,6 +1676,41 @@ httpd_uri_t uri_save = {
     .uri      = "/save",
     .method   = HTTP_GET,
     .handler  = handle_save,
+    .user_ctx = NULL
+};
+
+httpd_uri_t uri_path1 = {
+    .uri      = "/path1",
+    .method   = HTTP_GET,
+    .handler  = handle_path1,
+    .user_ctx = NULL
+};
+
+httpd_uri_t uri_path2 = {
+    .uri      = "/path2",
+    .method   = HTTP_GET,
+    .handler  = handle_path2,
+    .user_ctx = NULL
+};
+
+httpd_uri_t uri_path3 = {
+    .uri      = "/path3",
+    .method   = HTTP_GET,
+    .handler  = handle_path3,
+    .user_ctx = NULL
+};
+
+httpd_uri_t uri_path4 = {
+    .uri      = "/path4",
+    .method   = HTTP_GET,
+    .handler  = handle_path4,
+    .user_ctx = NULL
+};
+
+httpd_uri_t uri_path5 = {
+    .uri      = "/path5",
+    .method   = HTTP_GET,
+    .handler  = handle_path5,
     .user_ctx = NULL
 };
 
@@ -1758,11 +1921,12 @@ httpd_handle_t start_webserver(void)
 {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     httpd_handle_t server = NULL;
-    config.max_uri_handlers = 40;
+    config.max_uri_handlers = 46;
     if (httpd_start(&server, &config) == ESP_OK) {
         httpd_register_uri_handler(server, &uri_reset);
         httpd_register_uri_handler(server, &uri_home);
         httpd_register_uri_handler(server, &uri_manual);
+        httpd_register_uri_handler(server, &uri_pause);
         httpd_register_uri_handler(server, &uri_auto);
         httpd_register_uri_handler(server, &uri_forward);
         httpd_register_uri_handler(server, &uri_left);
@@ -1775,6 +1939,11 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &uri_stop);
         httpd_register_uri_handler(server, &uri_save);
         httpd_register_uri_handler(server, &uri_new);
+        httpd_register_uri_handler(server, &uri_path1);
+        httpd_register_uri_handler(server, &uri_path2);
+        httpd_register_uri_handler(server, &uri_path3);
+        httpd_register_uri_handler(server, &uri_path4);
+        httpd_register_uri_handler(server, &uri_path5);
         httpd_register_uri_handler(server, &uri_sta1);
         httpd_register_uri_handler(server, &uri_sta2);
         httpd_register_uri_handler(server, &uri_sta3);
@@ -1983,6 +2152,7 @@ void app_main(void)
         init_sap();
     else
         wifi_init_sta();
+    ESP_ERROR_CHECK(update_paths());
     ESP_ERROR_CHECK(mdns_init());
     ESP_ERROR_CHECK(mdns_hostname_set("esp32"));
     ESP_LOGI(TAG, "mdns hostname set to: [esp32]");
