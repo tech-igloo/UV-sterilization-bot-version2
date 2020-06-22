@@ -175,6 +175,41 @@ esp_err_t delete(int n)
     return ESP_OK;  
 }
 
+esp_err_t delete_specific_path(int n)
+{
+    char str[LINE_LEN];
+    int linectr = 0;
+    FILE* f_r = fopen("/spiffs/paths.txt", "r");
+    FILE* f_w = fopen("/spiffs/temp.txt", "w");
+    if(f_r == NULL){
+        ESP_LOGE(TAG, "Error opening file paths.txt\n");
+        return ESP_FAIL;
+    }
+    if(f_w == NULL){
+        ESP_LOGE(TAG, "Error opening file temp.txt\n");
+        return ESP_FAIL;
+    }
+    while(!feof(f_r))
+    {
+        strcpy(str, "\0");
+        fgets(str, LINE_LEN, f_r);
+        if(!feof(f_r))
+        {
+            linectr++;
+            if(linectr == (n+1)){
+                continue;
+            }
+            else
+                fprintf(f_w, "%s", str);
+        }
+    }
+    fclose(f_r);
+    fclose(f_w);
+    remove("/spiffs/paths.txt");
+    rename("/spiffs/temp.txt", "/spiffs/paths.txt");
+    return ESP_OK;  
+}
+
 esp_err_t delete_paths(int n){
     char str[LINE_LEN];
     int linectr = 0;
@@ -603,12 +638,52 @@ char* get_auto()
     for(i = 1; i <= total_paths; i++)
     {
         sprintf(str, "%d", i);
-        strcat(ptr, "<p>Press to execute this path</p><a class=\"button button-on\" href=\"/path");
+        strcat(ptr, "<p>Press for more details</p><a class=\"button button-on\" href=\"/path_details");
         strcat(ptr, str);
         strcat(ptr, "\">Path ");
         strcat(ptr, str);
         strcat(ptr, "</a>\n");
     }    
+    strcat(ptr, "<p>Press to return to home</p><a class=\"button button-on\" href=\"/\">HOME</a>\n");
+    strcat(ptr, "</body>\n");
+    strcat(ptr, "</html>\n");
+    return ptr;
+}
+
+char* get_path_specific(int local_flag)
+{
+    char* ptr = (char*)calloc(2048, sizeof(char));
+    char str[20];
+    strcat(ptr, "<!DOCTYPE html> <html>\n");
+    strcat(ptr, "<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\">\n");
+    strcat(ptr, "<title>Choose Direction</title>\n");
+    strcat(ptr, "<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\n");
+    strcat(ptr, "body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;} h3 {color: #444444;margin-bottom: 50px;}\n");
+    strcat(ptr, ".button {display: block;width: 100px;background-color: #3498db;border: none;color: white;padding: 13px 30px;text-decoration: none;font-size: 25px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n");
+    strcat(ptr, ".button-on {background-color: #3498db;}\n");
+    strcat(ptr, ".button-on:active {background-color: #2980b9;}\n");
+    strcat(ptr, ".button-off {background-color: #34495e;}\n");
+    strcat(ptr, ".button-off:active {background-color: #2c3e50;}\n");
+    strcat(ptr, "p {font-size: 14px;color: #888;margin-bottom: 10px;}\n");
+    strcat(ptr, "</style>\n");
+    strcat(ptr, "</head>\n");
+    strcat(ptr, "<body>\n");
+    strcat(ptr, "<h1>ESP32 Web Server</h1>\n");
+    if(conn_flag == 0)
+        strcat(ptr, "<h3>Using Access Point(AP) Mode</h3>\n");
+    else{
+        strcat(ptr, "<h3>Using Station(STA) Mode</h3>\n");
+    }
+    sprintf(str, "%d", local_flag);
+    strcat(ptr, "<h3>PATH: ");
+    strcat(ptr, str);
+    strcat(ptr, "</h3>\n");
+    strcat(ptr, "<p>Press to execute this path</p><a class=\"button button-on\" href=\"/path");
+    strcat(ptr, str);
+    strcat(ptr, "\">Execute</a>\n");
+    strcat(ptr, "<p>Press to delete this path</p><a class=\"button button-on\" href=\"/delete_path");
+    strcat(ptr, str);
+    strcat(ptr, "\">Delete</a>\n");
     strcat(ptr, "<p>Press to return to home</p><a class=\"button button-on\" href=\"/\">HOME</a>\n");
     strcat(ptr, "</body>\n");
     strcat(ptr, "</html>\n");
@@ -977,6 +1052,96 @@ esp_err_t handle_pause(httpd_req_t *req)
     return ESP_OK;  
 }
 
+esp_err_t handle_specific_path1(httpd_req_t *req)//to change
+{
+    char* resp = get_path_specific(1);
+    httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
+    return ESP_OK;
+}
+
+esp_err_t handle_specific_path2(httpd_req_t *req)//to change
+{
+    char* resp = get_path_specific(2);
+    httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
+    return ESP_OK;
+}
+
+esp_err_t handle_specific_path3(httpd_req_t *req)//to change
+{
+    char* resp = get_path_specific(3);
+    httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
+    return ESP_OK;
+}
+
+esp_err_t handle_specific_path4(httpd_req_t *req)//to change
+{
+    char* resp = get_path_specific(4);
+    httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
+    return ESP_OK;
+}
+
+esp_err_t handle_specific_path5(httpd_req_t *req)//to change
+{
+    char* resp = get_path_specific(5);
+    httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
+    return ESP_OK;
+}
+
+esp_err_t handle_delete_path1(httpd_req_t *req)//to change
+{
+    ESP_ERROR_CHECK(delete_specific_path(1));
+    ESP_ERROR_CHECK(update_number(-1));
+    char* resp = get_home(2);
+    httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
+    return ESP_OK;
+}
+
+esp_err_t handle_delete_path2(httpd_req_t *req)//to change
+{
+    ESP_ERROR_CHECK(delete_specific_path(2));
+    ESP_ERROR_CHECK(update_number(-1));
+    char* resp = get_home(2);
+    httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
+    return ESP_OK;
+}
+
+esp_err_t handle_delete_path3(httpd_req_t *req)//to change
+{
+    ESP_ERROR_CHECK(delete_specific_path(3));
+    ESP_ERROR_CHECK(update_number(-1));
+    char* resp = get_home(2);
+    httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
+    return ESP_OK;
+}
+
+esp_err_t handle_delete_path4(httpd_req_t *req)//to change
+{
+    ESP_ERROR_CHECK(delete_specific_path(4));
+    ESP_ERROR_CHECK(update_number(-1));
+    char* resp = get_home(2);
+    httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
+    return ESP_OK;
+}
+
+esp_err_t handle_delete_path5(httpd_req_t *req)//to change
+{
+    ESP_ERROR_CHECK(delete_specific_path(5));
+    ESP_ERROR_CHECK(update_number(-1));
+    char* resp = get_home(2);
+    httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
+    return ESP_OK;
+}
+
 esp_err_t handle_auto(httpd_req_t *req)//to change
 {
     flag = 4;
@@ -1124,7 +1289,6 @@ esp_err_t handle_stop(httpd_req_t *req)
 esp_err_t handle_save(httpd_req_t *req)
 {
     update_number(1);
-    //update_paths();
     char* resp = get_home(3);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -1630,6 +1794,76 @@ httpd_uri_t uri_auto = {
     .user_ctx = NULL
 };
 
+httpd_uri_t uri_specific_path1 = {
+    .uri      = "/path_details1",
+    .method   = HTTP_GET,
+    .handler  = handle_specific_path1,
+    .user_ctx = NULL
+};
+
+httpd_uri_t uri_specific_path2 = {
+    .uri      = "/path_details2",
+    .method   = HTTP_GET,
+    .handler  = handle_specific_path2,
+    .user_ctx = NULL
+};
+
+httpd_uri_t uri_specific_path3 = {
+    .uri      = "/path_details3",
+    .method   = HTTP_GET,
+    .handler  = handle_specific_path3,
+    .user_ctx = NULL
+};
+
+httpd_uri_t uri_specific_path4 = {
+    .uri      = "/path_details4",
+    .method   = HTTP_GET,
+    .handler  = handle_specific_path4,
+    .user_ctx = NULL
+};
+
+httpd_uri_t uri_specific_path5 = {
+    .uri      = "/path_details5",
+    .method   = HTTP_GET,
+    .handler  = handle_specific_path5,
+    .user_ctx = NULL
+};
+
+httpd_uri_t uri_delete_path1 = {
+    .uri      = "/delete_path1",
+    .method   = HTTP_GET,
+    .handler  = handle_delete_path1,
+    .user_ctx = NULL
+};
+
+httpd_uri_t uri_delete_path2 = {
+    .uri      = "/delete_path2",
+    .method   = HTTP_GET,
+    .handler  = handle_delete_path2,
+    .user_ctx = NULL
+};
+
+httpd_uri_t uri_delete_path3 = {
+    .uri      = "/delete_path3",
+    .method   = HTTP_GET,
+    .handler  = handle_delete_path3,
+    .user_ctx = NULL
+};
+
+httpd_uri_t uri_delete_path4 = {
+    .uri      = "/delete_path4",
+    .method   = HTTP_GET,
+    .handler  = handle_delete_path4,
+    .user_ctx = NULL
+};
+
+httpd_uri_t uri_delete_path5 = {
+    .uri      = "/delete_path5",
+    .method   = HTTP_GET,
+    .handler  = handle_delete_path5,
+    .user_ctx = NULL
+};
+
 httpd_uri_t uri_forward = {
     .uri      = "/forward",
     .method   = HTTP_GET,
@@ -1921,7 +2155,7 @@ httpd_handle_t start_webserver(void)
 {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     httpd_handle_t server = NULL;
-    config.max_uri_handlers = 46;
+    config.max_uri_handlers = 60;
     if (httpd_start(&server, &config) == ESP_OK) {
         httpd_register_uri_handler(server, &uri_reset);
         httpd_register_uri_handler(server, &uri_home);
@@ -1939,6 +2173,16 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &uri_stop);
         httpd_register_uri_handler(server, &uri_save);
         httpd_register_uri_handler(server, &uri_new);
+        httpd_register_uri_handler(server, &uri_specific_path1);
+        httpd_register_uri_handler(server, &uri_specific_path2);
+        httpd_register_uri_handler(server, &uri_specific_path3);
+        httpd_register_uri_handler(server, &uri_specific_path4);
+        httpd_register_uri_handler(server, &uri_specific_path5);
+        httpd_register_uri_handler(server, &uri_delete_path1);
+        httpd_register_uri_handler(server, &uri_delete_path2);
+        httpd_register_uri_handler(server, &uri_delete_path3);
+        httpd_register_uri_handler(server, &uri_delete_path4);
+        httpd_register_uri_handler(server, &uri_delete_path5);
         httpd_register_uri_handler(server, &uri_path1);
         httpd_register_uri_handler(server, &uri_path2);
         httpd_register_uri_handler(server, &uri_path3);
