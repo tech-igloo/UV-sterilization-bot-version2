@@ -22,6 +22,7 @@
 #include <sys/stat.h>
 #include "esp_err.h"
 #include "mdns.h"
+#include "driver/ledc.h"
 
 #define EXAMPLE_ESP_MAXIMUM_RETRY 5             //maximum number of times the esp will try to connect to a network in STA mode
 #define DEFAULT_SSID "myssid"                   //default used in SAP and STA mode
@@ -57,8 +58,40 @@ static char EXAMPLE_ESP_WIFI_PASS[PASS_LEN];    //store the network password tha
 static int total = 0;                           //total number of SSID's stored till now
 static char line_str[LINE_LEN];
 static int total_paths = 0;                     //total number of paths stored till now
+static ledc_channel_config_t led_channel;
 /*Replaces the nth line in the file /wifi_conf.txt with the line supplied in the argument
   Note: *line should not end with \n*/
+
+void move_forward()
+{
+    ledc_set_duty(led_channel.speed_mode, led_channel.channel, 8192);
+    ledc_update_duty(led_channel.speed_mode, led_channel.channel);
+}
+
+void move_left()
+{
+    ledc_set_duty(led_channel.speed_mode, led_channel.channel, 4096);
+    ledc_update_duty(led_channel.speed_mode, led_channel.channel);
+}
+
+void move_right()
+{
+    ledc_set_duty(led_channel.speed_mode, led_channel.channel, 2048);
+    ledc_update_duty(led_channel.speed_mode, led_channel.channel);
+}
+
+void move_back()
+{
+    ledc_set_duty(led_channel.speed_mode, led_channel.channel, 1024);
+    ledc_update_duty(led_channel.speed_mode, led_channel.channel);
+}
+
+void move_stop()
+{
+    ledc_set_duty(led_channel.speed_mode, led_channel.channel, 0);
+    ledc_update_duty(led_channel.speed_mode, led_channel.channel);
+}
+
 esp_err_t replace_wifi(char* line, int n)
 {
     char str[LINE_LEN];
@@ -712,6 +745,25 @@ esp_err_t get_path(int local_flag)
     }
     ESP_LOGI(TAG, "%s", str);
     fclose(f_r);
+    char* token = strtok(str, "\t");
+    while(token!=NULL)
+    {
+        char ch = token[0];
+        switch(ch){
+            case 'f':move_forward();break;
+            case 'l':move_left();break;
+            case 'r':move_right();break;
+            case 'b':move_back();break;
+            default:move_stop();break;
+        }
+        ESP_LOGI(TAG, "Direction: %c", ch);
+        token++;
+        float time = atof(token);
+        ESP_LOGI(TAG, "Time: %f", time);
+        vTaskDelay(time/portTICK_PERIOD_MS);
+        token = strtok(NULL, "\t");
+    }
+    move_stop();
     return ESP_OK;
 }
 
@@ -1165,6 +1217,7 @@ esp_err_t handle_forward(httpd_req_t *req)
     ESP_LOGI(TAG, "Record Flag: %d", record_flag);
     if(record_flag == 1)
     {
+        move_forward();
         FILE* f = fopen("/spiffs/paths.txt", "a");
         if (f == NULL) {
             ESP_LOGE(TAG, "Failed to open file for writing");
@@ -1192,6 +1245,7 @@ esp_err_t handle_left(httpd_req_t *req)
     ESP_LOGI(TAG, "Record Flag: %d", record_flag);
     if(record_flag == 1)
     {
+        move_left();
         FILE* f = fopen("/spiffs/paths.txt", "a");
         if (f == NULL) {
             ESP_LOGE(TAG, "Failed to open file for writing");
@@ -1219,6 +1273,7 @@ esp_err_t handle_right(httpd_req_t *req)
     ESP_LOGI(TAG, "Record Flag: %d", record_flag);
     if(record_flag == 1)
     {
+        move_right();
         FILE* f = fopen("/spiffs/paths.txt", "a");
         if (f == NULL) {
             ESP_LOGE(TAG, "Failed to open file for writing");
@@ -1246,6 +1301,7 @@ esp_err_t handle_back(httpd_req_t *req)
     ESP_LOGI(TAG, "Record Flag: %d", record_flag);
     if(record_flag == 1)
     {
+        move_back();
         FILE* f = fopen("/spiffs/paths.txt", "a");
         if (f == NULL) {
             ESP_LOGE(TAG, "Failed to open file for writing");
@@ -1269,6 +1325,7 @@ esp_err_t handle_stop(httpd_req_t *req)
     ESP_LOGI(TAG, "Reading values");
     if(record_flag == 1)
     {
+        move_stop();
         FILE* f = fopen("/spiffs/paths.txt", "a");
         if (f == NULL) {
             ESP_LOGE(TAG, "Failed to open file for writing");
@@ -2387,10 +2444,30 @@ void wifi_init_sta(void)
     vEventGroupDelete(s_wifi_event_group);
 }
 
+void init_pwm()
+{
+    ledc_timer_config_t led_timer = {
+            .duty_resolution = LEDC_TIMER_13_BIT, // resolution of PWM duty
+            .freq_hz = 5000,                      // frequency of PWM signal
+            .speed_mode = LEDC_HIGH_SPEED_MODE,           // timer mode
+            .timer_num = LEDC_TIMER_0,            // timer index
+            .clk_cfg = LEDC_AUTO_CLK,              // Auto select the source clock
+        };
+    ledc_timer_config(&led_timer);
+    led_channel.channel = LEDC_CHANNEL_0;
+    led_channel.duty = 0;
+    led_channel.gpio_num = 2;
+    led_channel.speed_mode = LEDC_HIGH_SPEED_MODE;
+    led_channel.hpoint = 0;
+    led_channel.timer_sel = LEDC_TIMER_0;
+    ledc_channel_config(&led_channel);
+}
+
 void app_main(void)
 {
     static httpd_handle_t server = NULL;
     init_spiffs();
+    init_pwm();
     conn_flag = main_update();
     if(conn_flag == 0)
         init_sap();
