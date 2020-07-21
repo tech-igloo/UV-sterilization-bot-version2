@@ -59,6 +59,7 @@ static int total = 0;                           //total number of SSID's stored 
 static char line_str[LINE_LEN];
 static int total_paths = 0;                     //total number of paths stored till now
 static ledc_channel_config_t led_channel;
+static TaskHandle_t Task1;
 /*Replaces the nth line in the file /wifi_conf.txt with the line supplied in the argument
   Note: *line should not end with \n*/
 
@@ -983,6 +984,7 @@ esp_err_t handle_OnConnect(httpd_req_t *req)
     char* resp = default_page();
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -991,6 +993,7 @@ esp_err_t handle_reset(httpd_req_t *req)
     remove("/spiffs/wifi_conf.txt");
     remove("/spiffs/paths.txt");
     httpd_resp_send(req, "Device will restart now", strlen("Device will restart now"));
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     vTaskDelay(100);
     esp_restart();
     return ESP_OK;
@@ -1011,6 +1014,7 @@ esp_err_t handle_start(httpd_req_t *req)
     char* resp = manual_mode();
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1020,6 +1024,7 @@ esp_err_t handle_path1(httpd_req_t *req)
     char* resp = get_home(0);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1029,6 +1034,7 @@ esp_err_t handle_path2(httpd_req_t *req)
     char* resp = get_home(0);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1038,6 +1044,7 @@ esp_err_t handle_path3(httpd_req_t *req)
     char* resp = get_home(0);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1047,6 +1054,7 @@ esp_err_t handle_path4(httpd_req_t *req)
     char* resp = get_home(0);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1056,6 +1064,7 @@ esp_err_t handle_path5(httpd_req_t *req)
     char* resp = get_home(0);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1074,6 +1083,7 @@ esp_err_t handle_manual(httpd_req_t *req)
     prev_mili = esp_timer_get_time();
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1101,6 +1111,7 @@ esp_err_t handle_pause(httpd_req_t *req)
         fputc('\t', f);
         fclose(f);
     }
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;  
 }
 
@@ -1109,6 +1120,7 @@ esp_err_t handle_specific_path1(httpd_req_t *req)//to change
     char* resp = get_path_specific(1);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1117,6 +1129,7 @@ esp_err_t handle_specific_path2(httpd_req_t *req)//to change
     char* resp = get_path_specific(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1125,6 +1138,7 @@ esp_err_t handle_specific_path3(httpd_req_t *req)//to change
     char* resp = get_path_specific(3);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1133,6 +1147,7 @@ esp_err_t handle_specific_path4(httpd_req_t *req)//to change
     char* resp = get_path_specific(4);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1141,6 +1156,7 @@ esp_err_t handle_specific_path5(httpd_req_t *req)//to change
     char* resp = get_path_specific(5);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1151,6 +1167,7 @@ esp_err_t handle_delete_path1(httpd_req_t *req)//to change
     char* resp = get_home(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1161,6 +1178,7 @@ esp_err_t handle_delete_path2(httpd_req_t *req)//to change
     char* resp = get_home(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1171,6 +1189,7 @@ esp_err_t handle_delete_path3(httpd_req_t *req)//to change
     char* resp = get_home(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1181,6 +1200,7 @@ esp_err_t handle_delete_path4(httpd_req_t *req)//to change
     char* resp = get_home(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1191,6 +1211,7 @@ esp_err_t handle_delete_path5(httpd_req_t *req)//to change
     char* resp = get_home(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1200,6 +1221,7 @@ esp_err_t handle_auto(httpd_req_t *req)//to change
     char* resp = get_auto();
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1228,6 +1250,7 @@ esp_err_t handle_forward(httpd_req_t *req)
         fputc('\t', f);
         fclose(f);
     }
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1256,6 +1279,7 @@ esp_err_t handle_left(httpd_req_t *req)
         fputc('\t', f);
         fclose(f);
     }
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1284,6 +1308,7 @@ esp_err_t handle_right(httpd_req_t *req)
         fputc('\t', f);
         fclose(f);
     }
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1312,6 +1337,7 @@ esp_err_t handle_back(httpd_req_t *req)
         fputc('\t', f);
         fclose(f);
     }
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1340,6 +1366,7 @@ esp_err_t handle_stop(httpd_req_t *req)
     char* resp = get_stop();
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1349,6 +1376,7 @@ esp_err_t handle_save(httpd_req_t *req)
     char* resp = get_home(3);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1357,6 +1385,7 @@ esp_err_t handle_choose(httpd_req_t *req)
     char* resp = choose_page();
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1365,6 +1394,7 @@ esp_err_t handle_sap(httpd_req_t *req)
     httpd_resp_send(req, "Device will restart using SAP mode", strlen("Device will restart using SAP mode"));
     ESP_ERROR_CHECK(replace_wifi("SAP", 1));
     ESP_LOGI(TAG, "SAP Data Written");
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     vTaskDelay(100);
     esp_restart();
     return ESP_OK;
@@ -1375,6 +1405,7 @@ esp_err_t handle_sta(httpd_req_t *req)
     char* resp = get_sta();
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1385,6 +1416,7 @@ esp_err_t handle_new(httpd_req_t *req)
         char* resp = get_home(1);
         httpd_resp_send(req, resp, strlen(resp));
         free(resp);
+        ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
         return ESP_OK;
     }
     else
@@ -1396,6 +1428,7 @@ esp_err_t handle_new(httpd_req_t *req)
         char* resp = get_form(total);
         httpd_resp_send(req, resp, strlen(resp));
         free(resp);
+        ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
         return ESP_OK;
     }
     return ESP_OK;
@@ -1406,6 +1439,7 @@ esp_err_t handle_sta_data1(httpd_req_t *req)
     char* resp = get_sta_data(1);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1414,6 +1448,7 @@ esp_err_t handle_modify1(httpd_req_t *req)
     char* resp = get_form(1);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1430,6 +1465,7 @@ esp_err_t handle_delete1(httpd_req_t *req)
     ESP_ERROR_CHECK(update_wifi());
     if(total == 0)
         ESP_ERROR_CHECK(handle_sap(req));
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1441,6 +1477,7 @@ esp_err_t handle_choose1(httpd_req_t *req)
     ESP_ERROR_CHECK(replace_wifi("STA", 1));
     ESP_LOGI(TAG, "STA Wifi 1");
     httpd_resp_send(req, "Device will restart now and connect to wifi network", strlen("Device will restart now and connect to wifi network"));
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     vTaskDelay(100);
     esp_restart();
     return ESP_OK;
@@ -1451,6 +1488,7 @@ esp_err_t handle_sta_data2(httpd_req_t *req)
     char* resp = get_sta_data(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1459,6 +1497,7 @@ esp_err_t handle_modify2(httpd_req_t *req)
     char* resp = get_form(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1475,6 +1514,7 @@ esp_err_t handle_delete2(httpd_req_t *req)
     ESP_ERROR_CHECK(update_wifi());
     if(total == 0)
         ESP_ERROR_CHECK(handle_sap(req));
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1486,6 +1526,7 @@ esp_err_t handle_choose2(httpd_req_t *req)
     ESP_ERROR_CHECK(replace_wifi("STA", 1));
     ESP_LOGI(TAG, "STA Wifi 2");
     httpd_resp_send(req, "Device will restart now and connect to wifi network", strlen("Device will restart now and connect to wifi network"));
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     vTaskDelay(100);
     esp_restart();
     return ESP_OK;
@@ -1496,6 +1537,7 @@ esp_err_t handle_sta_data3(httpd_req_t *req)
     char* resp = get_sta_data(3);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1504,6 +1546,7 @@ esp_err_t handle_modify3(httpd_req_t *req)
     char* resp = get_form(3);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1520,6 +1563,7 @@ esp_err_t handle_delete3(httpd_req_t *req)
     ESP_ERROR_CHECK(update_wifi());
     if(total == 0)
         ESP_ERROR_CHECK(handle_sap(req));
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1531,6 +1575,7 @@ esp_err_t handle_choose3(httpd_req_t *req)
     ESP_ERROR_CHECK(replace_wifi("STA", 1));
     ESP_LOGI(TAG, "STA WIFI 3");
     httpd_resp_send(req, "Device will restart now and connect to wifi network", strlen("Device will restart now and connect to wifi network"));
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     vTaskDelay(100);
     esp_restart();
     return ESP_OK;
@@ -1541,6 +1586,7 @@ esp_err_t handle_sta_data4(httpd_req_t *req)
     char* resp = get_sta_data(4);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1549,6 +1595,7 @@ esp_err_t handle_modify4(httpd_req_t *req)
     char* resp = get_form(4);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1565,6 +1612,7 @@ esp_err_t handle_delete4(httpd_req_t *req)
     ESP_ERROR_CHECK(update_wifi());
     if(total == 0)
         ESP_ERROR_CHECK(handle_sap(req));
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1576,6 +1624,7 @@ esp_err_t handle_choose4(httpd_req_t *req)
     ESP_ERROR_CHECK(replace_wifi("STA", 1));
     ESP_LOGI(TAG, "STA Wifi 4");
     httpd_resp_send(req, "Device will restart now and connect to wifi network", strlen("Device will restart now and connect to wifi network"));
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     vTaskDelay(100);
     esp_restart();
     return ESP_OK;
@@ -1586,6 +1635,7 @@ esp_err_t handle_sta_data5(httpd_req_t *req)
     char* resp = get_sta_data(5);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1594,6 +1644,7 @@ esp_err_t handle_modify5(httpd_req_t *req)
     char* resp = get_form(5);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1610,6 +1661,7 @@ esp_err_t handle_delete5(httpd_req_t *req)
     ESP_ERROR_CHECK(update_wifi());
     if(total == 0)
         ESP_ERROR_CHECK(handle_sap(req));
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1623,6 +1675,7 @@ esp_err_t handle_choose5(httpd_req_t *req)
     httpd_resp_send(req, "Device will restart now and connect to wifi network", strlen("Device will restart now and connect to wifi network"));
     vTaskDelay(100);
     esp_restart();
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1661,6 +1714,7 @@ esp_err_t handle_data_1(httpd_req_t *req)
     char* resp = get_home(4);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1699,6 +1753,7 @@ esp_err_t handle_data_2(httpd_req_t *req)
     char* resp = get_home(4);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1737,6 +1792,7 @@ esp_err_t handle_data_3(httpd_req_t *req)
     char* resp = get_home(4);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1775,6 +1831,7 @@ esp_err_t handle_data_4(httpd_req_t *req)
     char* resp = get_home(4);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1813,6 +1870,7 @@ esp_err_t handle_data_5(httpd_req_t *req)
     char* resp = get_home(4);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -2271,6 +2329,7 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &uri_sta_data4);
         httpd_register_uri_handler(server, &uri_sta_data5);
     }
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return server;
 }
 
@@ -2463,6 +2522,13 @@ void init_pwm()
     ledc_channel_config(&led_channel);
 }
 
+void Task1code( void * pvParameters ){
+	
+    while(1){
+    	ESP_LOGI(TAG, "Infinite Loop running On core %d", xPortGetCoreID());
+    }
+}
+
 void app_main(void)
 {
     static httpd_handle_t server = NULL;
@@ -2473,6 +2539,16 @@ void app_main(void)
         init_sap();
     else
         wifi_init_sta();
+    server = start_webserver();
+    xTaskCreatePinnedToCore(
+                    Task1code,   /* Task function. */
+                    "Task1",     /* name of task. */
+                    10000,       /* Stack size of task */
+                    NULL,        /* parameter of the task */
+                    0,           /* priority of the task */
+                    &Task1,      /* Task handle to keep track of created task */
+                    1);          /* pin task to core 0 */                  
+  	//delay(500);
     ESP_ERROR_CHECK(update_paths());
     ESP_ERROR_CHECK(mdns_init());
     ESP_ERROR_CHECK(mdns_hostname_set("esp32"));
@@ -2480,5 +2556,5 @@ void app_main(void)
     ESP_ERROR_CHECK(mdns_instance_name_set("web_server"));
     ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &connect_handler, &server));
     ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &disconnect_handler, &server));
-    server = start_webserver();
+    //server = start_webserver();
 }
