@@ -42,7 +42,7 @@
 #define DATA_LEN 108                            //108 = 4 + 1 + 32 + 1 + 4 + 1 + 64 + 1 (The maximum length of a header data being sent during saving of a network credential)
 #define LINE_LEN 98                             //98 = 32 + 1 + 64 + 1 (The maximum length of a sentence in 1 line in the network credential storage file)
 #define PATH_NUM 5                              //The maximum number of paths that can be stored
-#define resolution 1                            //The resolution of points used in the co-ordinate system
+#define resolution 0.1                            //The resolution of points used in the co-ordinate system
 #define DEFAULT_LIN_SPEED 1.5                   //Temporary constants I used. To be deleted when encoder feedback is used
 #define DEFAULT_ANG_SPEED 90                    //Temporary constants I used. To be deleted when encoder feedback is used
 
@@ -65,6 +65,7 @@ static char EXAMPLE_ESP_WIFI_PASS[PASS_LEN];    //Store the network password tha
 static int total = 0;                           //Total number of network credentials for STA mode stored till now
 static char line_str[LINE_LEN];                 //Used for extracting lines from stored files
 static int total_paths = 0;                     //Total number of paths stored till now
+static int auto_flag = 0;                       //Denote whether auto mode is on or off
 static ledc_channel_config_t led_channel;       //Data Structure having various fields specifying the PWM details for a single channel. A single channel for a single PWM output. Will have to create another for controlling 2 motors
 static TaskHandle_t Task1;                      //Task handle to keep track of created task running on Core 1
 
@@ -306,8 +307,9 @@ esp_err_t convert_paths(int n){
                         len += ceil(val/resolution);
                     temp_token = strtok(NULL, "\t");
                 }
-                //char* result = (char *)malloc(len*4*sizeof(char));
-                char* result = (char *)calloc(2048,sizeof(char));
+                char* result = (char *)calloc(len*4+1,sizeof(char));
+                strcpy(result,"");
+                //char* result = (char *)calloc(2048,sizeof(char));
                 ESP_LOGI(TAG, "Length: %d", len*4);
                 char* token = strtok(str, "\t");
                 while(token!=NULL)
@@ -360,7 +362,7 @@ esp_err_t convert_paths(int n){
                     }
                     token = strtok(NULL, "\t");
                 }
-                strcat(result, "\b");
+                //strcat(result, "\b");
                 strcat(result, "\n");
                 ESP_LOGI(TAG, "%s", result);
                 fprintf(f_w, "%s", result);
@@ -892,15 +894,21 @@ esp_err_t get_path(int local_flag)
     fclose(f_r);
     //return ESP_OK;
     char* token = strtok(str, "\t");    //The elements are seperated by "\t"
+    auto_flag = 1;                      
     while(token!=NULL)
     {
         char ch = token[0];             //Get the first character which denotes the direction to be travelled
         switch(ch){
-            case 'f':move_forward();break;
-            case 'l':move_left();break;
-            case 'r':move_right();break;
-            case 'b':move_back();break;
-            default:move_stop();break;
+            case 'f'://move_forward();break;
+                        flag = 0; break;
+            case 'l'://move_left();break;
+                        flag = 1; break;
+            case 'r'://move_right();break;
+                        flag = 2; break;
+            case 'b'://move_back();break;
+                        flag = 3; break;
+            default://move_stop();break;
+                        flag = 4; break;
         }
         ESP_LOGI(TAG, "Direction: %c", ch);
         token++;                        //Increment the pointer to get the numerical value stored after the first character
@@ -909,7 +917,8 @@ esp_err_t get_path(int local_flag)
         vTaskDelay(time/portTICK_PERIOD_MS);    //Wait for the appropriate time
         token = strtok(NULL, "\t");             //Get the next element
     }
-    move_stop();
+    //move_stop();
+    auto_flag = 0;
     return ESP_OK;
 }
 
@@ -1410,7 +1419,7 @@ esp_err_t handle_forward(httpd_req_t *req)
     ESP_LOGI(TAG, "Record Flag: %d", record_flag);
     if(record_flag == 1)        //if the path is recording
     {
-        move_forward();
+        //move_forward();
         FILE* f = fopen("/spiffs/paths.txt", "a");
         if (f == NULL) {
             ESP_LOGE(TAG, "Failed to open file for writing");
@@ -1440,7 +1449,7 @@ esp_err_t handle_left(httpd_req_t *req)
     ESP_LOGI(TAG, "Record Flag: %d", record_flag);
     if(record_flag == 1)        //if the path is recording
     {
-        move_left();
+        //move_left();
         FILE* f = fopen("/spiffs/paths.txt", "a");
         if (f == NULL) {
             ESP_LOGE(TAG, "Failed to open file for writing");
@@ -1470,7 +1479,7 @@ esp_err_t handle_right(httpd_req_t *req)
     ESP_LOGI(TAG, "Record Flag: %d", record_flag);
     if(record_flag == 1)
     {
-        move_right();
+        //move_right();
         FILE* f = fopen("/spiffs/paths.txt", "a");
         if (f == NULL) {
             ESP_LOGE(TAG, "Failed to open file for writing");
@@ -1500,7 +1509,7 @@ esp_err_t handle_back(httpd_req_t *req)
     ESP_LOGI(TAG, "Record Flag: %d", record_flag);
     if(record_flag == 1)
     {
-        move_back();
+        //move_back();
         FILE* f = fopen("/spiffs/paths.txt", "a");
         if (f == NULL) {
             ESP_LOGE(TAG, "Failed to open file for writing");
@@ -1526,7 +1535,7 @@ esp_err_t handle_stop(httpd_req_t *req)
     ESP_LOGI(TAG, "Reading values");
     if(record_flag == 1)
     {
-        move_stop();
+        //move_stop();
         FILE* f = fopen("/spiffs/paths.txt", "a");
         if (f == NULL) {
             ESP_LOGE(TAG, "Failed to open file for writing");
@@ -1541,6 +1550,7 @@ esp_err_t handle_stop(httpd_req_t *req)
     char* resp = get_stop();
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
+    record_flag = 0;    //stop recording
     ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
@@ -1549,7 +1559,7 @@ esp_err_t handle_stop(httpd_req_t *req)
 esp_err_t handle_save(httpd_req_t *req)
 {
     update_number(1); //total_paths is updated in paths.txt
-    //ESP_ERROR_CHECK(convert_paths(total_paths+1));
+    //ESP_ERROR_CHECK(convert_paths(total_paths+1));  //convert the saved path into co-ordinate based representation
     char* resp = get_home(3);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -2751,6 +2761,22 @@ void Task1code( void * pvParameters ){
 	
     while(1){   //Put codew here
     	//ESP_LOGI(TAG, "Infinite Loop running On core %d", xPortGetCoreID());
+        if(record_flag == 1){
+            if(flag == 0) move_forward();
+            else if(flag == 1) move_left();
+            else if(flag == 2) move_right();
+            else if(flag == 3) move_back();
+            else move_stop();
+        }
+        else if(auto_flag == 1){
+            if(flag == 0) move_forward();
+            else if(flag == 1) move_left();
+            else if(flag == 2) move_right();
+            else if(flag == 3) move_back();
+            else move_stop();
+        }
+        else
+            move_stop();
     }
 }
 
