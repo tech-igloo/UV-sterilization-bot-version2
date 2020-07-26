@@ -1,3 +1,4 @@
+/*The following header files are included*/
 #include "freertos/FreeRTOS.h"
 #include "esp_wifi.h"
 #include "esp_system.h"
@@ -23,51 +24,62 @@
 #include "esp_err.h"
 #include "mdns.h"
 #include "driver/ledc.h"
+#include <math.h>
 
-#define EXAMPLE_ESP_MAXIMUM_RETRY 5             //maximum number of times the esp will try to connect to a network in STA mode
-#define DEFAULT_SSID "myssid"                   //default used in SAP and STA mode
-#define DEFAULT_PASS "qwerty1234"               //default used in SAP and STA mode
-#define MAX_CONN 5                              //maximum number of connections in SAP mode
-#define BASE_PATH "/spiffs"                     //base path of the partition
-#define MAX_FILES 5                             //maximum number of files to be stored in the /spiffs file system
-#define RESET_FLAG true                         //whether partition should be formatted if mount fails
-#define WIFI_CONNECTED_BIT BIT0
-#define WIFI_FAIL_BIT      BIT1
-#define WIFI_NUM 5                              //number of wifi credentials to be stored
-#define DATA_LEN 108                            //108 = 4 + 1 + 32 + 1 + 4 + 1 + 64 + 1
-#define LINE_LEN 98                             //98 = 32 + 1 + 64 + 1
-#define SSID_LEN 32                             //the maximum length of ssid that can be used by the esp is 32
-#define PASS_LEN 64                             //the maximum length of pass that can be used by the esp is 64
-#define PATH_NUM 5                              //the maximum number of paths that can be stored
+/*The various parameters that are used throughout the code*/
+#define EXAMPLE_ESP_MAXIMUM_RETRY 5             //Maximum number of times the esp will try to connect to a network in STA mode
+#define DEFAULT_SSID "myssid"                   //Default Network Name used in SAP and STA mode 
+#define DEFAULT_PASS "qwerty1234"               //Default Password used in SAP and STA mode
+#define MAX_CONN 5                              //Maximum number of devices that can connect to the ESP-32 in SAP mode
+#define BASE_PATH "/spiffs"                     //Base path of the SPIFFS partition where all the Network and Path Files are Stored
+#define MAX_FILES 5                             //Maximum number of files to be stored in the '/spiffs' partition
+#define RESET_FLAG true                         //Whether '/spiffs' partition should be formatted if mount fails
+#define WIFI_CONNECTED_BIT BIT0                 //Constants used to check whether connection to a network in STA mode was succesful ot not
+#define WIFI_FAIL_BIT      BIT1                 //Constants used to check whether connection to a network in STA mode was succesful ot not
+#define WIFI_NUM 5                              //Number of wifi credentials for STA mode to be stored
+#define SSID_LEN 32                             //The maximum length of ssid that can be used by the esp is 32 (cannot be changed)
+#define PASS_LEN 64                             //The maximum length of password that can be used by the esp is 64 (cannot be changed)
+#define DATA_LEN 108                            //108 = 4 + 1 + 32 + 1 + 4 + 1 + 64 + 1 (The maximum length of a header data being sent during saving of a network credential)
+#define LINE_LEN 98                             //98 = 32 + 1 + 64 + 1 (The maximum length of a sentence in 1 line in the network credential storage file)
+#define PATH_NUM 5                              //The maximum number of paths that can be stored
+#define resolution 1                            //The resolution of points used in the co-ordinate system
+#define DEFAULT_LIN_SPEED 1.5                   //Temporary constants I used. To be deleted when encoder feedback is used
+#define DEFAULT_ANG_SPEED 90                    //Temporary constants I used. To be deleted when encoder feedback is used
 
-static EventGroupHandle_t s_wifi_event_group;
-static const char *TAG = "wifi station";
-static int flag = -1;                           //used for determining which direction it is travelling
-static int s_retry_num = 0;                     //number of times the esp has tried to connect to ssid
-static int64_t prev_mili = 0;                   //used for determining the time duration between 2 commands
-static int64_t curr_mili = 0;                   //used for determining the time duration between 2 commands
-static float time_duration = 0;                 //used for storing the time duration between 2 commands
-static char buf[DATA_LEN];                      //used for extracting ssid from POST data
-static char copy[DATA_LEN];                     //used for extracting password from POST data
-static int conn_flag = 0;                       //denote which mode connected: 0=SAP 1:WIFI_NUM = STA wifi index
-static int record_flag = 0;                     //denote whether path is being recorded or not
-static char ssid[WIFI_NUM][SSID_LEN];           //store all the network ssids
-static char pass[WIFI_NUM][PASS_LEN];           //store all the network passwords
-static char EXAMPLE_ESP_WIFI_SSID[SSID_LEN];    //store the network ssid that the esp is using currently in STA mode
-static char EXAMPLE_ESP_WIFI_PASS[PASS_LEN];    //store the network password that the esp is using currently in STA mode
-static int total = 0;                           //total number of SSID's stored till now
-static char line_str[LINE_LEN];
-static int total_paths = 0;                     //total number of paths stored till now
-static ledc_channel_config_t led_channel;
-static TaskHandle_t Task1;
-/*Replaces the nth line in the file /wifi_conf.txt with the line supplied in the argument
-  Note: *line should not end with \n*/
+/*The variables that keep track of various things while the code is running*/
+static EventGroupHandle_t s_wifi_event_group;   //Used for Wifi connections during SAP and STA mode
+static const char *TAG = "wifi station";        //Name used for ESP_LOGI statements. Feel free to set it to whatever you want
+static int flag = -1;                           //Used for determining in which direction it is travelling
+static int s_retry_num = 0;                     //Number of times the esp has tried to connect to a network in STA mode
+static int64_t prev_mili = 0;                   //Used for determining the time duration between 2 commands while controlling the bot in manual mode
+static int64_t curr_mili = 0;                   //Used for determining the time duration between 2 commands while controlling the bot in manual mode
+static float time_duration = 0;                 //Used for storing the time duration between 2 commands while controlling the bot in manual mode
+static char buf[DATA_LEN];                      //Used for extracting ssid from POST header data whenever User stores new Network Credentials
+static char copy[DATA_LEN];                     //Used for extracting password from POST header data whenevr User stores new Network Credentials
+static int conn_flag = 0;                       //Denote which Wifi mode the ESP is used : 0 = SAP, 1 to WIFI_NUM = STA wifi index
+static int record_flag = 0;                     //Denote whether path is being recorded or not
+static char ssid[WIFI_NUM][SSID_LEN];           //Store all the network ssids that the ESP can use in STA mode
+static char pass[WIFI_NUM][PASS_LEN];           //Store all the network passwords that the ESP can use in STA mode
+static char EXAMPLE_ESP_WIFI_SSID[SSID_LEN];    //Store the network ssid that the esp is using currently in STA mode
+static char EXAMPLE_ESP_WIFI_PASS[PASS_LEN];    //Store the network password that the esp is using currently in STA mode
+static int total = 0;                           //Total number of network credentials for STA mode stored till now
+static char line_str[LINE_LEN];                 //Used for extracting lines from stored files
+static int total_paths = 0;                     //Total number of paths stored till now
+static ledc_channel_config_t led_channel;       //Data Structure having various fields specifying the PWM details for a single channel. A single channel for a single PWM output. Will have to create another for controlling 2 motors
+static TaskHandle_t Task1;                      //Task handle to keep track of created task running on Core 1
 
+struct point{                                   //Data Structure for storing points
+    double x;
+    double y;
+    double theta;
+};
+
+/*The following are dummy functions for movement of the bot*/
 void move_forward()
 {
-    ledc_set_duty(led_channel.speed_mode, led_channel.channel, 8192);
-    ledc_update_duty(led_channel.speed_mode, led_channel.channel);
-}
+    ledc_set_duty(led_channel.speed_mode, led_channel.channel, 8192);   //Update the PWM value to be used by this lED Channel.
+    ledc_update_duty(led_channel.speed_mode, led_channel.channel);      //Use the Updated PWM values
+}                                                                       //Similar functions below with different duty cycles
 
 void move_left()
 {
@@ -93,6 +105,12 @@ void move_stop()
     ledc_update_duty(led_channel.speed_mode, led_channel.channel);
 }
 
+/*Replaces the nth line in the file /wifi_conf.txt with the line supplied in the argument
+  The 1st line contains "SAP" or "STA" to denote which connection mode to use
+  Each of the WIFI_NUM lines after that stores a Network Credential and is of the format "[ssid] [password]\n"
+  The next line contains which Network is to be used (0 if SAP mode)
+  the next line contains the total number of Valid Network Credentials
+  Note: argument *line should not end with \n because it is added seperately*/
 esp_err_t replace_wifi(char* line, int n)
 {
     char str[LINE_LEN];
@@ -129,11 +147,12 @@ esp_err_t replace_wifi(char* line, int n)
     return ESP_OK;  
 }
 
+/*Update the total number of Valid Paths by n (n can be positive or negative)*/
 esp_err_t update_number(int n){
     char line[2];
     char str[LINE_LEN];
     int linectr = 0;
-    total_paths = total_paths + n;
+    total_paths = total_paths + n;          //Update the total_paths variable
     sprintf(line, "%d", total_paths);
     FILE* f_r = fopen("/spiffs/paths.txt", "r");
     FILE* f_w = fopen("/spiffs/temp.txt", "w");
@@ -153,7 +172,7 @@ esp_err_t update_number(int n){
         {
             linectr++;
             if(linectr == 1){
-                fprintf(f_w, "%s", line);
+                fprintf(f_w, "%s", line);   //Update the value stored in the file
                 fprintf(f_w, "%s", "\n");
             }
             else
@@ -167,7 +186,7 @@ esp_err_t update_number(int n){
     return ESP_OK;
 }
 
-/*Used for "deleting" network credentials. All network credentials below it are moved up and the last line is replaced by example example*/
+/*Used for "deleting" network credentials. All network credentials below it are moved up and the last line is replaced by "example example\n"*/
 esp_err_t delete(int n)
 {
     char str[LINE_LEN];
@@ -209,6 +228,8 @@ esp_err_t delete(int n)
     return ESP_OK;  
 }
 
+
+/*Deletes the nth path from paths.txt*/
 esp_err_t delete_specific_path(int n)
 {
     char str[LINE_LEN];
@@ -230,7 +251,7 @@ esp_err_t delete_specific_path(int n)
         if(!feof(f_r))
         {
             linectr++;
-            if(linectr == (n+1)){
+            if(linectr == (n+1)){           //Since the 1st line contains the number of valid paths, so the nth path will be on the (n+1)th Line
                 continue;
             }
             else
@@ -244,6 +265,118 @@ esp_err_t delete_specific_path(int n)
     return ESP_OK;  
 }
 
+
+/*Algorithm for converting path to co-ordinate based format. Has problems with dynamic allocation of memory. To be fixed*/
+esp_err_t convert_paths(int n){
+    char str[LINE_LEN];
+    char str1[LINE_LEN];
+    int len = 0, linectr = 0;
+    char ch, temp[9];
+    double val, counter;
+    struct point prev = {0,0,0};
+    struct point current = prev;
+    FILE* f_r = fopen("/spiffs/paths.txt", "r");
+    FILE* f_w = fopen("/spiffs/temp.txt", "w");
+    if(f_r == NULL){
+        ESP_LOGE(TAG, "Error opening file paths.txt\n");
+        return ESP_FAIL;
+    }
+    if(f_w == NULL){
+        ESP_LOGE(TAG, "Error opening file temp.txt\n");
+        return ESP_FAIL;
+    }
+    while(!feof(f_r))
+    {
+        strcpy(str, "\0");
+        fgets(str, LINE_LEN, f_r);
+        //if(!feof(f_r))
+        //{
+            linectr++;
+            if(linectr == n)
+            {
+                fseek(f_r, -strlen(str), SEEK_CUR);
+                fgets(str1, LINE_LEN, f_r);
+                char* temp_token = strtok(str1, "\t");
+                while(temp_token!=NULL)
+                {
+                    ch = temp_token[0];
+                    temp_token++;
+                    val = DEFAULT_LIN_SPEED * atof(temp_token)/1000.0;
+                    if(ch == 'f' || ch == 'b')
+                        len += ceil(val/resolution);
+                    temp_token = strtok(NULL, "\t");
+                }
+                //char* result = (char *)malloc(len*4*sizeof(char));
+                char* result = (char *)calloc(2048,sizeof(char));
+                ESP_LOGI(TAG, "Length: %d", len*4);
+                char* token = strtok(str, "\t");
+                while(token!=NULL)
+                {
+                    ch = token[0];
+                    token++;
+                    val = atof(token);
+                    if(ch == 'f'){
+                        val = DEFAULT_LIN_SPEED * val/1000.0;
+                        counter = resolution;
+                        while(counter <= val){
+                            current.x = prev.x + counter*cos(prev.theta*3.14/180.0);
+                            current.y = prev.y + counter*sin(prev.theta*3.14/180.0);
+                            ESP_LOGI(TAG, "(%f, %f)", current.x, current.y);
+                            counter = counter + resolution;
+                            snprintf(temp, 9, "%f", current.x);
+                            strcat(result, temp);
+                            strcat(result, " ");
+                            snprintf(temp, 9, "%f", current.y);
+                            strcat(result, temp);
+                            strcat(result, " ");
+                        }
+                        current.theta = prev.theta;
+                        prev = current;
+                    }
+                    else if(ch == 'b'){
+                        val = DEFAULT_LIN_SPEED * val/1000.0;
+                        counter = resolution;
+                        while(counter <= val){
+                            current.x = prev.x + counter*cos(prev.theta*3.14/180.0);
+                            current.y = prev.y + counter*sin(prev.theta*3.14/180.0);
+                            counter = counter + resolution;
+                            snprintf(temp, 9, "%f", current.x);
+                            strcat(result, temp);
+                            strcat(result, " ");
+                            snprintf(temp, 9, "%f", current.y);
+                            strcat(result, temp);
+                            strcat(result, " ");
+                        }
+                        current.theta = prev.theta;
+                        prev = current;
+                    }
+                    else if(ch == 'r'){
+                        val = DEFAULT_ANG_SPEED * val/1000.0;
+                        prev.theta = prev.theta + val;
+                    }
+                    else if(ch == 'l'){
+                        val = DEFAULT_ANG_SPEED * val/1000.0;
+                        prev.theta = prev.theta - val;
+                    }
+                    token = strtok(NULL, "\t");
+                }
+                strcat(result, "\b");
+                strcat(result, "\n");
+                ESP_LOGI(TAG, "%s", result);
+                fprintf(f_w, "%s", result);
+            }
+            else
+                fprintf(f_w, "%s", str);
+        //}
+    }
+    fclose(f_r);
+    fclose(f_w);
+    remove("/spiffs/paths.txt");
+    rename("/spiffs/temp.txt", "/spiffs/paths.txt");
+    return ESP_OK;
+}
+
+/*Keeps all the lines in paths.txt till the nth line and deletes all the lines after that*/
 esp_err_t delete_paths(int n){
     char str[LINE_LEN];
     int linectr = 0;
@@ -259,7 +392,7 @@ esp_err_t delete_paths(int n){
     }
     while(!feof(f_r))
     {
-        strcpy(str, "\0");
+        strcpy(str, "\0");              //Used for intializing str to NULL before extracting each line
         fgets(str, LINE_LEN, f_r);
         if(!feof(f_r))
         {
@@ -277,7 +410,7 @@ esp_err_t delete_paths(int n){
     return ESP_OK;
 }
 
-/*Initialize SPIFFS file system. Needs to be called on every reboot*/
+/*Initialize SPIFFS file system so that the stored files can be accessed. Needs to be called on every reboot. Standard Code gotten from Official Github Repo*/
 void init_spiffs()
 {
     esp_vfs_spiffs_conf_t conf = {
@@ -308,92 +441,93 @@ void init_spiffs()
     }
 }
 
+/* This function updates the global variables used in the program by reading the wifi_conf.txt and the paths.txt file */
 int main_update()
 {
-    int i, conn_flag_local = 0;
+    int i, conn_flag_local = 0; //conn_flag_local is initially set to 0 for SAP mode
     struct stat st;
     struct stat st1;
     char line[LINE_LEN];
     char* pos;
     ESP_LOGI(TAG, "Checking connection type");
-    if (stat("/spiffs/wifi_conf.txt", &st) != 0) {
-        FILE* f = fopen("/spiffs/wifi_conf.txt", "w");
-        if (f == NULL) {
+    if (stat("/spiffs/wifi_conf.txt", &st) != 0) {              //This checks if wifi_conf.txt is absent. This is done for the 1st time ESP is booted.
+        FILE* f = fopen("/spiffs/wifi_conf.txt", "w");          //If it is absent, then create wifi_conf.txt in write mode
+        if (f == NULL) {                                        //Return 0 if failed to open for any reason
             ESP_LOGE(TAG, "Failed to open file for writing");
-            return flag;
+            return 0;                                           //changed flag to 0
         }
-        fprintf(f, "SAP\n");
-        for(i = 0; i < WIFI_NUM; i++)
+        fprintf(f, "SAP\n");                                    //Initialize the first line with 'SAP' because SAP mode is the default mode of operation
+        for(i = 0; i < WIFI_NUM; i++)                           //Initialize the next WIFI_NUM lines with dummy data that will be overwritten later when user enters a wifi credential
             fprintf(f, "example example\n");
-        fprintf(f, "0\n0\n");
+        fprintf(f, "0\n0\n");                                   //The 1st zero = which wifi credential is used (0 because SAP mode is used), the 2nd Zero = total number of valid wifi credentials
         fclose(f);
         ESP_LOGI(TAG, "File written");
     }
-    else{
-        FILE* f = fopen("/spiffs/wifi_conf.txt", "r");
+    else{                                                       //This means file is present
+        FILE* f = fopen("/spiffs/wifi_conf.txt", "r");          //Return 0 if failed to open for any reason
         if(f == NULL){
             printf("Failed to open file\n");
             return 0;
         }
-        fgets(line, sizeof(line), f);
+        fgets(line, sizeof(line), f);                           //Get the 1st line in a string variable
         pos = strchr(line, '\n');
         if(pos){
-            *pos = '\0';
+            *pos = '\0';                                        //Put the terminating character at the appropriate position
         }
-        if(strcmp(line, "SAP") == 0){
+        if(strcmp(line, "SAP") == 0){                           //Check if it is in SAP mode
             char* token;
             for(i = 0; i <= WIFI_NUM+1; i++){
-                fgets(line, sizeof(line), f);
+                fgets(line, sizeof(line), f);                   //Get the next line
                 pos = strchr(line, '\n');
                 if(pos){
-                *pos = '\0';
+                *pos = '\0';                                    //Put the terminating character at the appropriate position
                 }
-                if(i == WIFI_NUM)
+                if(i == WIFI_NUM)                               //Since it is in SAP mode we dont need to know which STA network is to be used
                     continue;
                 if(i == WIFI_NUM+1){
-                    total = atoi(line); //denote total number of saved networks
+                    total = atoi(line);                         //Update the total number of valid saved networks
                     continue;
                 }
-                ESP_LOGI(TAG, "%s", line);
-                token = strtok(line, " ");
+                ESP_LOGI(TAG, "%s", line);                      
+                token = strtok(line, " ");                      //Update the SSID data matrix whether its dummy or valid
                 strcpy(ssid[i], token);
-                token = strtok(NULL, " ");
+                token = strtok(NULL, " ");                      //Update the password data matrix whether its dummy or valid
                 strcpy(pass[i], token);
             }
-            ESP_LOGI(TAG, "STA Mode");
-            for(i = 0; i < WIFI_NUM; i++){
+            ESP_LOGI(TAG, "SAP Mode");
+            for(i = 0; i < WIFI_NUM; i++){                      //This is for debugging purposes to check whether all the network credentials are extracted successfully or not
                 ESP_LOGI(TAG, "%dth Network SSID: %s\n", (i+1), ssid[i]);
                 ESP_LOGI(TAG, "%dth Network Password: %s\n", (i+1), pass[i]);
             }
             fclose(f);
         }
-        else{
+        else{                                                   //This means it is in STA mode
             char* token;
             for(i = 0; i <= WIFI_NUM+1; i++){
-                fgets(line, sizeof(line), f);
+                fgets(line, sizeof(line), f);                   //Get the next line
                 pos = strchr(line, '\n');
                 if(pos){
-                *pos = '\0';
+                *pos = '\0';                                    //Put the terminating character at the appropriate position
                 }
-                if(i == WIFI_NUM){
-                    conn_flag_local = atoi(line);   //denote which network to connect 1 to NUM
+                if(i == WIFI_NUM){                              //Which STA network to connect to is stored in the WIFI_NUM+1 th line
+                    conn_flag_local = atoi(line);               //Get which network to connect to (1 to WIFI_NUM)
                     continue;
                 }
-                if(i == WIFI_NUM+1){
-                    total = atoi(line); //denote total number of saved networks
+                if(i == WIFI_NUM+1){                            //Total number of valid saved networks is stores in the WIFI_NUM+2 th line
+                    total = atoi(line);                         //Get total number of valid saved networks
                     continue;
                 }
-                token = strtok(line, " ");
+                token = strtok(line, " ");                      //Update the SSID data matrix whether its dummy or valid
                 strcpy(ssid[i], token);
-                token = strtok(NULL, " ");
+                token = strtok(NULL, " ");                      //Update the password data matrix whether its dummy or valid
                 strcpy(pass[i], token);
             }
             ESP_LOGI(TAG, "STA Mode");
             for(i = 0; i < WIFI_NUM; i++){
-                if((i+1) == conn_flag_local) //(i+1) is done because i is from 0:WIFI_NUM while conn_flag_local is from 1:WIFI_NUM
+                if((i+1) == conn_flag_local)                    //(i+1) is done because i is from 0:(WIFI_NUM-1) while conn_flag_local is from 1:WIFI_NUM
                 {
-                    strcpy(EXAMPLE_ESP_WIFI_SSID, ssid[i]);
-                    strcpy(EXAMPLE_ESP_WIFI_PASS, pass[i]);
+                    strcpy(EXAMPLE_ESP_WIFI_SSID, ssid[i]);     //Get the valid network SSID to be used for connecting
+                    strcpy(EXAMPLE_ESP_WIFI_PASS, pass[i]);     //Get the valid network Password to be used for connecting
                 }
                 ESP_LOGI(TAG, "%dth Network SSID: %s\n", (i+1), ssid[i]);
                 ESP_LOGI(TAG, "%dth Network Password: %s\n", (i+1), pass[i]);
@@ -401,28 +535,29 @@ int main_update()
             fclose(f);
         }
     }
-    if (stat("/spiffs/paths.txt", &st1) != 0){
-        FILE* f = fopen("/spiffs/paths.txt", "w");
+    if (stat("/spiffs/paths.txt", &st1) != 0){                  //Check if paths.txt is absent. This is for when the ESP is booted for the 1st time
+        FILE* f = fopen("/spiffs/paths.txt", "w");              //Create paths.txt in writing mode
         if(f == NULL)
             ESP_LOGE(TAG, "Failed to open paths.txt for writing");
-        fprintf(f, "0\n");
+        fprintf(f, "0\n");                                      //Put 0 because there are 0 valid paths stored till now
         fclose(f);
-        total_paths = 0;
+        total_paths = 0;                                        //Update the total number of valid paths
     }
     else{
-        FILE* f = fopen("/spiffs/paths.txt", "r");
+        FILE* f = fopen("/spiffs/paths.txt", "r");              //This means the file is present. Open it in reading mode
         if(f == NULL)
             ESP_LOGE(TAG, "Failed to open path.txt for reading");
-        pos = strchr(line, '\n');
+        pos = strchr(line, '\n');                               //Get the 1st line
         if(pos){
-            *pos = '\0';
+            *pos = '\0';                                        //Put the terminating character in the appropriate place                                         
         }
-        total_paths = atoi(line);
+        total_paths = atoi(line);                               //Convert from string to int and Update the total number of valid paths
         fclose(f);
     }
-    return conn_flag_local;
+    return conn_flag_local;                                     //Return which wifi network to be used (0 for SAP, 1:WIFI_NUM for STA)
 }
 
+/*Used for updating the SSID and PASS data matrices only with the values stored in wifi_conf.txt whenever requried so that main_update doesnt need to be called everytime*/
 esp_err_t update_wifi()
 {
     int i;
@@ -449,6 +584,7 @@ esp_err_t update_wifi()
     return ESP_OK;
 }
 
+/*Used for updating the total_paths variable only with the value stored in paths.txt whenever required so that the main_update doesnt need to be called everytime*/
 esp_err_t update_paths()
 {
     char line[LINE_LEN], *pos;
@@ -467,7 +603,7 @@ esp_err_t update_paths()
     return ESP_OK;
 }
 
-
+/*Get the character to be used for storing the direction*/
 char determine(int local_flag)
 {
     char c;
@@ -482,6 +618,7 @@ char determine(int local_flag)
     return c;
 }
 
+/*HTML Code for displaying the home page "/" */
 char* default_page()
 {
     char* ptr = (char*)calloc(2048, sizeof(char));
@@ -500,20 +637,21 @@ char* default_page()
     strcat(ptr, "</head>\n");
     strcat(ptr, "<body>\n");
     strcat(ptr, "<h1>ESP32 Web Server</h1>\n");
-    if(conn_flag == 0)
+    if(conn_flag == 0)  //For checking which mode the ESP is currently operating in
         strcat(ptr, "<h3>Using Access Point(AP) Mode</h3>\n");
     else
         strcat(ptr, "<h3>Using Station(STA) Mode</h3>\n");
-    strcat(ptr, "<p>Press to select Manual mode</p><a class=\"button button-on\" href=\"/manual\">MANUAL</a>\n");
-    strcat(ptr, "<p>Press to select Auto mode</p><a class=\"button button-on\" href=\"/auto\">AUTO</a>\n");
-    strcat(ptr, "<p>Press to choose Connection Mode</p><a class=\"button button-on\" href=\"/choose\">SAP/STA</a>\n");
-    strcat(ptr, "<p>Press to reset the ESP</p><a class=\"button button-on\" href=\"/reset\">FACTORY\nRESET</a>\n");
+    strcat(ptr, "<p>Press to select Manual mode</p><a class=\"button button-on\" href=\"/manual\">MANUAL</a>\n");//On clicking go to "/manual"
+    strcat(ptr, "<p>Press to select Auto mode</p><a class=\"button button-on\" href=\"/auto\">AUTO</a>\n");//On clicking go to "/auto"
+    strcat(ptr, "<p>Press to choose Connection Mode</p><a class=\"button button-on\" href=\"/choose\">SAP/STA</a>\n");//On clicking go to "/choose"
+    strcat(ptr, "<p>Press to reset the ESP</p><a class=\"button button-on\" href=\"/reset\">FACTORY\nRESET</a>\n");//On clicking go to "/reset"
 
     strcat(ptr, "</body>\n");
     strcat(ptr, "</html>\n");
     return ptr;
 }
 
+/*HTML Code for displaying "/choose" which has options for choosing between SAP and STA Mode*/
 char* choose_page()
 {
     char* ptr = (char*)calloc(2048, sizeof(char));
@@ -532,20 +670,21 @@ char* choose_page()
     strcat(ptr, "</head>\n");
     strcat(ptr, "<body>\n");
     strcat(ptr, "<h1>ESP32 Web Server</h1>\n");
-    if(conn_flag == 0)
+    if(conn_flag == 0) //For checking which mode the ESP is currently operating in
         strcat(ptr, "<h3>Using Access Point(AP) Mode</h3>\n");
     else
         strcat(ptr, "<h3>Using Station(STA) Mode</h3>\n");
 
-    strcat(ptr, "<p>Press to select SAP mode</p><a class=\"button button-on\" href=\"/sap\">SAP</a>\n");
-    strcat(ptr, "<p>Press to select STA mode</p><a class=\"button button-on\" href=\"/sta\">STA</a>\n");
-    strcat(ptr, "<p>Click to return to home page</p><a class=\"button button-on\" href=\"/\">HOME</a>\n");
+    strcat(ptr, "<p>Press to select SAP mode</p><a class=\"button button-on\" href=\"/sap\">SAP</a>\n");//On clicking go to "/sap"
+    strcat(ptr, "<p>Press to select STA mode</p><a class=\"button button-on\" href=\"/sta\">STA</a>\n");//On clicking go to "/sta"
+    strcat(ptr, "<p>Click to return to home page</p><a class=\"button button-on\" href=\"/\">HOME</a>\n");//On clicking go back to "/"
 
     strcat(ptr, "</body>\n");
     strcat(ptr, "</html>\n");
     return ptr;
 }
 
+/*HTML Code for displaing "/sta"*/
 char* get_sta()
 {
     int i = 0;
@@ -566,25 +705,26 @@ char* get_sta()
     strcat(ptr, "</head>\n");
     strcat(ptr, "<body>\n");
     strcat(ptr, "<h1>ESP32 Web Server</h1>\n");
-    if(conn_flag == 0)
+    if(conn_flag == 0)  //For checking which mode ESP is currently operating in
         strcat(ptr, "<h3>Using Access Point(AP) Mode</h3>\n");
     else
         strcat(ptr, "<h3>Using Station(STA) Mode</h3>\n");
 
-    strcat(ptr, "<p>Press to store New network credentials</p><a class=\"button button-on\" href=\"/new\">NEW</a>\n");
-    for(i = 0; i < total; i++)
+    strcat(ptr, "<p>Press to store New network credentials</p><a class=\"button button-on\" href=\"/new\">NEW</a>\n");//On clicking go to "/new"
+    for(i = 0; i < total; i++) //Since we have 'total' number of valid network credentials so display 'total' options
     {
-        sprintf(str, "%d", i+1);
+        sprintf(str, "%d", i+1);//convert (i+1) to string
         strcat(ptr, "<p>Press for more options</p><a class=\"button button-on\" href=\"/sta");
-        strcat(ptr, str);
+        strcat(ptr, str); //On clicking go to "/sta1" or "/sta2" or so on dependingon value of (i+1)
         strcat(ptr, "\">Network ");
-        strcat(ptr, str);
+        strcat(ptr, str); //For displaying "Network 1" or "Network 2" and so on
         strcat(ptr, "</a>\n");
     }
     strcat(ptr, "<p>Press to go back</p><a class=\"button button-on\" href=\"/choose\">BACK</a>\n");
     return ptr;
 }
 
+/*HTML Code for /sta1, /sta2, /sta3, /sta4, /sta5 depending on value of local_flag value*/
 char* get_sta_data(int local_flag) //local_flag min value is 1
 {
     char* ptr = (char*)calloc(2048, sizeof(char));
@@ -603,16 +743,16 @@ char* get_sta_data(int local_flag) //local_flag min value is 1
     strcat(ptr, "</head>\n");
     strcat(ptr, "<body>\n");
     strcat(ptr, "<h1>ESP32 Web Server</h1>\n");
-    if(conn_flag == 0)
+    if(conn_flag == 0)  //Check which mode ESP is currently operating in
         strcat(ptr, "<h3>Using Access Point(AP) Mode</h3>\n");
     else
         strcat(ptr, "<h3>Using Station(STA) Mode</h3>\n");
 
     strcat(ptr, "<h3>Network SSID: ");
-    strcat(ptr, ssid[local_flag-1]);
+    strcat(ptr, ssid[local_flag-1]);        //Display the appropriate Network Name
     strcat(ptr, "</h3>\n");
     char str[2];
-    sprintf(str, "%d", local_flag);
+    sprintf(str, "%d", local_flag);         //Convert value of local_flag to string
     strcat(ptr, "<p>Press to modify</p><a class=\"button button-on\" href=\"/sta_mod_");
     strcat(ptr, str);
     strcat(ptr, "\">MODIFY</a>\n");
@@ -626,12 +766,13 @@ char* get_sta_data(int local_flag) //local_flag min value is 1
     return ptr;
 }
 
-char* get_form(int local_flag)  //local_flag min value is 1. Note: Need to set maximum character lengths
+/*Get the HTML form for submitting Network Credential Data*/
+char* get_form(int local_flag)  //local_flag min value is 1.
 {
     char str[2];
     sprintf(str, "%d", local_flag);
     char* ptr = (char *)calloc(2048, sizeof(char));
-    strcat(ptr, "<form action=\"/data_");
+    strcat(ptr, "<form action=\"/data_"); //On submitting form, go to "/data_1" or "/data_2" or "/data_3" or "/data_4" or "/data_5" according to local_flag value
     strcat(ptr, str);
     strcat(ptr, "\" method = \"post\">\n");
     strcat(ptr, "<label for=\"ssid\">SSID:</label><br>\n");
@@ -644,6 +785,7 @@ char* get_form(int local_flag)  //local_flag min value is 1. Note: Need to set m
     return ptr;
 }
 
+/*HTML code for showing "/auto" page*/
 char* get_auto()
 {
     char* ptr = (char*)calloc(2048, sizeof(char));
@@ -669,13 +811,13 @@ char* get_auto()
     else{
         strcat(ptr, "<h3>Using Station(STA) Mode</h3>\n");
     }
-    for(i = 1; i <= total_paths; i++)
+    for(i = 1; i <= total_paths; i++) //Since we have "total_paths" number of valid paths
     {
         sprintf(str, "%d", i);
         strcat(ptr, "<p>Press for more details</p><a class=\"button button-on\" href=\"/path_details");
-        strcat(ptr, str);
+        strcat(ptr, str); //Go to "/path_details1" or "/path_details2" and so on
         strcat(ptr, "\">Path ");
-        strcat(ptr, str);
+        strcat(ptr, str); //Display "Path 1 " or "Path 2 " and so on
         strcat(ptr, "</a>\n");
     }    
     strcat(ptr, "<p>Press to return to home</p><a class=\"button button-on\" href=\"/\">HOME</a>\n");
@@ -684,6 +826,7 @@ char* get_auto()
     return ptr;
 }
 
+/*HTML Code for /path_details1, /path_details2, /path_details3, /path_details4, /path_details5 depending on value of local_flag value*/
 char* get_path_specific(int local_flag)
 {
     char* ptr = (char*)calloc(2048, sizeof(char));
@@ -713,10 +856,10 @@ char* get_path_specific(int local_flag)
     strcat(ptr, str);
     strcat(ptr, "</h3>\n");
     strcat(ptr, "<p>Press to execute this path</p><a class=\"button button-on\" href=\"/path");
-    strcat(ptr, str);
+    strcat(ptr, str); //Go to "/path1" or "/path2" and so on
     strcat(ptr, "\">Execute</a>\n");
     strcat(ptr, "<p>Press to delete this path</p><a class=\"button button-on\" href=\"/delete_path");
-    strcat(ptr, str);
+    strcat(ptr, str); //Go to "/delete_path1" or "/delete_path2" and so on
     strcat(ptr, "\">Delete</a>\n");
     strcat(ptr, "<p>Press to return to home</p><a class=\"button button-on\" href=\"/\">HOME</a>\n");
     strcat(ptr, "</body>\n");
@@ -724,6 +867,7 @@ char* get_path_specific(int local_flag)
     return ptr;
 }
 
+/*Execute the local_flag th path*/
 esp_err_t get_path(int local_flag)
 {
     char str[LINE_LEN];
@@ -740,16 +884,17 @@ esp_err_t get_path(int local_flag)
         if(!feof(f_r))
         {
             linectr++;
-            if(linectr == (local_flag+1))
+            if(linectr == (local_flag+1)) //1st line contains the number of valid paths, so nth path will be on (n+1)th line
                 break;
         }
     }
     ESP_LOGI(TAG, "%s", str);
     fclose(f_r);
-    char* token = strtok(str, "\t");
+    //return ESP_OK;
+    char* token = strtok(str, "\t");    //The elements are seperated by "\t"
     while(token!=NULL)
     {
-        char ch = token[0];
+        char ch = token[0];             //Get the first character which denotes the direction to be travelled
         switch(ch){
             case 'f':move_forward();break;
             case 'l':move_left();break;
@@ -758,16 +903,17 @@ esp_err_t get_path(int local_flag)
             default:move_stop();break;
         }
         ESP_LOGI(TAG, "Direction: %c", ch);
-        token++;
-        float time = atof(token);
+        token++;                        //Increment the pointer to get the numerical value stored after the first character
+        float time = atof(token);       //Convert the value from string to float
         ESP_LOGI(TAG, "Time: %f", time);
-        vTaskDelay(time/portTICK_PERIOD_MS);
-        token = strtok(NULL, "\t");
+        vTaskDelay(time/portTICK_PERIOD_MS);    //Wait for the appropriate time
+        token = strtok(NULL, "\t");             //Get the next element
     }
     move_stop();
     return ESP_OK;
 }
 
+/*HTML Code which displays different text depending on local_flag and contains only a single button for returning to home page "/"*/
 char* get_home(int local_flag)
 {
     char* ptr = (char*)calloc(2048, sizeof(char));
@@ -805,6 +951,7 @@ char* get_home(int local_flag)
     return ptr; 
 }
 
+/*HTML Code for displaying "/manual" or "/pause" page (same for both)*/
 char* manual_mode()
 {
     char* ptr = (char*)calloc(2048, sizeof(char));
@@ -830,7 +977,7 @@ char* manual_mode()
     else
         strcat(ptr, "<h3>Using Station(STA) Mode</h3>\n");
 
-    if(total_paths == PATH_NUM){
+    if(total_paths == PATH_NUM){ //Check if maximum number of valid paths have been reached
         strcat(ptr, "<h3>Maximum number of stored paths reached. Please delete saved paths to store new paths</h3>\n");
         strcat(ptr, "<p>Click to return to home page</p><a class=\"button button-on\" href=\"/\">HOME</a>\n");
         strcat(ptr, "</body>\n");
@@ -838,21 +985,21 @@ char* manual_mode()
         return ptr;
     }
 
-    if(record_flag == 0){
+    if(record_flag == 0){ //Check if path recording has started
         strcat(ptr, "<h3>Path recording not yet started</h3>\n");
-        strcat(ptr, "<p>Click to Start</p><a class=\"button button-on\" href=\"/start\">START</a>\n");
+        strcat(ptr, "<p>Click to Start</p><a class=\"button button-on\" href=\"/start\">START</a>\n"); //Button for staring since path recording has not yet started
     }
     else{
         strcat(ptr, "<h3>Now recording Path: ");
         strcat(ptr, str);
         strcat(ptr, "</h3>\n");
-        strcat(ptr, "<p>Click to Stop</p><a class=\"button button-on\" href=\"/stop\">STOP</a>\n");
+        strcat(ptr, "<p>Click to Stop</p><a class=\"button button-on\" href=\"/stop\">STOP</a>\n");//Button for stopping the path recording
     }
     strcat(ptr, "<p>Forward: OFF</p><a class=\"button button-on\" href=\"/forward\">ON</a>\n");
     strcat(ptr, "<p>Left: OFF</p><a class=\"button button-on\" href=\"/left\">ON</a>\n");
     strcat(ptr, "<p>Right: OFF</p><a class=\"button button-on\" href=\"/right\">ON</a>\n");
     strcat(ptr, "<p>Back: OFF</p><a class=\"button button-on\" href=\"/back\">ON</a>\n");
-    if(record_flag == 0)
+    if(record_flag == 0) //Option to go to home page "/" is disable while recording is going on
         strcat(ptr, "<p>Click to return to home page</p><a class=\"button button-on\" href=\"/\">HOME</a>\n");
 
     strcat(ptr, "</body>\n");
@@ -886,6 +1033,7 @@ char* manual_mode()
     return ptr;
 }
 
+/*HTML Code for displaying "/forward" or "/left" or "/right" or "/back" depending on local_flag*/
 char* SendHTML(uint8_t local_flag)
 {
     char* ptr = (char*)calloc(2048, sizeof(char));
@@ -921,22 +1069,22 @@ char* SendHTML(uint8_t local_flag)
     }
 
     if(local_flag==0)
-    {strcat(ptr, "<p>Forward: ON</p><a class=\"button button-off\" href=\"/pause\">OFF</a>\n");}
+    {strcat(ptr, "<p>Forward: ON (Press to Pause)</p><a class=\"button button-off\" href=\"/pause\">OFF</a>\n");}
     else
     {strcat(ptr, "<p>Forward: OFF</p><a class=\"button button-on\" href=\"/forward\">ON</a>\n");}
 
     if(local_flag==1)
-    {strcat(ptr, "<p>Left: ON</p><a class=\"button button-off\" href=\"/pause\">OFF</a>\n");}
+    {strcat(ptr, "<p>Left: ON (Press to Pause)</p><a class=\"button button-off\" href=\"/pause\">OFF</a>\n");}
     else
     {strcat(ptr, "<p>Left: OFF</p><a class=\"button button-on\" href=\"/left\">ON</a>\n");}
 
     if(local_flag==2)
-    {strcat(ptr, "<p>Right: ON</p><a class=\"button button-off\" href=\"/pause\">OFF</a>\n");}
+    {strcat(ptr, "<p>Right: ON (Press to Pause)</p><a class=\"button button-off\" href=\"/pause\">OFF</a>\n");}
     else
     {strcat(ptr, "<p>Right: OFF</p><a class=\"button button-on\" href=\"/right\">ON</a>\n");}
 
     if(local_flag==3)
-    {strcat(ptr, "<p>Backwards: ON</p><a class=\"button button-off\" href=\"/pause\">OFF</a>\n");}
+    {strcat(ptr, "<p>Backwards: ON (Press to Pause)</p><a class=\"button button-off\" href=\"/pause\">OFF</a>\n");}
     else
     {strcat(ptr, "<p>Backwards: OFF</p><a class=\"button button-on\" href=\"/back\">ON</a>\n");}
 
@@ -947,6 +1095,7 @@ char* SendHTML(uint8_t local_flag)
     return ptr;
 }
 
+/*HTML Code for displaying "/stop"*/
 char* get_stop()
 {
     char* ptr = (char*)calloc(2048, sizeof(char));
@@ -978,31 +1127,34 @@ char* get_stop()
     return ptr;
 }
 
+/*Callback function whenever "/" is accessed*/
 esp_err_t handle_OnConnect(httpd_req_t *req)
 {
     flag = -1;
-    char* resp = default_page();
-    httpd_resp_send(req, resp, strlen(resp));
+    char* resp = default_page(); //Get the HTML Code
+    httpd_resp_send(req, resp, strlen(resp));  //Send the HTML Code to display
     free(resp);
     ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
+/*Callback function whenever "/reset" is accessed*/
 esp_err_t handle_reset(httpd_req_t *req)
 {
-    remove("/spiffs/wifi_conf.txt");
+    remove("/spiffs/wifi_conf.txt"); //delete the files for fresh reboot
     remove("/spiffs/paths.txt");
     httpd_resp_send(req, "Device will restart now", strlen("Device will restart now"));
     ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     vTaskDelay(100);
-    esp_restart();
+    esp_restart(); //restart the ESP
     return ESP_OK;
 }
 
+/*Callback function whenever "/start" is accessed*/
 esp_err_t handle_start(httpd_req_t *req)
 {
-    record_flag = 1;
-    flag = -1;
+    record_flag = 1; //record_flag is changed to 1 to denote that recording has started
+    flag = -1;       //-1 denotes stop
 /*    FILE* f = fopen("/spiffs/paths.txt", "w");
     if (f == NULL) {
         ESP_LOGE(TAG, "Failed to open file for writing");
@@ -1018,19 +1170,21 @@ esp_err_t handle_start(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/path1" is accessed*/
 esp_err_t handle_path1(httpd_req_t *req)
 {
-    ESP_ERROR_CHECK(get_path(1));
-    char* resp = get_home(0);
-    httpd_resp_send(req, resp, strlen(resp));
+    ESP_ERROR_CHECK(get_path(1)); //Execute Path 1
+    char* resp = get_home(0);   //Get the HTML Code to display
+    httpd_resp_send(req, resp, strlen(resp));   //Display the HTML Code
     free(resp);
     ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
+/*Callback function whenever "/path2" is accessed*/
 esp_err_t handle_path2(httpd_req_t *req)
 {
-    ESP_ERROR_CHECK(get_path(2));
+    ESP_ERROR_CHECK(get_path(2)); //Execute Path 2
     char* resp = get_home(0);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -1038,9 +1192,10 @@ esp_err_t handle_path2(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/path3" is accessed*/
 esp_err_t handle_path3(httpd_req_t *req)
 {
-    ESP_ERROR_CHECK(get_path(3));
+    ESP_ERROR_CHECK(get_path(3)); //Execute Path 3
     char* resp = get_home(0);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -1048,9 +1203,10 @@ esp_err_t handle_path3(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/path4" is accessed*/
 esp_err_t handle_path4(httpd_req_t *req)
 {
-    ESP_ERROR_CHECK(get_path(4));
+    ESP_ERROR_CHECK(get_path(4)); //Execute Path 4
     char* resp = get_home(0);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -1058,9 +1214,10 @@ esp_err_t handle_path4(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/path5" is accessed*/
 esp_err_t handle_path5(httpd_req_t *req)
 {
-    ESP_ERROR_CHECK(get_path(5));
+    ESP_ERROR_CHECK(get_path(5)); //Execute PAth 5
     char* resp = get_home(0);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -1068,9 +1225,10 @@ esp_err_t handle_path5(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/manual" is accessed*/
 esp_err_t handle_manual(httpd_req_t *req)
 {
-    record_flag = 0;
+    record_flag = 0; //recording has not yet started
     ESP_LOGI(TAG, "Record Flag: %d", record_flag);
     char det = determine(flag);
     curr_mili = esp_timer_get_time();
@@ -1078,7 +1236,7 @@ esp_err_t handle_manual(httpd_req_t *req)
     ESP_LOGI(TAG,"%c%f",det,time_duration);
     prev_mili = esp_timer_get_time();
     flag = -1;
-    delete_paths(total_paths+1);
+    delete_paths(total_paths+1); //Ensure that the correct number of valid paths is stored in the file
     char* resp = manual_mode();
     prev_mili = esp_timer_get_time();
     httpd_resp_send(req, resp, strlen(resp));
@@ -1087,9 +1245,10 @@ esp_err_t handle_manual(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/pause" is accessed*/
 esp_err_t handle_pause(httpd_req_t *req)
 {
-    char det = determine(flag);
+    char det = determine(flag); //Get which direction it was travelling earlier
     curr_mili = esp_timer_get_time();
     time_duration = (curr_mili - prev_mili)/1000.0;
     ESP_LOGI(TAG,"%c%f",det,time_duration);
@@ -1099,23 +1258,24 @@ esp_err_t handle_pause(httpd_req_t *req)
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
     ESP_LOGI(TAG, "Record Flag: %d", record_flag);
-    if(record_flag == 1)
+    if(record_flag == 1) //If recording is ongoing, then store the direction in which it was travelling and the time duration for whcih it had travelled in that direction
     {
         FILE* f = fopen("/spiffs/paths.txt", "a");
         if (f == NULL) {
             ESP_LOGE(TAG, "Failed to open file for writing");
             return ESP_FAIL;
         }
-        fputc(det, f);
-        fprintf(f, "%.3f", time_duration);
-        fputc('\t', f);
+        fputc(det, f); //Store the character denoting direction
+        fprintf(f, "%.3f", time_duration); //Store the time duration
+        fputc('\t', f); //Put a "\t" to seperate the next entry
         fclose(f);
     }
     ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;  
 }
 
-esp_err_t handle_specific_path1(httpd_req_t *req)//to change
+/*Callback function whenever "/path_details1" is accessed*/
+esp_err_t handle_specific_path1(httpd_req_t *req)
 {
     char* resp = get_path_specific(1);
     httpd_resp_send(req, resp, strlen(resp));
@@ -1124,7 +1284,8 @@ esp_err_t handle_specific_path1(httpd_req_t *req)//to change
     return ESP_OK;
 }
 
-esp_err_t handle_specific_path2(httpd_req_t *req)//to change
+/*Callback function whenever "/path_details2" is accessed*/
+esp_err_t handle_specific_path2(httpd_req_t *req)
 {
     char* resp = get_path_specific(2);
     httpd_resp_send(req, resp, strlen(resp));
@@ -1133,7 +1294,8 @@ esp_err_t handle_specific_path2(httpd_req_t *req)//to change
     return ESP_OK;
 }
 
-esp_err_t handle_specific_path3(httpd_req_t *req)//to change
+/*Callback function whenever "/path_details3" is accessed*/
+esp_err_t handle_specific_path3(httpd_req_t *req)
 {
     char* resp = get_path_specific(3);
     httpd_resp_send(req, resp, strlen(resp));
@@ -1142,7 +1304,8 @@ esp_err_t handle_specific_path3(httpd_req_t *req)//to change
     return ESP_OK;
 }
 
-esp_err_t handle_specific_path4(httpd_req_t *req)//to change
+/*Callback function whenever "/path_details4" is accessed*/
+esp_err_t handle_specific_path4(httpd_req_t *req)
 {
     char* resp = get_path_specific(4);
     httpd_resp_send(req, resp, strlen(resp));
@@ -1151,7 +1314,8 @@ esp_err_t handle_specific_path4(httpd_req_t *req)//to change
     return ESP_OK;
 }
 
-esp_err_t handle_specific_path5(httpd_req_t *req)//to change
+/*Callback function whenever "/path_details5" is accessed*/
+esp_err_t handle_specific_path5(httpd_req_t *req)
 {
     char* resp = get_path_specific(5);
     httpd_resp_send(req, resp, strlen(resp));
@@ -1160,10 +1324,11 @@ esp_err_t handle_specific_path5(httpd_req_t *req)//to change
     return ESP_OK;
 }
 
-esp_err_t handle_delete_path1(httpd_req_t *req)//to change
+/*Callback function whenever "/delete_path1" is accessed*/
+esp_err_t handle_delete_path1(httpd_req_t *req)
 {
-    ESP_ERROR_CHECK(delete_specific_path(1));
-    ESP_ERROR_CHECK(update_number(-1));
+    ESP_ERROR_CHECK(delete_specific_path(1)); //delete 1st path from the file paths.txt
+    ESP_ERROR_CHECK(update_number(-1)); //total number of valid paths has decreased by 1
     char* resp = get_home(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -1171,10 +1336,11 @@ esp_err_t handle_delete_path1(httpd_req_t *req)//to change
     return ESP_OK;
 }
 
-esp_err_t handle_delete_path2(httpd_req_t *req)//to change
+/*Callback function whenever "/delete_path2" is accessed*/
+esp_err_t handle_delete_path2(httpd_req_t *req)
 {
-    ESP_ERROR_CHECK(delete_specific_path(2));
-    ESP_ERROR_CHECK(update_number(-1));
+    ESP_ERROR_CHECK(delete_specific_path(2));   //delete 2nd path from the file paths.txt
+    ESP_ERROR_CHECK(update_number(-1)); //total number of valid paths has decreased by 1
     char* resp = get_home(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -1182,10 +1348,11 @@ esp_err_t handle_delete_path2(httpd_req_t *req)//to change
     return ESP_OK;
 }
 
-esp_err_t handle_delete_path3(httpd_req_t *req)//to change
+/*Callback function whenever "/delete_path3" is accessed*/
+esp_err_t handle_delete_path3(httpd_req_t *req)
 {
-    ESP_ERROR_CHECK(delete_specific_path(3));
-    ESP_ERROR_CHECK(update_number(-1));
+    ESP_ERROR_CHECK(delete_specific_path(3));   //delete 3rd path from the file paths.txt
+    ESP_ERROR_CHECK(update_number(-1)); //total number of valid paths has decreased by 1
     char* resp = get_home(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -1193,10 +1360,11 @@ esp_err_t handle_delete_path3(httpd_req_t *req)//to change
     return ESP_OK;
 }
 
-esp_err_t handle_delete_path4(httpd_req_t *req)//to change
+/*Callback function whenever "/delete_path4" is accessed*/
+esp_err_t handle_delete_path4(httpd_req_t *req)
 {
-    ESP_ERROR_CHECK(delete_specific_path(4));
-    ESP_ERROR_CHECK(update_number(-1));
+    ESP_ERROR_CHECK(delete_specific_path(4));   //delete 4th path from the file paths.txt
+    ESP_ERROR_CHECK(update_number(-1)); //total number of valid paths has decreased by 1
     char* resp = get_home(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -1204,10 +1372,11 @@ esp_err_t handle_delete_path4(httpd_req_t *req)//to change
     return ESP_OK;
 }
 
-esp_err_t handle_delete_path5(httpd_req_t *req)//to change
+/*Callback function whenever "/delete_path5" is accessed*/
+esp_err_t handle_delete_path5(httpd_req_t *req)
 {
-    ESP_ERROR_CHECK(delete_specific_path(5));
-    ESP_ERROR_CHECK(update_number(-1));
+    ESP_ERROR_CHECK(delete_specific_path(5));   //delete 5th path from the file paths.txt
+    ESP_ERROR_CHECK(update_number(-1)); //total number of valid paths has decreased by 1
     char* resp = get_home(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -1215,9 +1384,10 @@ esp_err_t handle_delete_path5(httpd_req_t *req)//to change
     return ESP_OK;
 }
 
-esp_err_t handle_auto(httpd_req_t *req)//to change
+/*Callback function whenever "/auto" is accessed*/
+esp_err_t handle_auto(httpd_req_t *req)
 {
-    flag = 4;
+    flag = 4; //denotes auto mode
     char* resp = get_auto();
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -1225,19 +1395,20 @@ esp_err_t handle_auto(httpd_req_t *req)//to change
     return ESP_OK;
 }
 
+/*Callback function whenever "/forward" is accessed*/
 esp_err_t handle_forward(httpd_req_t *req)
 {
-    char det = determine(flag);
+    char det = determine(flag);     //determine the direction it was going earlier
     curr_mili = esp_timer_get_time();
-    time_duration = (curr_mili - prev_mili)/1000;;
+    time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
     ESP_LOGI(TAG,"%c%f",det,time_duration);
     prev_mili = esp_timer_get_time();
-    flag = 0;
+    flag = 0;                       //denotes that is now going in forward direction
     char* resp = SendHTML(flag);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
     ESP_LOGI(TAG, "Record Flag: %d", record_flag);
-    if(record_flag == 1)
+    if(record_flag == 1)        //if the path is recording
     {
         move_forward();
         FILE* f = fopen("/spiffs/paths.txt", "a");
@@ -1245,28 +1416,29 @@ esp_err_t handle_forward(httpd_req_t *req)
             ESP_LOGE(TAG, "Failed to open file for writing");
             return ESP_FAIL;
         }
-        fputc(det, f);
-        fprintf(f, "%.3f", time_duration);
-        fputc('\t', f);
+        fputc(det, f);  //for storing the previous direction
+        fprintf(f, "%.3f", time_duration);  //for storing the previous time duration
+        fputc('\t', f); //seperate from next entry by '\t'
         fclose(f);
     }
     ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
+/*Callback function whenever "/left" is accessed*/
 esp_err_t handle_left(httpd_req_t *req)
 {
-    char det = determine(flag);
+    char det = determine(flag);     //determine the direction it was going earlier
     curr_mili = esp_timer_get_time();
-    time_duration = (curr_mili - prev_mili)/1000.0;
+    time_duration = (curr_mili - prev_mili)/1000.0;     //the time for which it was going in the previous direction(in ms)
     ESP_LOGI(TAG,"%c%f",det,time_duration);
     prev_mili = esp_timer_get_time();
-    flag = 1;
+    flag = 1;                       //denotes that is now going in left direction
     char* resp = SendHTML(flag);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
     ESP_LOGI(TAG, "Record Flag: %d", record_flag);
-    if(record_flag == 1)
+    if(record_flag == 1)        //if the path is recording
     {
         move_left();
         FILE* f = fopen("/spiffs/paths.txt", "a");
@@ -1274,15 +1446,16 @@ esp_err_t handle_left(httpd_req_t *req)
             ESP_LOGE(TAG, "Failed to open file for writing");
             return ESP_FAIL;
         }
-        fputc(det, f);
-        fprintf(f, "%.3f", time_duration);
-        fputc('\t', f);
+        fputc(det, f);  //for storing the previous direction
+        fprintf(f, "%.3f", time_duration); //for storing the previous time duration
+        fputc('\t', f); //seperate from next entry by '\t'
         fclose(f);
     }
     ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
+/*Callback function whenever "/right" is accessed*/
 esp_err_t handle_right(httpd_req_t *req)
 {
     char det = determine(flag);
@@ -1290,7 +1463,7 @@ esp_err_t handle_right(httpd_req_t *req)
     time_duration = (curr_mili - prev_mili)/1000.0;
     ESP_LOGI(TAG,"%c%f",det,time_duration);
     prev_mili = esp_timer_get_time();
-    flag = 2;
+    flag = 2;               //Now going in right direction, everything else is same as previous
     char* resp = SendHTML(flag);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -1312,6 +1485,7 @@ esp_err_t handle_right(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/back is accessed"*/
 esp_err_t handle_back(httpd_req_t *req)
 {
     char det = determine(flag);
@@ -1319,7 +1493,7 @@ esp_err_t handle_back(httpd_req_t *req)
     time_duration = (curr_mili - prev_mili)/1000.0;
     ESP_LOGI(TAG,"%c%f",det,time_duration);
     prev_mili = esp_timer_get_time();
-    flag = 3;
+    flag = 3;       //Now going in back direction, everything else same as forward and left and right
     char* resp = SendHTML(flag);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -1341,9 +1515,10 @@ esp_err_t handle_back(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/stop is accessed"*/
 esp_err_t handle_stop(httpd_req_t *req)
 {
-    char det = determine(flag);
+    char det = determine(flag);         //Note that total_paths is not updated here, it is only updated in "/save", because if the author chooses to discard this path then "/manual" will automatically delete this path
     curr_mili = esp_timer_get_time();
     time_duration = (curr_mili - prev_mili)/1000.0;
     ESP_LOGI(TAG,"%c%f",det,time_duration);
@@ -1359,7 +1534,7 @@ esp_err_t handle_stop(httpd_req_t *req)
         }
         fputc(det, f);
         fprintf(f, "%.3f", time_duration);
-        fputc('\n', f);
+        fputc('\n', f); //Since this is the last entry, instead of putting a '\t', we put a '\n' so that the next path will be saved in the next line
         //fputc('\0', f);
         fclose(f);
     }
@@ -1370,9 +1545,11 @@ esp_err_t handle_stop(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/save is accessed"*/
 esp_err_t handle_save(httpd_req_t *req)
 {
-    update_number(1);
+    update_number(1); //total_paths is updated in paths.txt
+    //ESP_ERROR_CHECK(convert_paths(total_paths+1));
     char* resp = get_home(3);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -1380,6 +1557,7 @@ esp_err_t handle_save(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/choose is accessed"*/
 esp_err_t handle_choose(httpd_req_t *req)
 {
     char* resp = choose_page();
@@ -1389,10 +1567,11 @@ esp_err_t handle_choose(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/sap is accessed"*/
 esp_err_t handle_sap(httpd_req_t *req)
 {
     httpd_resp_send(req, "Device will restart using SAP mode", strlen("Device will restart using SAP mode"));
-    ESP_ERROR_CHECK(replace_wifi("SAP", 1));
+    ESP_ERROR_CHECK(replace_wifi("SAP", 1));    //The first line is rewritten with SAP so that on next reboot it starts in SAP mode
     ESP_LOGI(TAG, "SAP Data Written");
     ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     vTaskDelay(100);
@@ -1400,6 +1579,7 @@ esp_err_t handle_sap(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/sta is accessed"*/
 esp_err_t handle_sta(httpd_req_t *req)
 {
     char* resp = get_sta();
@@ -1409,9 +1589,10 @@ esp_err_t handle_sta(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/new is accessed"*/
 esp_err_t handle_new(httpd_req_t *req)
 {
-    if(total == WIFI_NUM)
+    if(total == WIFI_NUM)   //If maximum number of wifi credentials has been reached
     {
         char* resp = get_home(1);
         httpd_resp_send(req, resp, strlen(resp));
@@ -1421,11 +1602,11 @@ esp_err_t handle_new(httpd_req_t *req)
     }
     else
     {
-        total = total + 1;
+        total = total + 1;  //total number of valid wifi networks is updated
         char str[20];
         sprintf(str, "%d", total);
-        replace_wifi(str, WIFI_NUM+3);
-        char* resp = get_form(total);
+        replace_wifi(str, WIFI_NUM+3); //updated value is stored in the file
+        char* resp = get_form(total);   //form for getting the SSID and password
         httpd_resp_send(req, resp, strlen(resp));
         free(resp);
         ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
@@ -1434,6 +1615,7 @@ esp_err_t handle_new(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/sta1 is accessed"*/
 esp_err_t handle_sta_data1(httpd_req_t *req)
 {
     char* resp = get_sta_data(1);
@@ -1443,46 +1625,54 @@ esp_err_t handle_sta_data1(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/sta_mod_1 is accessed"*/
 esp_err_t handle_modify1(httpd_req_t *req)
 {
-    char* resp = get_form(1);
+    char* resp = get_form(1); //Only form for getting values, total is not updated because the number of valid wifi credentials remian unchanged
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
     ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
+/*Callback function whenever "/sta_delete_1 is accessed"*/
 esp_err_t handle_delete1(httpd_req_t *req)
 {
     char* resp = get_home(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    total = total - 1;
+    total = total - 1; //total number of valid wifi credentials has decreased by 1
     char str[20];
     sprintf(str, "%d", total);
-    ESP_ERROR_CHECK(replace_wifi(str, WIFI_NUM+3));
-    ESP_ERROR_CHECK(delete(2));
-    ESP_ERROR_CHECK(update_wifi());
+    ESP_ERROR_CHECK(replace_wifi(str, WIFI_NUM+3)); //update the value stored in the file
+    ESP_ERROR_CHECK(delete(2));                     //delete the wifi details stored in the file
+    ESP_ERROR_CHECK(update_wifi());                 //update the SSID and pass matrix variables
     if(total == 0)
         ESP_ERROR_CHECK(handle_sap(req));
     ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
+/*Callback function whenever "/sta_choose_1 is accessed"*/
 esp_err_t handle_choose1(httpd_req_t *req)
 {
     char str[20];
-    sprintf(str, "%d", 1);
-    ESP_ERROR_CHECK(replace_wifi(str, WIFI_NUM+2));
-    ESP_ERROR_CHECK(replace_wifi("STA", 1));
+    sprintf(str, "%d", 1); //convert integer 1 to string
+    ESP_ERROR_CHECK(replace_wifi(str, WIFI_NUM+2)); //update which wifi network to use in wifi_conf.txt 
+    ESP_ERROR_CHECK(replace_wifi("STA", 1));        //update the 1st line to show it will operate in STA mode
     ESP_LOGI(TAG, "STA Wifi 1");
     httpd_resp_send(req, "Device will restart now and connect to wifi network", strlen("Device will restart now and connect to wifi network"));
     ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     vTaskDelay(100);
-    esp_restart();
+    esp_restart();          //restart esp
     return ESP_OK;
 }
 
+/*  The Following functions are same as handle_sta_data1, handle_modify1, handle_delete1, handle_choose1.
+    Only the arguments passsed in the functions called within them are different
+*/
+
+/*Callback function whenever "/sta2 is accessed"*/
 esp_err_t handle_sta_data2(httpd_req_t *req)
 {
     char* resp = get_sta_data(2);
@@ -1492,6 +1682,7 @@ esp_err_t handle_sta_data2(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/sta_mod_2 is accessed"*/
 esp_err_t handle_modify2(httpd_req_t *req)
 {
     char* resp = get_form(2);
@@ -1501,6 +1692,7 @@ esp_err_t handle_modify2(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/sta_delete_2 is accessed"*/
 esp_err_t handle_delete2(httpd_req_t *req)
 {
     char* resp = get_home(2);
@@ -1518,6 +1710,7 @@ esp_err_t handle_delete2(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/sta_choose_2 is accessed"*/
 esp_err_t handle_choose2(httpd_req_t *req)
 {
     char str[20];
@@ -1532,6 +1725,7 @@ esp_err_t handle_choose2(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/sta3 is accessed"*/
 esp_err_t handle_sta_data3(httpd_req_t *req)
 {
     char* resp = get_sta_data(3);
@@ -1541,6 +1735,7 @@ esp_err_t handle_sta_data3(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/sta_mod_3 is accessed"*/
 esp_err_t handle_modify3(httpd_req_t *req)
 {
     char* resp = get_form(3);
@@ -1550,6 +1745,7 @@ esp_err_t handle_modify3(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/sta_delete_3 is accessed"*/
 esp_err_t handle_delete3(httpd_req_t *req)
 {
     char* resp = get_home(2);
@@ -1567,6 +1763,7 @@ esp_err_t handle_delete3(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/sta_choose_3 is accessed"*/
 esp_err_t handle_choose3(httpd_req_t *req)
 {
     char str[20];
@@ -1581,6 +1778,7 @@ esp_err_t handle_choose3(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/sta4 is accessed"*/
 esp_err_t handle_sta_data4(httpd_req_t *req)
 {
     char* resp = get_sta_data(4);
@@ -1590,6 +1788,7 @@ esp_err_t handle_sta_data4(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/sta_mod_4 is accessed"*/
 esp_err_t handle_modify4(httpd_req_t *req)
 {
     char* resp = get_form(4);
@@ -1599,6 +1798,7 @@ esp_err_t handle_modify4(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/sta_delete_4 is accessed"*/
 esp_err_t handle_delete4(httpd_req_t *req)
 {
     char* resp = get_home(2);
@@ -1616,6 +1816,7 @@ esp_err_t handle_delete4(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/sta_choose_4 is accessed"*/
 esp_err_t handle_choose4(httpd_req_t *req)
 {
     char str[20];
@@ -1630,6 +1831,7 @@ esp_err_t handle_choose4(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/sta5 is accessed"*/
 esp_err_t handle_sta_data5(httpd_req_t *req)
 {
     char* resp = get_sta_data(5);
@@ -1639,6 +1841,7 @@ esp_err_t handle_sta_data5(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/sta_mod_5 is accessed"*/
 esp_err_t handle_modify5(httpd_req_t *req)
 {
     char* resp = get_form(5);
@@ -1648,6 +1851,7 @@ esp_err_t handle_modify5(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/sta_delete_5 is accessed"*/
 esp_err_t handle_delete5(httpd_req_t *req)
 {
     char* resp = get_home(2);
@@ -1665,6 +1869,7 @@ esp_err_t handle_delete5(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/sta_choose_5 is accessed"*/
 esp_err_t handle_choose5(httpd_req_t *req)
 {
     char str[20];
@@ -1679,13 +1884,14 @@ esp_err_t handle_choose5(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/data_1" is accessed, i.e, after data has been entered through form for wifi network 1 and needs to be saved"*/
 esp_err_t handle_data_1(httpd_req_t *req)
 {
-    strcpy(line_str, "");
-    int len = req->content_len;
-    int ret, remaining = req->content_len;
+    strcpy(line_str, "");   //Initialize it to empty string
+    int len = req->content_len;     //Get the length of the header
+    int ret, remaining = req->content_len;      //Get how much length is left to be read
     while (remaining > 0) {
-        if ((ret = httpd_req_recv(req, buf, len)) <= 0) {
+        if ((ret = httpd_req_recv(req, buf, len)) <= 0) {   //Store len lngth of data from the header in the string variable "buf" 
             if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
                 continue;
             }
@@ -1693,24 +1899,24 @@ esp_err_t handle_data_1(httpd_req_t *req)
         }
         remaining -= ret;
     }
-    buf[len] = '\0';
-    ESP_LOGI(TAG, "Buffer: %s", buf);
-    strcpy(copy, buf);
+    buf[len] = '\0';                        //Put terminating character in proper place
+    ESP_LOGI(TAG, "Buffer: %s", buf);       //Display buffer. It will be in the format: "SSID=[ssid]&PASS=[password]"
+    strcpy(copy, buf);                      //Copy the contents of buffer into copy variable
     ESP_LOGI(TAG, "Copy: %s", copy);
-    char* token = strtok(buf, "&");
-    char* ssid_data = strtok(token, "=");
-    ssid_data = strtok(NULL, "=");
-    char* new_token = strtok(copy, "&");
-    new_token = strtok(NULL, "&");
-    char* pwd = strtok(new_token, "=");
-    pwd = strtok(NULL, "=");
-    ESP_LOGI(TAG, "SSID: %s", ssid_data);
-    ESP_LOGI(TAG, "PASS: %s", pwd);
-    strcat(line_str, ssid_data);
-    strcat(line_str, " ");
-    strcat(line_str, pwd);
-    ESP_ERROR_CHECK(replace_wifi(line_str, 2));
-    ESP_ERROR_CHECK(update_wifi());
+    char* token = strtok(buf, "&");         //token now contains "SSID=[ssid]"
+    char* ssid_data = strtok(token, "=");   //ssid_data now contains "SSID"
+    ssid_data = strtok(NULL, "=");          //ssid_data now contains "[ssid]"
+    char* new_token = strtok(copy, "&");    //new_token now contains "SSID=[ssid]"
+    new_token = strtok(NULL, "&");          //new_token now contains "PASS=[password]"
+    char* pwd = strtok(new_token, "=");     //pwd now contains "PASS"
+    pwd = strtok(NULL, "=");                //pwd not contains "[password]"
+    ESP_LOGI(TAG, "SSID: %s", ssid_data);   //Show the extracted SSID
+    ESP_LOGI(TAG, "PASS: %s", pwd);         //Show the extracted Password
+    strcat(line_str, ssid_data);            //line_str now contains "[ssid]"
+    strcat(line_str, " ");                  //line_str now contains "[ssid] "
+    strcat(line_str, pwd);                  //line_str now contains "[ssid] [password]"
+    ESP_ERROR_CHECK(replace_wifi(line_str, 2)); //Update the data stored in wifi_conf.txt (1st wifi details are stored in line 2)
+    ESP_ERROR_CHECK(update_wifi());             //Update the SSID and PASS matrices
     char* resp = get_home(4);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -1718,6 +1924,7 @@ esp_err_t handle_data_1(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/data_2" is accessed, i.e, after data has been entered through form for wifi network 2 and needs to be saved. The logic is same as the previous function*/
 esp_err_t handle_data_2(httpd_req_t *req)
 {
     strcpy(line_str, "");
@@ -1748,8 +1955,8 @@ esp_err_t handle_data_2(httpd_req_t *req)
     strcat(line_str, ssid_data);
     strcat(line_str, " ");
     strcat(line_str, pwd);
-    ESP_ERROR_CHECK(replace_wifi(line_str, 3));
-    ESP_ERROR_CHECK(update_wifi());
+    ESP_ERROR_CHECK(replace_wifi(line_str, 3)); //Update the data stored in wifi_conf.txt (2nd wifi details are stored in line 3)
+    ESP_ERROR_CHECK(update_wifi());             //Update the SSID and PASS matrices
     char* resp = get_home(4);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -1757,6 +1964,7 @@ esp_err_t handle_data_2(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/data_3" is accessed, i.e, after data has been entered through form for wifi network 3 and needs to be saved. The logic is same as the previous function*/
 esp_err_t handle_data_3(httpd_req_t *req)
 {
     strcpy(line_str, "");
@@ -1787,8 +1995,8 @@ esp_err_t handle_data_3(httpd_req_t *req)
     strcat(line_str, ssid_data);
     strcat(line_str, " ");
     strcat(line_str, pwd);
-    ESP_ERROR_CHECK(replace_wifi(line_str, 4));
-    ESP_ERROR_CHECK(update_wifi());
+    ESP_ERROR_CHECK(replace_wifi(line_str, 4)); //Update the data stored in wifi_conf.txt (3rd wifi details are stored in line 4)
+    ESP_ERROR_CHECK(update_wifi());             //Update the SSID and PASS matrices
     char* resp = get_home(4);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -1796,6 +2004,7 @@ esp_err_t handle_data_3(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/data_4" is accessed, i.e, after data has been entered through form for wifi network 4 and needs to be saved. The logic is same as the previous function*/
 esp_err_t handle_data_4(httpd_req_t *req)
 {
     strcpy(line_str, "");
@@ -1826,8 +2035,8 @@ esp_err_t handle_data_4(httpd_req_t *req)
     strcat(line_str, ssid_data);
     strcat(line_str, " ");
     strcat(line_str, pwd);
-    ESP_ERROR_CHECK(replace_wifi(line_str, 5));
-    ESP_ERROR_CHECK(update_wifi());
+    ESP_ERROR_CHECK(replace_wifi(line_str, 5)); //Update the data stored in wifi_conf.txt (4th wifi details are stored in line 5)
+    ESP_ERROR_CHECK(update_wifi());             //Update the SSID and PASS matrices
     char* resp = get_home(4);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -1835,6 +2044,7 @@ esp_err_t handle_data_4(httpd_req_t *req)
     return ESP_OK;
 }
 
+/*Callback function whenever "/data_5" is accessed, i.e, after data has been entered through form for wifi network 5 and needs to be saved. The logic is same as the previous function*/
 esp_err_t handle_data_5(httpd_req_t *req)
 {
     strcpy(line_str, "");
@@ -1865,14 +2075,17 @@ esp_err_t handle_data_5(httpd_req_t *req)
     strcat(line_str, ssid_data);
     strcat(line_str, " ");
     strcat(line_str, pwd);
-    ESP_ERROR_CHECK(replace_wifi(line_str, 6));
-    ESP_ERROR_CHECK(update_wifi());
+    ESP_ERROR_CHECK(replace_wifi(line_str, 6)); //Update the data stored in wifi_conf.txt (5th wifi details are stored in line 6)
+    ESP_ERROR_CHECK(update_wifi());             //Update the SSID and PASS matrices
     char* resp = get_home(4);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
     ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
+
+/*The following are structures linking each web address with their corresponding callback functions
+  Each structure contains the web address, the corresponding callback function, the HTTP method (HTTP_GET or HTTP_POST) and any user context(NULL for all the structures)*/
 
 httpd_uri_t uri_reset = {
     .uri      = "/reset",
@@ -2233,45 +2446,46 @@ httpd_uri_t uri_sta_choose5 = {
 
 httpd_uri_t uri_sta_data1 = {
     .uri      = "/data_1",
-    .method   = HTTP_POST,
+    .method   = HTTP_POST,      //POST is used for extra security since wifi credentials are passed through the form
     .handler  = handle_data_1,
     .user_ctx = NULL
 };
 
 httpd_uri_t uri_sta_data2 = {
     .uri      = "/data_2",
-    .method   = HTTP_POST,
+    .method   = HTTP_POST,      //POST is used for extra security since wifi credentials are passed through the form
     .handler  = handle_data_2,
     .user_ctx = NULL
 };
 
 httpd_uri_t uri_sta_data3 = {
     .uri      = "/data_3",
-    .method   = HTTP_POST,
+    .method   = HTTP_POST,      //POST is used for extra security since wifi credentials are passed through the form
     .handler  = handle_data_3,
     .user_ctx = NULL
 };
 
 httpd_uri_t uri_sta_data4 = {
     .uri      = "/data_4",
-    .method   = HTTP_POST,
+    .method   = HTTP_POST,      //POST is used for extra security since wifi credentials are passed through the form
     .handler  = handle_data_4,
     .user_ctx = NULL
 };
 
 httpd_uri_t uri_sta_data5 = {
     .uri      = "/data_5",
-    .method   = HTTP_POST,
+    .method   = HTTP_POST,      //POST is used for extra security since wifi credentials are passed through the form
     .handler  = handle_data_5,
     .user_ctx = NULL
 };
 
+/*Starts the webserver that is hosted on the ESP-32*/
 httpd_handle_t start_webserver(void)
 {
-    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    httpd_handle_t server = NULL;
-    config.max_uri_handlers = 60;
-    if (httpd_start(&server, &config) == ESP_OK) {
+    httpd_config_t config = HTTPD_DEFAULT_CONFIG(); //default configuration
+    httpd_handle_t server = NULL;                   //intialize NULL Server
+    config.max_uri_handlers = 60;                   //set it to 60 to accomodate all our pre defined structures
+    if (httpd_start(&server, &config) == ESP_OK) {  //Now assosciate all the structures defined earlier to the web server
         httpd_register_uri_handler(server, &uri_reset);
         httpd_register_uri_handler(server, &uri_home);
         httpd_register_uri_handler(server, &uri_manual);
@@ -2333,6 +2547,7 @@ httpd_handle_t start_webserver(void)
     return server;
 }
 
+/*Stops the webserver (Ref: Official Github Repo)*/
 void stop_webserver(httpd_handle_t server)
 {
     if (server) {
@@ -2340,7 +2555,8 @@ void stop_webserver(httpd_handle_t server)
     }
 }
 
-static void disconnect_handler(void* arg, esp_event_base_t event_base,
+/*Not really required(Ref: Official Github Repo)*/
+/*static void disconnect_handler(void* arg, esp_event_base_t event_base,
                                int32_t event_id, void* event_data)
 {
     httpd_handle_t* server = (httpd_handle_t*) arg;
@@ -2350,7 +2566,9 @@ static void disconnect_handler(void* arg, esp_event_base_t event_base,
         *server = NULL;
     }
 }
-static void connect_handler(void* arg, esp_event_base_t event_base,
+*/
+/*Not really required(Ref: Official Github Repo)*/
+/*static void connect_handler(void* arg, esp_event_base_t event_base,
                             int32_t event_id, void* event_data)
 {
     httpd_handle_t* server = (httpd_handle_t*) arg;
@@ -2358,8 +2576,9 @@ static void connect_handler(void* arg, esp_event_base_t event_base,
         ESP_LOGI(TAG, "Starting webserver");
         *server = start_webserver();
     }
-}
+}*/
 
+/*Not really required(Ref: Official Github Repo)*/
 static void wifi_event_handler(void* arg, esp_event_base_t event_base,
                                     int32_t event_id, void* event_data)
 {
@@ -2373,6 +2592,8 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
                  MAC2STR(event->mac), event->aid);
     }
 }
+
+/*Used for setting up SAP mode (Ref: Official Github Repo). Recommended not to change*/
 void init_sap()
 {
     esp_err_t ret = nvs_flash_init();
@@ -2412,6 +2633,7 @@ void init_sap()
     ESP_LOGI(TAG, "wifi_init_softap finished. SSID:%s Password:%s", DEFAULT_SSID, DEFAULT_PASS);
 }
 
+/*Not really required((Ref: Official Github Repo))*/
 static void event_handler(void* arg, esp_event_base_t event_base,
                                 int32_t event_id, void* event_data)
 {
@@ -2434,6 +2656,7 @@ static void event_handler(void* arg, esp_event_base_t event_base,
     }
 }
 
+/*Used for setting up STA mode (Ref: Official Github Repo). Recommended not to change*/
 void wifi_init_sta(void)
 {
     ESP_ERROR_CHECK(nvs_flash_init());
@@ -2460,7 +2683,7 @@ void wifi_init_sta(void)
                                                         NULL,
                                                         &instance_got_ip));
 
-    wifi_config_t wifi_config = {
+    wifi_config_t wifi_config = {       //Initialize with dummy values
         .sta = {
             .ssid = DEFAULT_SSID,
             .password = DEFAULT_PASS,
@@ -2470,8 +2693,8 @@ void wifi_init_sta(void)
             },
         },
     };
-    strcpy((char *)wifi_config.sta.ssid, EXAMPLE_ESP_WIFI_SSID);
-    strcpy((char *)wifi_config.sta.password, EXAMPLE_ESP_WIFI_PASS);
+    strcpy((char *)wifi_config.sta.ssid, EXAMPLE_ESP_WIFI_SSID);        //Put the correct Wifi SSID that the ESP needs to connect to
+    strcpy((char *)wifi_config.sta.password, EXAMPLE_ESP_WIFI_PASS);    //Put the correct Wifi Password required
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
     ESP_ERROR_CHECK(esp_wifi_start() );
@@ -2503,10 +2726,11 @@ void wifi_init_sta(void)
     vEventGroupDelete(s_wifi_event_group);
 }
 
+/*Used for setting up PWM Channel (Ref: Official Github Repo)*/
 void init_pwm()
 {
     ledc_timer_config_t led_timer = {
-            .duty_resolution = LEDC_TIMER_13_BIT, // resolution of PWM duty
+            .duty_resolution = LEDC_TIMER_13_BIT, // resolution of PWM duty, means PWM value can go from 0 to (2^13-1)
             .freq_hz = 5000,                      // frequency of PWM signal
             .speed_mode = LEDC_HIGH_SPEED_MODE,           // timer mode
             .timer_num = LEDC_TIMER_0,            // timer index
@@ -2522,39 +2746,41 @@ void init_pwm()
     ledc_channel_config(&led_channel);
 }
 
+/*Function that will run parallely on Core 1*/
 void Task1code( void * pvParameters ){
 	
-    while(1){
-    	ESP_LOGI(TAG, "Infinite Loop running On core %d", xPortGetCoreID());
+    while(1){   //Put codew here
+    	//ESP_LOGI(TAG, "Infinite Loop running On core %d", xPortGetCoreID());
     }
 }
 
+/*Main function that gets called once at the start when ESP boots*/
 void app_main(void)
 {
     static httpd_handle_t server = NULL;
-    init_spiffs();
-    init_pwm();
-    conn_flag = main_update();
-    if(conn_flag == 0)
+    init_spiffs();  //Initialize SPIFFS File System
+    init_pwm();     //Initialize PWM channel
+    conn_flag = main_update();  //Update the necessary variables
+    if(conn_flag == 0)          //Set up wifi server in SAP or STA mode          
         init_sap();
     else
         wifi_init_sta();
-    server = start_webserver();
-    xTaskCreatePinnedToCore(
+    server = start_webserver(); //Start the web server
+    xTaskCreatePinnedToCore(    //Pinning a task in core 1
                     Task1code,   /* Task function. */
                     "Task1",     /* name of task. */
                     10000,       /* Stack size of task */
                     NULL,        /* parameter of the task */
                     0,           /* priority of the task */
                     &Task1,      /* Task handle to keep track of created task */
-                    1);          /* pin task to core 0 */                  
+                    1);          /* pin task to core 1 */                  
   	//delay(500);
-    ESP_ERROR_CHECK(update_paths());
-    ESP_ERROR_CHECK(mdns_init());
-    ESP_ERROR_CHECK(mdns_hostname_set("esp32"));
+    ESP_ERROR_CHECK(update_paths());    //Update the variables related to paths.txt
+    ESP_ERROR_CHECK(mdns_init());       //Initialize MDNS Service
+    ESP_ERROR_CHECK(mdns_hostname_set("esp32"));    //Set hostname to esp32. Now you can either type the IP Address or "esp32.local" for a device which has MDNS
     ESP_LOGI(TAG, "mdns hostname set to: [esp32]");
     ESP_ERROR_CHECK(mdns_instance_name_set("web_server"));
-    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &connect_handler, &server));
-    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &disconnect_handler, &server));
+    /*ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &connect_handler, &server));
+    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &disconnect_handler, &server));*/
     //server = start_webserver();
 }
