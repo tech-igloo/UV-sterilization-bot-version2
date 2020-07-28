@@ -44,7 +44,7 @@
 #define PATH_NUM 5                              //The maximum number of paths that can be stored
 #define resolution 0.1                            //The resolution of points used in the co-ordinate system
 #define DEFAULT_LIN_SPEED 1.5                   //Temporary constants I used. To be deleted when encoder feedback is used
-#define DEFAULT_ANG_SPEED 90                    //Temporary constants I used. To be deleted when encoder feedback is used
+#define DEFAULT_ANG_SPEED 10                    //Temporary constants I used. To be deleted when encoder feedback is used
 
 /*The variables that keep track of various things while the code is running*/
 static EventGroupHandle_t s_wifi_event_group;   //Used for Wifi connections during SAP and STA mode
@@ -307,10 +307,11 @@ esp_err_t convert_paths(int n){
                         len += ceil(val/resolution);
                     temp_token = strtok(NULL, "\t");
                 }
-                char* result = (char *)calloc(len*4+1,sizeof(char));
-                strcpy(result,"");
+                char* result = (char *)calloc((len*4*9+1),sizeof(char));
+                //strcpy(result,"");
                 //char* result = (char *)calloc(2048,sizeof(char));
-                ESP_LOGI(TAG, "Length: %d", len*4);
+                strcpy(result, "");
+                ESP_LOGI(TAG, "Length: %d", len*4*9+1);
                 char* token = strtok(str, "\t");
                 while(token!=NULL)
                 {
@@ -325,9 +326,11 @@ esp_err_t convert_paths(int n){
                             current.y = prev.y + counter*sin(prev.theta*3.14/180.0);
                             ESP_LOGI(TAG, "(%f, %f)", current.x, current.y);
                             counter = counter + resolution;
+                            strcpy(temp, "");
                             snprintf(temp, 9, "%f", current.x);
                             strcat(result, temp);
                             strcat(result, " ");
+                            strcpy(temp, "");
                             snprintf(temp, 9, "%f", current.y);
                             strcat(result, temp);
                             strcat(result, " ");
@@ -341,10 +344,13 @@ esp_err_t convert_paths(int n){
                         while(counter <= val){
                             current.x = prev.x + counter*cos(prev.theta*3.14/180.0);
                             current.y = prev.y + counter*sin(prev.theta*3.14/180.0);
+                            ESP_LOGI(TAG, "(%f, %f)", current.x, current.y);
                             counter = counter + resolution;
+                            strcpy(temp, "");
                             snprintf(temp, 9, "%f", current.x);
                             strcat(result, temp);
                             strcat(result, " ");
+                            strcpy(temp, "");
                             snprintf(temp, 9, "%f", current.y);
                             strcat(result, temp);
                             strcat(result, " ");
@@ -354,11 +360,11 @@ esp_err_t convert_paths(int n){
                     }
                     else if(ch == 'r'){
                         val = DEFAULT_ANG_SPEED * val/1000.0;
-                        prev.theta = prev.theta + val;
+                        prev.theta = prev.theta - val;
                     }
                     else if(ch == 'l'){
                         val = DEFAULT_ANG_SPEED * val/1000.0;
-                        prev.theta = prev.theta - val;
+                        prev.theta = prev.theta + val;
                     }
                     token = strtok(NULL, "\t");
                 }
@@ -1559,7 +1565,7 @@ esp_err_t handle_stop(httpd_req_t *req)
 esp_err_t handle_save(httpd_req_t *req)
 {
     update_number(1); //total_paths is updated in paths.txt
-    //ESP_ERROR_CHECK(convert_paths(total_paths+1));  //convert the saved path into co-ordinate based representation
+    ESP_ERROR_CHECK(convert_paths(total_paths+1));  //convert the saved path into co-ordinate based representation
     char* resp = get_home(3);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
