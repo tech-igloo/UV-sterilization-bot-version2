@@ -307,7 +307,7 @@ esp_err_t convert_paths(int n){
                         len += ceil(val/resolution);
                     temp_token = strtok(NULL, "\t");
                 }
-                char* result = (char *)calloc((len*4*9+1),sizeof(char));
+                char* result = (char *)calloc((len*2*10+1),sizeof(char));
                 //strcpy(result,"");
                 //char* result = (char *)calloc(2048,sizeof(char));
                 strcpy(result, "");
