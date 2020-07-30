@@ -116,29 +116,29 @@ esp_err_t replace_wifi(char* line, int n)
 {
     char str[LINE_LEN];
     int linectr = 0;
-    FILE* f_r = fopen("/spiffs/wifi_conf.txt", "r");
-    FILE* f_w = fopen("/spiffs/temp.txt", "w");
-    if(f_r == NULL){
+    FILE* f_r = fopen("/spiffs/wifi_conf.txt", "r");	//open the file for reading
+    FILE* f_w = fopen("/spiffs/temp.txt", "w");			//open a temporary file for writing which will replace the original file
+    if(f_r == NULL){									//check if file open failed
         printf("Error opening file wifi_conf.txt\n");
         return ESP_FAIL;
     }
-    if(f_w == NULL){
+    if(f_w == NULL){									//check if file open failed
         printf("Error opening file temp.txt\n");
         return ESP_FAIL;
     }
     while(!feof(f_r))
     {
-        strcpy(str, "\0");
-        fgets(str, LINE_LEN, f_r);
+        strcpy(str, "\0");								//intialize to empty string
+        fgets(str, LINE_LEN, f_r);						//get a single line from the file
         if(!feof(f_r))
         {
-            linectr++;
-            if(linectr == n){
-                fprintf(f_w, "%s", line);
+            linectr++;									//calculate which line it is currently on
+            if(linectr == n){							//if matches
+                fprintf(f_w, "%s", line);				//write the line passed in this function's argument
                 fprintf(f_w, "%s", "\n");
             }
-            else
-                fprintf(f_w, "%s", str);
+            else 										//else
+                fprintf(f_w, "%s", str);				//write the line that was extracted from the file
         }
     }
     fclose(f_r);
@@ -153,8 +153,8 @@ esp_err_t update_number(int n){
     char line[2];
     char str[LINE_LEN];
     int linectr = 0;
-    total_paths = total_paths + n;          //Update the total_paths variable
-    sprintf(line, "%d", total_paths);
+    total_paths = total_paths + n;          //Update the total_paths global variable
+    sprintf(line, "%d", total_paths);		//convert total_paths from an integer to a string and store it on 'line' variable
     FILE* f_r = fopen("/spiffs/paths.txt", "r");
     FILE* f_w = fopen("/spiffs/temp.txt", "w");
     if(f_r == NULL){
@@ -167,17 +167,17 @@ esp_err_t update_number(int n){
     }
     while(!feof(f_r))
     {
-        strcpy(str, "\0");
+        strcpy(str, "\0");					//initialize to null string
         fgets(str, LINE_LEN, f_r);
         if(!feof(f_r))
         {
             linectr++;
-            if(linectr == 1){
-                fprintf(f_w, "%s", line);   //Update the value stored in the file
+            if(linectr == 1){				//since it is stored in the 1st line
+                fprintf(f_w, "%s", line);   //Update the value stored in the file by writing the 'line' variable that contains the string representaion of total_paths
                 fprintf(f_w, "%s", "\n");
             }
             else
-                fprintf(f_w, "%s", str);
+                fprintf(f_w, "%s", str);	//else write the string that was extracted from the file
         }
     }
     fclose(f_r);
@@ -267,7 +267,8 @@ esp_err_t delete_specific_path(int n)
 }
 
 
-/*Algorithm for converting path to co-ordinate based format. Has problems with dynamic allocation of memory. To be fixed*/
+/*Algorithm for converting path to co-ordinate based format
+  Remove DEFAULT_LIN_SPEED and DEFAULT_ANG_SPEED if the stored format is in distance and not time*/
 esp_err_t convert_paths(int n){
     char str[LINE_LEN];
     char str1[LINE_LEN];
@@ -601,12 +602,12 @@ esp_err_t update_paths()
         ESP_LOGE(TAG, "Failed to open path.txt");
         return ESP_FAIL;
     }
-    fgets(line, sizeof(line), f);
+    fgets(line, sizeof(line), f);	//It is in the first line only so we dont need to go to other lines
     pos = strchr(line, '\n');
     if(pos){
         *pos = '\0';
     }
-    total_paths = atoi(line);
+    total_paths = atoi(line);	//Convert the extracted string to a number
     fclose(f);
     return ESP_OK;
 }
@@ -901,12 +902,12 @@ esp_err_t get_path(int local_flag)
     //return ESP_OK;
     char* token = strtok(str, "\t");    //The elements are seperated by "\t"
     auto_flag = 1;                      
-    while(token!=NULL)
+    while(token!=NULL)					//iterate through each of the elements
     {
         char ch = token[0];             //Get the first character which denotes the direction to be travelled
         switch(ch){
             case 'f'://move_forward();break;
-                        flag = 0; break;
+                        flag = 0; break;	//The flag values are set here. The infinite Loop in Task 1 checks these flag variables and calls the appropriate functions
             case 'l'://move_left();break;
                         flag = 1; break;
             case 'r'://move_right();break;
@@ -1142,6 +1143,9 @@ char* get_stop()
     return ptr;
 }
 
+/*In all of the callback functions below, the HTML Code for displaying
+  the webpage is passed using the 'resp' string variable*/
+
 /*Callback function whenever "/" is accessed*/
 esp_err_t handle_OnConnect(httpd_req_t *req)
 {
@@ -1149,7 +1153,10 @@ esp_err_t handle_OnConnect(httpd_req_t *req)
     char* resp = default_page(); //Get the HTML Code
     httpd_resp_send(req, resp, strlen(resp));  //Send the HTML Code to display
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /");
+    ESP_LOGI(TAG, "Callback Function called: handle_OnConnect()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: default_page()");
     return ESP_OK;
 }
 
@@ -1158,8 +1165,11 @@ esp_err_t handle_reset(httpd_req_t *req)
 {
     remove("/spiffs/wifi_conf.txt"); //delete the files for fresh reboot
     remove("/spiffs/paths.txt");
-    httpd_resp_send(req, "Device will restart now", strlen("Device will restart now"));
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    httpd_resp_send(req, "Device will restart now", strlen("Device will restart now"));//just send a line for displaying it in the webpage
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /reset");
+    ESP_LOGI(TAG, "Callback Function called: handle_reset()");
+    ESP_LOGI(TAG, "HTML Code is not used. Just Displaying a single line on the webpage");
     vTaskDelay(100);
     esp_restart(); //restart the ESP
     return ESP_OK;
@@ -1181,7 +1191,10 @@ esp_err_t handle_start(httpd_req_t *req)
     char* resp = manual_mode();
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /start");
+    ESP_LOGI(TAG, "Callback Function called: handle_start()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: manual_mode()");
     return ESP_OK;
 }
 
@@ -1192,7 +1205,10 @@ esp_err_t handle_path1(httpd_req_t *req)
     char* resp = get_home(0);   //Get the HTML Code to display
     httpd_resp_send(req, resp, strlen(resp));   //Display the HTML Code
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /path1");
+    ESP_LOGI(TAG, "Callback Function called: handle_path1()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_home(0)");
     return ESP_OK;
 }
 
@@ -1203,7 +1219,10 @@ esp_err_t handle_path2(httpd_req_t *req)
     char* resp = get_home(0);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+	ESP_LOGI(TAG, "Now displaying /path2");
+    ESP_LOGI(TAG, "Callback Function called: handle_path2()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_home(0)");
     return ESP_OK;
 }
 
@@ -1214,7 +1233,10 @@ esp_err_t handle_path3(httpd_req_t *req)
     char* resp = get_home(0);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /path3");
+    ESP_LOGI(TAG, "Callback Function called: handle_path3()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_home(0)");
     return ESP_OK;
 }
 
@@ -1225,7 +1247,10 @@ esp_err_t handle_path4(httpd_req_t *req)
     char* resp = get_home(0);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /path4");
+    ESP_LOGI(TAG, "Callback Function called: handle_path4()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_home(0)");
     return ESP_OK;
 }
 
@@ -1236,7 +1261,10 @@ esp_err_t handle_path5(httpd_req_t *req)
     char* resp = get_home(0);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /path5");
+    ESP_LOGI(TAG, "Callback Function called: handle_path5()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_home(0)");
     return ESP_OK;
 }
 
@@ -1245,57 +1273,35 @@ esp_err_t handle_manual(httpd_req_t *req)
 {
     record_flag = 0; //recording has not yet started
     ESP_LOGI(TAG, "Record Flag: %d", record_flag);
-    char det = determine(flag);
-    curr_mili = esp_timer_get_time();
-    time_duration = (curr_mili - prev_mili)/1000;;
+    char det = determine(flag);	//the mode it was in earlier
+    curr_mili = esp_timer_get_time();	//get the current time
+    time_duration = (curr_mili - prev_mili)/1000;	//get the time period for which it was in the previous mode
     ESP_LOGI(TAG,"%c%f",det,time_duration);
     prev_mili = esp_timer_get_time();
     flag = -1;
-    delete_paths(total_paths+1); //Ensure that the correct number of valid paths is stored in the file
+    delete_paths(total_paths+1); //Ensure that the correct number of valid paths is stored in the file, this is done in case the path is not saved in the previous try
     char* resp = manual_mode();
     prev_mili = esp_timer_get_time();
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /manual");
+    ESP_LOGI(TAG, "Callback Function called: handle_manual()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: manual_mode()");
     return ESP_OK;
 }
 
-/*Callback function whenever "/pause" is accessed*/
-esp_err_t handle_pause(httpd_req_t *req)
-{
-    char det = determine(flag); //Get which direction it was travelling earlier
-    curr_mili = esp_timer_get_time();
-    time_duration = (curr_mili - prev_mili)/1000.0;
-    ESP_LOGI(TAG,"%c%f",det,time_duration);
-    prev_mili = esp_timer_get_time();
-    flag = -1;
-    char* resp = manual_mode();
-    httpd_resp_send(req, resp, strlen(resp));
-    free(resp);
-    ESP_LOGI(TAG, "Record Flag: %d", record_flag);
-    if(record_flag == 1) //If recording is ongoing, then store the direction in which it was travelling and the time duration for whcih it had travelled in that direction
-    {
-        FILE* f = fopen("/spiffs/paths.txt", "a");
-        if (f == NULL) {
-            ESP_LOGE(TAG, "Failed to open file for writing");
-            return ESP_FAIL;
-        }
-        fputc(det, f); //Store the character denoting direction
-        fprintf(f, "%.3f", time_duration); //Store the time duration
-        fputc('\t', f); //Put a "\t" to seperate the next entry
-        fclose(f);
-    }
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
-    return ESP_OK;  
-}
-
-/*Callback function whenever "/path_details1" is accessed*/
+/*Callback function whenever "/path_details1" is accessed
+  All of the handle_specific_path() functions below are similar, only difference is the values passed to the HTML generator function*/
 esp_err_t handle_specific_path1(httpd_req_t *req)
 {
     char* resp = get_path_specific(1);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /path_details1");
+    ESP_LOGI(TAG, "Callback Function called: handle_specific_path1()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_path_specific(1)");
     return ESP_OK;
 }
 
@@ -1305,7 +1311,10 @@ esp_err_t handle_specific_path2(httpd_req_t *req)
     char* resp = get_path_specific(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /path_details2");
+    ESP_LOGI(TAG, "Callback Function called: handle_specific_path2()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_path_specific(2)");
     return ESP_OK;
 }
 
@@ -1315,7 +1324,10 @@ esp_err_t handle_specific_path3(httpd_req_t *req)
     char* resp = get_path_specific(3);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /path_details3");
+    ESP_LOGI(TAG, "Callback Function called: handle_specific_path3()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_path_specific(3)");
     return ESP_OK;
 }
 
@@ -1325,7 +1337,10 @@ esp_err_t handle_specific_path4(httpd_req_t *req)
     char* resp = get_path_specific(4);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /path_details4");
+    ESP_LOGI(TAG, "Callback Function called: handle_specific_path4()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_path_specific(4)");
     return ESP_OK;
 }
 
@@ -1335,11 +1350,15 @@ esp_err_t handle_specific_path5(httpd_req_t *req)
     char* resp = get_path_specific(5);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /path_details5");
+    ESP_LOGI(TAG, "Callback Function called: handle_specific_path5()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_path_specific(5)");
     return ESP_OK;
 }
 
-/*Callback function whenever "/delete_path1" is accessed*/
+/*Callback function whenever "/delete_path1" is accessed
+  All of the handle_delete_path() functions below are similar, only difference is the values passed to the functions inside them*/
 esp_err_t handle_delete_path1(httpd_req_t *req)
 {
     ESP_ERROR_CHECK(delete_specific_path(1)); //delete 1st path from the file paths.txt
@@ -1347,7 +1366,10 @@ esp_err_t handle_delete_path1(httpd_req_t *req)
     char* resp = get_home(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /delete_path1");
+    ESP_LOGI(TAG, "Callback Function called: handle_delete_path1()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_home(2)");
     return ESP_OK;
 }
 
@@ -1359,7 +1381,10 @@ esp_err_t handle_delete_path2(httpd_req_t *req)
     char* resp = get_home(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /delete_path2");
+    ESP_LOGI(TAG, "Callback Function called: handle_delete_path2()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_home(2)");
     return ESP_OK;
 }
 
@@ -1371,7 +1396,10 @@ esp_err_t handle_delete_path3(httpd_req_t *req)
     char* resp = get_home(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /delete_path3");
+    ESP_LOGI(TAG, "Callback Function called: handle_delete_path3()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_home(2)");
     return ESP_OK;
 }
 
@@ -1383,7 +1411,10 @@ esp_err_t handle_delete_path4(httpd_req_t *req)
     char* resp = get_home(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /delete_path4");
+    ESP_LOGI(TAG, "Callback Function called: handle_delete_path4()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_home(2)");
     return ESP_OK;
 }
 
@@ -1395,7 +1426,10 @@ esp_err_t handle_delete_path5(httpd_req_t *req)
     char* resp = get_home(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /delete_path5");
+    ESP_LOGI(TAG, "Callback Function called: handle_delete_path5()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_home(5)");
     return ESP_OK;
 }
 
@@ -1406,7 +1440,10 @@ esp_err_t handle_auto(httpd_req_t *req)
     char* resp = get_auto();
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /auto");
+    ESP_LOGI(TAG, "Callback Function called: handle_auto()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_auto()");
     return ESP_OK;
 }
 
@@ -1419,14 +1456,14 @@ esp_err_t handle_forward(httpd_req_t *req)
     ESP_LOGI(TAG,"%c%f",det,time_duration);
     prev_mili = esp_timer_get_time();
     flag = 0;                       //denotes that is now going in forward direction
-    char* resp = SendHTML(flag);
-    httpd_resp_send(req, resp, strlen(resp));
+    char* resp = SendHTML(flag);	//the HTML code for displaying the webpage
+    httpd_resp_send(req, resp, strlen(resp));	//display the webpage
     free(resp);
     ESP_LOGI(TAG, "Record Flag: %d", record_flag);
     if(record_flag == 1)        //if the path is recording
     {
         //move_forward();
-        FILE* f = fopen("/spiffs/paths.txt", "a");
+        FILE* f = fopen("/spiffs/paths.txt", "a");		//Open the File for writing the value
         if (f == NULL) {
             ESP_LOGE(TAG, "Failed to open file for writing");
             return ESP_FAIL;
@@ -1436,11 +1473,15 @@ esp_err_t handle_forward(httpd_req_t *req)
         fputc('\t', f); //seperate from next entry by '\t'
         fclose(f);
     }
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /forward");
+    ESP_LOGI(TAG, "Callback Function called: handle_forward()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: SendHTML(%d)",flag);
     return ESP_OK;
 }
 
-/*Callback function whenever "/left" is accessed*/
+/*Callback function whenever "/left" is accessed
+	handle_left, handle_right, handle_back is very similar, only the update value of flag variable is different*/
 esp_err_t handle_left(httpd_req_t *req)
 {
     char det = determine(flag);     //determine the direction it was going earlier
@@ -1466,7 +1507,10 @@ esp_err_t handle_left(httpd_req_t *req)
         fputc('\t', f); //seperate from next entry by '\t'
         fclose(f);
     }
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /left");
+    ESP_LOGI(TAG, "Callback Function called: handle_left()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: SendHTML(%d)",flag);
     return ESP_OK;
 }
 
@@ -1496,7 +1540,10 @@ esp_err_t handle_right(httpd_req_t *req)
         fputc('\t', f);
         fclose(f);
     }
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /right");
+    ESP_LOGI(TAG, "Callback Function called: handle_right()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: SendHTML(%d)",flag);
     return ESP_OK;
 }
 
@@ -1526,7 +1573,10 @@ esp_err_t handle_back(httpd_req_t *req)
         fputc('\t', f);
         fclose(f);
     }
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /back");
+    ESP_LOGI(TAG, "Callback Function called: handle_back()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: SendHTML(%d)",flag);
     return ESP_OK;
 }
 
@@ -1557,19 +1607,57 @@ esp_err_t handle_stop(httpd_req_t *req)
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
     record_flag = 0;    //stop recording
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /stop");
+    ESP_LOGI(TAG, "Callback Function called: handle_stop()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_stop()");
     return ESP_OK;
+}
+
+/*Callback function whenever "/pause" is accessed*/
+esp_err_t handle_pause(httpd_req_t *req)
+{
+    char det = determine(flag); //Get which direction it was travelling earlier
+    curr_mili = esp_timer_get_time();
+    time_duration = (curr_mili - prev_mili)/1000.0;
+    ESP_LOGI(TAG,"%c%f",det,time_duration);
+    prev_mili = esp_timer_get_time();
+    flag = -1;
+    char* resp = manual_mode();
+    httpd_resp_send(req, resp, strlen(resp));
+    free(resp);
+    ESP_LOGI(TAG, "Record Flag: %d", record_flag);
+    if(record_flag == 1) //If recording is ongoing, then store the direction in which it was travelling and the time duration for whcih it had travelled in that direction
+    {
+        FILE* f = fopen("/spiffs/paths.txt", "a");
+        if (f == NULL) {
+            ESP_LOGE(TAG, "Failed to open file for writing");
+            return ESP_FAIL;
+        }
+        fputc(det, f); //Store the character denoting direction
+        fprintf(f, "%.3f", time_duration); //Store the time duration
+        fputc('\t', f); //Put a "\t" to seperate the next entry
+        fclose(f);
+    }
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /pause");
+    ESP_LOGI(TAG, "Callback Function called: handle_pause()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: manual_mode()");
+    return ESP_OK;  
 }
 
 /*Callback function whenever "/save is accessed"*/
 esp_err_t handle_save(httpd_req_t *req)
 {
-    update_number(1); //total_paths is updated in paths.txt
-    ESP_ERROR_CHECK(convert_paths(total_paths+1));  //convert the saved path into co-ordinate based representation
+    update_number(1); //total_paths is updated in paths.txt and the global variable is also updated
+    ESP_ERROR_CHECK(convert_paths(total_paths+1));  //convert the saved path into co-ordinate based representation, you can comment this part out
     char* resp = get_home(3);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /save");
+    ESP_LOGI(TAG, "Callback Function called: handle_save()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_home(3)");
     return ESP_OK;
 }
 
@@ -1579,7 +1667,10 @@ esp_err_t handle_choose(httpd_req_t *req)
     char* resp = choose_page();
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /choose");
+    ESP_LOGI(TAG, "Callback Function called: handle_choose()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: choose_page()");
     return ESP_OK;
 }
 
@@ -1589,7 +1680,10 @@ esp_err_t handle_sap(httpd_req_t *req)
     httpd_resp_send(req, "Device will restart using SAP mode", strlen("Device will restart using SAP mode"));
     ESP_ERROR_CHECK(replace_wifi("SAP", 1));    //The first line is rewritten with SAP so that on next reboot it starts in SAP mode
     ESP_LOGI(TAG, "SAP Data Written");
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /sap");
+    ESP_LOGI(TAG, "Callback Function called: handle_sap()");
+    ESP_LOGI(TAG, "HTML Code is not used. Just Displaying a single line on the webpage");
     vTaskDelay(100);
     esp_restart();
     return ESP_OK;
@@ -1601,7 +1695,10 @@ esp_err_t handle_sta(httpd_req_t *req)
     char* resp = get_sta();
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /sta");
+    ESP_LOGI(TAG, "Callback Function called: handle_sta()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_sta()");
     return ESP_OK;
 }
 
@@ -1613,8 +1710,9 @@ esp_err_t handle_new(httpd_req_t *req)
         char* resp = get_home(1);
         httpd_resp_send(req, resp, strlen(resp));
         free(resp);
-        ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
-        return ESP_OK;
+        ESP_LOGI(TAG, "Now displaying /new");
+    	ESP_LOGI(TAG, "Callback Function called: handle_new()");
+    	ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_home(1)");
     }
     else
     {
@@ -1623,39 +1721,47 @@ esp_err_t handle_new(httpd_req_t *req)
         sprintf(str, "%d", total);
         replace_wifi(str, WIFI_NUM+3); //updated value is stored in the file
         char* resp = get_form(total);   //form for getting the SSID and password
-        httpd_resp_send(req, resp, strlen(resp));
+        httpd_resp_send(req, resp, strlen(resp));	//show the webpage
         free(resp);
-        ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
-        return ESP_OK;
+        ESP_LOGI(TAG, "Now displaying /new");
+    	ESP_LOGI(TAG, "Callback Function called: handle_new()");
+    	ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_form(%d)",total);
     }
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
 /*Callback function whenever "/sta1 is accessed"*/
 esp_err_t handle_sta_data1(httpd_req_t *req)
 {
-    char* resp = get_sta_data(1);
-    httpd_resp_send(req, resp, strlen(resp));
-    free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    char* resp = get_sta_data(1);				//get the HTML Code, 1 is passed for Network 1
+    httpd_resp_send(req, resp, strlen(resp));	//Display the HTML Code
+    free(resp);									//free up the space
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /sta1");
+    ESP_LOGI(TAG, "Callback Function called: handle_sta_data1()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_sta_data(1)");
     return ESP_OK;
 }
 
 /*Callback function whenever "/sta_mod_1 is accessed"*/
 esp_err_t handle_modify1(httpd_req_t *req)
 {
-    char* resp = get_form(1); //Only form for getting values, total is not updated because the number of valid wifi credentials remian unchanged
-    httpd_resp_send(req, resp, strlen(resp));
+    char* resp = get_form(1); //Only form for getting values, total is not updated because the number of valid wifi credentials remian unchanged, 1 is passed as argument because it is for network 1
+    httpd_resp_send(req, resp, strlen(resp));	//Display the webpage
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /sta_mod_1");
+    ESP_LOGI(TAG, "Callback Function called: handle_modify1()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_form(1)");
     return ESP_OK;
 }
 
 /*Callback function whenever "/sta_delete_1 is accessed"*/
 esp_err_t handle_delete1(httpd_req_t *req)
 {
-    char* resp = get_home(2);
-    httpd_resp_send(req, resp, strlen(resp));
+    char* resp = get_home(2);	//Get the HTML Code, this 2 is not related to the Network number	
+    httpd_resp_send(req, resp, strlen(resp));	//Display the webpage
     free(resp);
     total = total - 1; //total number of valid wifi credentials has decreased by 1
     char str[20];
@@ -1663,9 +1769,12 @@ esp_err_t handle_delete1(httpd_req_t *req)
     ESP_ERROR_CHECK(replace_wifi(str, WIFI_NUM+3)); //update the value stored in the file
     ESP_ERROR_CHECK(delete(2));                     //delete the wifi details stored in the file
     ESP_ERROR_CHECK(update_wifi());                 //update the SSID and pass matrix variables
-    if(total == 0)
-        ESP_ERROR_CHECK(handle_sap(req));
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    if(total == 0)									//if total becomes 0, then there are no valid STA networks to connect to
+        ESP_ERROR_CHECK(handle_sap(req));			//handle_sap function restarts the ESP in SAP mode and makes the necessary changes to wifi_conf.txt
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /sta_delete_1");
+    ESP_LOGI(TAG, "Callback Function called: handle_delete1()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_home(2)");
     return ESP_OK;
 }
 
@@ -1678,7 +1787,10 @@ esp_err_t handle_choose1(httpd_req_t *req)
     ESP_ERROR_CHECK(replace_wifi("STA", 1));        //update the 1st line to show it will operate in STA mode
     ESP_LOGI(TAG, "STA Wifi 1");
     httpd_resp_send(req, "Device will restart now and connect to wifi network", strlen("Device will restart now and connect to wifi network"));
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /sta_choose_1");
+    ESP_LOGI(TAG, "Callback Function called: handle_choose1()");
+    ESP_LOGI(TAG, "HTML Code is not used. Just Displaying a single line on the webpage");
     vTaskDelay(100);
     esp_restart();          //restart esp
     return ESP_OK;
@@ -1694,7 +1806,10 @@ esp_err_t handle_sta_data2(httpd_req_t *req)
     char* resp = get_sta_data(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /sta2");
+    ESP_LOGI(TAG, "Callback Function called: handle_sta_data2()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_sta_data(2)");
     return ESP_OK;
 }
 
@@ -1704,7 +1819,10 @@ esp_err_t handle_modify2(httpd_req_t *req)
     char* resp = get_form(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /sta_mod_2");
+    ESP_LOGI(TAG, "Callback Function called: handle_modify2()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_form(2)");
     return ESP_OK;
 }
 
@@ -1722,7 +1840,10 @@ esp_err_t handle_delete2(httpd_req_t *req)
     ESP_ERROR_CHECK(update_wifi());
     if(total == 0)
         ESP_ERROR_CHECK(handle_sap(req));
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /sta_delete_2");
+    ESP_LOGI(TAG, "Callback Function called: handle_delete2()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_home(2)");
     return ESP_OK;
 }
 
@@ -1735,7 +1856,10 @@ esp_err_t handle_choose2(httpd_req_t *req)
     ESP_ERROR_CHECK(replace_wifi("STA", 1));
     ESP_LOGI(TAG, "STA Wifi 2");
     httpd_resp_send(req, "Device will restart now and connect to wifi network", strlen("Device will restart now and connect to wifi network"));
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /sta_choose_2");
+    ESP_LOGI(TAG, "Callback Function called: handle_choose2()");
+    ESP_LOGI(TAG, "HTML Code is not used. Just Displaying a single line on the webpage");
     vTaskDelay(100);
     esp_restart();
     return ESP_OK;
@@ -1747,7 +1871,10 @@ esp_err_t handle_sta_data3(httpd_req_t *req)
     char* resp = get_sta_data(3);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /sta3");
+    ESP_LOGI(TAG, "Callback Function called: handle_sta_data3()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_sta_data(3)");
     return ESP_OK;
 }
 
@@ -1757,7 +1884,10 @@ esp_err_t handle_modify3(httpd_req_t *req)
     char* resp = get_form(3);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /sta_mod_3");
+    ESP_LOGI(TAG, "Callback Function called: handle_modify3()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_form(3)");
     return ESP_OK;
 }
 
@@ -1775,7 +1905,10 @@ esp_err_t handle_delete3(httpd_req_t *req)
     ESP_ERROR_CHECK(update_wifi());
     if(total == 0)
         ESP_ERROR_CHECK(handle_sap(req));
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /sta_delete_3");
+    ESP_LOGI(TAG, "Callback Function called: handle_delete3()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_home(2)");
     return ESP_OK;
 }
 
@@ -1788,7 +1921,10 @@ esp_err_t handle_choose3(httpd_req_t *req)
     ESP_ERROR_CHECK(replace_wifi("STA", 1));
     ESP_LOGI(TAG, "STA WIFI 3");
     httpd_resp_send(req, "Device will restart now and connect to wifi network", strlen("Device will restart now and connect to wifi network"));
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /sta_choose_3");
+    ESP_LOGI(TAG, "Callback Function called: handle_choose3()");
+    ESP_LOGI(TAG, "HTML Code is not used. Just Displaying a single line on the webpage");
     vTaskDelay(100);
     esp_restart();
     return ESP_OK;
@@ -1800,7 +1936,10 @@ esp_err_t handle_sta_data4(httpd_req_t *req)
     char* resp = get_sta_data(4);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /sta4");
+    ESP_LOGI(TAG, "Callback Function called: handle_sta_data4()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_sta_data(4)");
     return ESP_OK;
 }
 
@@ -1810,7 +1949,10 @@ esp_err_t handle_modify4(httpd_req_t *req)
     char* resp = get_form(4);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /sta_mod_4");
+    ESP_LOGI(TAG, "Callback Function called: handle_modify4()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_form(4)");
     return ESP_OK;
 }
 
@@ -1828,7 +1970,10 @@ esp_err_t handle_delete4(httpd_req_t *req)
     ESP_ERROR_CHECK(update_wifi());
     if(total == 0)
         ESP_ERROR_CHECK(handle_sap(req));
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /sta_delete_4");
+    ESP_LOGI(TAG, "Callback Function called: handle_delete4()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_home(2)");
     return ESP_OK;
 }
 
@@ -1841,7 +1986,10 @@ esp_err_t handle_choose4(httpd_req_t *req)
     ESP_ERROR_CHECK(replace_wifi("STA", 1));
     ESP_LOGI(TAG, "STA Wifi 4");
     httpd_resp_send(req, "Device will restart now and connect to wifi network", strlen("Device will restart now and connect to wifi network"));
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /sta_choose_4");
+    ESP_LOGI(TAG, "Callback Function called: handle_choose4()");
+    ESP_LOGI(TAG, "HTML Code is not used. Just Displaying a single line on the webpage");
     vTaskDelay(100);
     esp_restart();
     return ESP_OK;
@@ -1853,7 +2001,10 @@ esp_err_t handle_sta_data5(httpd_req_t *req)
     char* resp = get_sta_data(5);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /sta5");
+    ESP_LOGI(TAG, "Callback Function called: handle_sta_data5()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_sta_data(5)");
     return ESP_OK;
 }
 
@@ -1863,7 +2014,10 @@ esp_err_t handle_modify5(httpd_req_t *req)
     char* resp = get_form(5);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /sta_mod_5");
+    ESP_LOGI(TAG, "Callback Function called: handle_modify5()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_form(5)");
     return ESP_OK;
 }
 
@@ -1881,7 +2035,10 @@ esp_err_t handle_delete5(httpd_req_t *req)
     ESP_ERROR_CHECK(update_wifi());
     if(total == 0)
         ESP_ERROR_CHECK(handle_sap(req));
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /sta_delete_5");
+    ESP_LOGI(TAG, "Callback Function called: handle_delete5()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_home(2)");
     return ESP_OK;
 }
 
@@ -1894,9 +2051,12 @@ esp_err_t handle_choose5(httpd_req_t *req)
     ESP_ERROR_CHECK(replace_wifi("STA", 1));
     ESP_LOGI(TAG, "STA Wifi 5");
     httpd_resp_send(req, "Device will restart now and connect to wifi network", strlen("Device will restart now and connect to wifi network"));
+    ESP_LOGI(TAG, "Now displaying /sta_choose_5");
+    ESP_LOGI(TAG, "Callback Function called: handle_choose5()");
+    ESP_LOGI(TAG, "HTML Code is not used. Just Displaying a single line on the webpage");
     vTaskDelay(100);
     esp_restart();
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return ESP_OK;
 }
 
@@ -1906,7 +2066,7 @@ esp_err_t handle_data_1(httpd_req_t *req)
     strcpy(line_str, "");   //Initialize it to empty string
     int len = req->content_len;     //Get the length of the header
     int ret, remaining = req->content_len;      //Get how much length is left to be read
-    while (remaining > 0) {
+    while (remaining > 0) {									//this method of taking the data was taken from online
         if ((ret = httpd_req_recv(req, buf, len)) <= 0) {   //Store len lngth of data from the header in the string variable "buf" 
             if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
                 continue;
@@ -1933,10 +2093,13 @@ esp_err_t handle_data_1(httpd_req_t *req)
     strcat(line_str, pwd);                  //line_str now contains "[ssid] [password]"
     ESP_ERROR_CHECK(replace_wifi(line_str, 2)); //Update the data stored in wifi_conf.txt (1st wifi details are stored in line 2)
     ESP_ERROR_CHECK(update_wifi());             //Update the SSID and PASS matrices
-    char* resp = get_home(4);
-    httpd_resp_send(req, resp, strlen(resp));
-    free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    char* resp = get_home(4);					//Get the HTML code
+    httpd_resp_send(req, resp, strlen(resp));	//Display the HTML webpage
+    free(resp);									//free up the pointer
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /data_1");
+    ESP_LOGI(TAG, "Callback Function called: handle_data_1()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_home(4)");
     return ESP_OK;
 }
 
@@ -1976,7 +2139,10 @@ esp_err_t handle_data_2(httpd_req_t *req)
     char* resp = get_home(4);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //SP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /data_2");
+    ESP_LOGI(TAG, "Callback Function called: handle_data_2()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_home(4)");
     return ESP_OK;
 }
 
@@ -2016,7 +2182,10 @@ esp_err_t handle_data_3(httpd_req_t *req)
     char* resp = get_home(4);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /data_3");
+    ESP_LOGI(TAG, "Callback Function called: handle_data_3()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_home(4)");
     return ESP_OK;
 }
 
@@ -2056,7 +2225,10 @@ esp_err_t handle_data_4(httpd_req_t *req)
     char* resp = get_home(4);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /data_4");
+    ESP_LOGI(TAG, "Callback Function called: handle_data_4()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_home(4)");
     return ESP_OK;
 }
 
@@ -2096,17 +2268,19 @@ esp_err_t handle_data_5(httpd_req_t *req)
     char* resp = get_home(4);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /data_5");
+    ESP_LOGI(TAG, "Callback Function called: handle_data_5()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_home(4)");
     return ESP_OK;
 }
 
 /*The following are structures linking each web address with their corresponding callback functions
   Each structure contains the web address, the corresponding callback function, the HTTP method (HTTP_GET or HTTP_POST) and any user context(NULL for all the structures)*/
-
 httpd_uri_t uri_reset = {
-    .uri      = "/reset",
+    .uri      = "/reset",		//the URL Address
     .method   = HTTP_GET,
-    .handler  = handle_reset,
+    .handler  = handle_reset,	//The callback function that gets called when the URL is accessed by the user
     .user_ctx = NULL
 };
 
@@ -2634,7 +2808,7 @@ void init_sap()
 
     wifi_config_t wifi_config = {
         .ap = {
-            .ssid = DEFAULT_SSID,
+            .ssid = DEFAULT_SSID,				//these are defined at the very beginning of the code
             .ssid_len = strlen(DEFAULT_SSID),
             .password = DEFAULT_PASS,
             .max_connection = MAX_CONN,
@@ -2754,8 +2928,8 @@ void init_pwm()
         };
     ledc_timer_config(&led_timer);
     led_channel.channel = LEDC_CHANNEL_0;
-    led_channel.duty = 0;
-    led_channel.gpio_num = 2;
+    led_channel.duty = 0;						//the duty value of the PWM signal
+    led_channel.gpio_num = 2;					//the GPIO pin to which the the PWM signal will be supplied
     led_channel.speed_mode = LEDC_HIGH_SPEED_MODE;
     led_channel.hpoint = 0;
     led_channel.timer_sel = LEDC_TIMER_0;
@@ -2765,9 +2939,9 @@ void init_pwm()
 /*Function that will run parallely on Core 1*/
 void Task1code( void * pvParameters ){
 	
-    while(1){   //Put codew here
+    while(1){   //Put code here. This is like void loop() in arduino
     	//ESP_LOGI(TAG, "Infinite Loop running On core %d", xPortGetCoreID());
-        if(record_flag == 1){
+        if(record_flag == 1){					//record_flag, flag, auto_flag are updated in other portions of the code 
             if(flag == 0) move_forward();
             else if(flag == 1) move_left();
             else if(flag == 2) move_right();
@@ -2793,10 +2967,10 @@ void app_main(void)
     init_spiffs();  //Initialize SPIFFS File System
     init_pwm();     //Initialize PWM channel
     conn_flag = main_update();  //Update the necessary variables
-    if(conn_flag == 0)          //Set up wifi server in SAP or STA mode          
-        init_sap();
+    if(conn_flag == 0)          //Check the returned value         
+        init_sap();				//Start SAP mode
     else
-        wifi_init_sta();
+        wifi_init_sta();		//Start STA mode
     server = start_webserver(); //Start the web server
     xTaskCreatePinnedToCore(    //Pinning a task in core 1
                     Task1code,   /* Task function. */
