@@ -343,8 +343,8 @@ esp_err_t convert_paths(int n){
                         val = DEFAULT_LIN_SPEED * val/1000.0;
                         counter = resolution;
                         while(counter <= val){
-                            current.x = prev.x + counter*cos(prev.theta*3.14/180.0);
-                            current.y = prev.y + counter*sin(prev.theta*3.14/180.0);
+                            current.x = prev.x - counter*cos(prev.theta*3.14/180.0);
+                            current.y = prev.y - counter*sin(prev.theta*3.14/180.0);
                             ESP_LOGI(TAG, "(%f, %f)", current.x, current.y);
                             counter = counter + resolution;
                             strcpy(temp, "");
@@ -361,11 +361,11 @@ esp_err_t convert_paths(int n){
                     }
                     else if(ch == 'r'){
                         val = DEFAULT_ANG_SPEED * val/1000.0;
-                        prev.theta = prev.theta - val;
+                        prev.theta = prev.theta + val;
                     }
                     else if(ch == 'l'){
                         val = DEFAULT_ANG_SPEED * val/1000.0;
-                        prev.theta = prev.theta + val;
+                        prev.theta = prev.theta - val;
                     }
                     token = strtok(NULL, "\t");
                 }
