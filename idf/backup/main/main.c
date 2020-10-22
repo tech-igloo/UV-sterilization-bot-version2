@@ -111,9 +111,7 @@ void stop(){
 
 /*Creates coordinate array of the path*/
 double* create_coord_array(int n){
-// int main(){
-	int path_number = 0;
-	//int n = 3;
+    int path_number = 0;
     int line_length = 0;
     double val = 0;
     char c;
@@ -125,8 +123,9 @@ double* create_coord_array(int n){
     int counter_to_path_start=0;
     int space_count = 0;
     for(;;){
-        if(path_number+1==n){
-            while(1){
+        if(path_number+1==n){ //This means we are now at the correct line in the paths file
+            //calculating the length of the line
+	    while(1){
                 c = fgetc(f_r);
                 if(c == ' ')
                     space_count+=1;
@@ -136,36 +135,33 @@ double* create_coord_array(int n){
                 }
                 ++line_length;
             }
+	    // going back to the start of the line
             fseek(f_r, -(line_length+1), SEEK_CUR);
-            //c = fgetc(f_r);
-            //printf("%c THE CHAR", c);
-            char* path = (char *)calloc(line_length, sizeof(char));
+	    char* path = (char *)calloc(line_length, sizeof(char));
             strcpy(path, "\0");
+	    //create array to store the points
             double* points_array = (double *)calloc((space_count+1), sizeof(double));
-            fgets(path, line_length, f_r);
+            //read the entire line
+	    fgets(path, line_length, f_r);
             path[line_length-1] = '\0';
             int current_coord = 0;
             char* temp_token = strtok(path, "\t");
             char* temp_path = strstr(path," ");
             int iters = 0;
+	    //store the space seperated points in the array
             while(iters<space_count){
                 val = atof(temp_token);//1000.0;
                 points_array[current_coord] = val;
-                printf("%f\t", points_array[current_coord]);
                 current_coord++;
                 temp_token = strtok(temp_path+1, "\t");
-                printf("%s THIS IS TEMP TOK\n" , temp_token);
             	temp_path = strstr(temp_path+1," ");
-                printf("%s THIS IS TEMP PATH\n" , temp_path);
                 iters++;
             }
-            printf("%f\n", points_array[current_coord]);
             points_array[current_coord] = atof(temp_token);
-            printf("%f\n", points_array[current_coord]);
-            printf("%s IM HERE AFTER TOK\n", temp_token);
             points_len = current_coord;
             return points_array;
-        }else{
+        }else{ // this means we are not at the correct line yet
+	    // skipping the line
             for(;;){
                 counter_to_path_start += 1;
                 c = fgetc(f_r);
@@ -189,16 +185,16 @@ void update_stopPoint(){
 
 /*Reset the PID variables*/
 void init_pid(){
-    current_error = 0;
-    accumulated_error = 0;
-    prev_error = 0;
-    pid_flag = 0;
+    current_error = 0;   //reset the current error
+    accumulated_error = 0;   //reset the integral term so that next time it starts summing from 0
+    prev_error = 0;  //reset the prev_errror
+    pid_flag = 0;    //reset the flag
 }
 
 /*Calculates the parameters for travelling to from point to next point in path(this is assuming it has reached its previous point correctly)*/
 void update_points(){
     dist_required = sqrt(pow(points[point_index*2+1] - prev_point[1],2)+pow(points[point_index*2] - prev_point[0],2));
-    if (points[point_index*2]-prev_point[0] >= 0){
+    if (points[point_index*2]-prev_point[0] >= 0){ //for getting the correct sign of angle
         angle_required = atan((points[point_index*2+1]-prev_point[1])/(points[point_index*2]-prev_point[0]))*180/M_PI;
     }
     else{
@@ -208,6 +204,7 @@ void update_points(){
         else
             angle_required = angle_required - 90;
     }
+    //update prev_point to store the next point to travel to
     prev_point[0] = points[point_index*2];
     prev_point[1] = points[point_index*2+1];
     point_index  = point_index + 1;
@@ -215,25 +212,25 @@ void update_points(){
         point_index = (points_len+1)/2-1;
         return;
     }
-    dist_traversed = 0;
-    init_pid();
+    dist_traversed = 0; //reset the distance travelled to 0
+    init_pid(); //reset the PID variables
 }
 
 /*PID Controller for rotating to a specific angle*/
 double get_PID_angle(double current_val, double target_val){
-    current_error = target_val - current_val;
-    accumulated_error = accumulated_error + current_error*timeDiff;
+    current_error = target_val - current_val; //calculate the error
+    accumulated_error = accumulated_error + current_error*timeDiff; //update the integral term
     double val = 0;
-    if(timeDiff != 0)
-        val = 0.1*current_error + 0.0005*accumulated_error + 0.001*(current_error-prev_error)/timeDiff;
+    if(timeDiff != 0) //for safety
+        val = 0.1*current_error + 0.0005*accumulated_error + 0.001*(current_error-prev_error)/timeDiff; //kp=0.1 ki=0.0005 kd=0.001
     else if(timeDiff==0)
-        val = 0.1*current_error + 0.0005*accumulated_error;
-    if(val>5)
+        val = 0.1*current_error + 0.0005*accumulated_error; //derivate term is omitted so that we dont get infinity
+    if(val>5) //set threshold
         val = 5;
     else if(val<-5)
         val = -5;
     printf("VALROT: %.17g", val );
-    if(val<0.005&&val>-0.005){
+    if(val<0.005&&val>-0.005){ //Check whether job of PID controller is done or not
         pid_flag = 1;
     }
     prev_error = current_error;
@@ -242,49 +239,49 @@ double get_PID_angle(double current_val, double target_val){
 
 /*PID Controller for moving along a straight line*/
 double get_PID_dist(double current_val, double target_val){
-    current_error = target_val-current_val;
-    accumulated_error = accumulated_error + current_error*timeDiff; 
-    double val = 500*current_error + 0.1*accumulated_error;
-    if(val > 5)
+    current_error = target_val-current_val; //calculate the error
+    accumulated_error = accumulated_error + current_error*timeDiff; //update the integral term (current_error is the error that has been accumulated in timeDiff time)
+    double val = 500*current_error + 0.1*accumulated_error; //use the formula, kp=500 ki=0.1 kd=0
+    if(val > 5) //set threshold
         val = 5;
-    else if(val < -5)
+    else if(val < -5) //same threshold for travelling backwards
         val = -5;
-    if (val < 0.1&&val>-0.1)
+    if (val < 0.1&&val>-0.1) //If the value generated is very low, that means it has reached the point
         pid_flag = 1;
-    prev_error = current_error;
+    prev_error = current_error; //update the value of prev_error
     return val;
 }
 
 /*When no obstacle is present*/
 void normal_motion(){
-    if(rotating_flag==1){
-        double val = get_PID_angle(angle_rotated, angle_required);
-        if(pid_flag==1){
-            init_pid();
-            stop();
-            rotating_flag = 0;
-        }else{
-            rotate(val);
+    if(rotating_flag==1){ //initially it is set to 1 so that the bot can rotate and align itself to its target point
+        double val = get_PID_angle(angle_rotated, angle_required); //get the appropriate velocity to be supplied to the wheels
+        if(pid_flag==1){ //means job of PID is done
+            init_pid(); //reset the PID variables
+            stop(); //make the bot stop
+            rotating_flag = 0; //set it to 0 so that the bot does not rotate and instead moves forward
+        }else{ //means it still needs to rotate to reach its desired angle
+            rotate(val); //rotate by supplyting the value that was generated earlier
         }
-    }else{
-        double val = get_PID_dist(dist_traversed, dist_required);
+    }else{ //this means that it has finished rotating and now needs to travel in a straight line
+        double val = get_PID_dist(dist_traversed, dist_required); //get the appropriate velocity to be supplied to the wheels
         printf("VAL: %.17g\n", val);
-        if(pid_flag==1){
-            init_pid();
-            stop();
-            update_points();
-            update_stopPoint();
-            rotating_flag = 1;
-        }else{
-            forward(val);
+        if(pid_flag==1){ //means job of PID is done, also this means it has finished travelling in the straight line so it has reached its destination point
+            init_pid(); //reset the PID variables
+            stop(); //make the bot stop
+            update_points(); //update the parameters for travelling to the next point
+            update_stopPoint(); //update the stop_point variable
+            rotating_flag = 1; //set it to 1 so that next time it can again rotate to oreient itself with its next target point
+        }else{ //means it still has distance left to cover
+            forward(val); //move in straight line using the value generated earlier
         }
     }
 }
 
 /*Recalculates the distance to be travelled and the angle to be rotated to reach its destination from its current position*/
-void recalculate(){
-    dist_required = sqrt(pow(prev_point[1]-current_point[1], 2) + pow(prev_point[0]-current_point[0], 2));    
-    if(prev_point[0]-current_point[0] >= 0){
+void recalculate(){ //recalculates the distance to be travelled and the angle to be rotated to reach its destination from its current position
+    dist_required = sqrt(pow(prev_point[1]-current_point[1], 2) + pow(prev_point[0]-current_point[0], 2)); //normal distance formula    
+    if(prev_point[0]-current_point[0] >= 0){ //this is for getting the correct sign of the angle
         angle_required = atan((prev_point[1]-current_point[1])/(prev_point[0]-current_point[0]))*180/M_PI;
     }
     else{
@@ -294,10 +291,10 @@ void recalculate(){
         else 
             angle_required = angle_required - 90;
     }
-    update_stopPoint();
-    dist_traversed = 0;
-    init_pid();
-    rotating_flag = 1;
+    update_stopPoint(); //stop point is updated
+    dist_traversed = 0; //distance travelled is reset to 0
+    init_pid(); //PID variables are reset
+    rotating_flag = 1; //the bot will have to rotate to align itself with its target
 }
 
 
