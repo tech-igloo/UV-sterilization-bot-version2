@@ -55,7 +55,7 @@ static int prev_res[5] = {0};
 static double prev_distance[5] = {0};
 static double test_var = 0;
 
-
+// dummy forward function
 void forward(double vel){
 	leftJointPosition = (timeOfActuation-prevTimeofActuation)*leftJointvel;
 	rightJointPosition = (timeOfActuation - prevTimeofActuation)*rightJointvel;
@@ -63,7 +63,7 @@ void forward(double vel){
 	rightJointvel = vel;
 	prevTimeofActuation = timeOfActuation;
 }
-
+// dummy rotate function
 void rotate(double vel){
 	leftJointPosition = (timeOfActuation-prevTimeofActuation)*leftJointvel;
 	rightJointPosition = (timeOfActuation - prevTimeofActuation)*rightJointvel;
@@ -71,7 +71,7 @@ void rotate(double vel){
 	rightJointvel = -vel;
 	prevTimeofActuation = timeOfActuation;
 }
-
+// dummy stop function
 void stop(){
 	leftJointPosition = (timeOfActuation-prevTimeofActuation)*leftJointvel;
 	rightJointPosition = (timeOfActuation - prevTimeofActuation)*rightJointvel;
@@ -91,7 +91,7 @@ double getAngleMinusAlpha(double angle, double alpha){
 	return atan2(sin_da, cos_da);
 }
 
-
+// for these functions, please see main.c
 double* create_coord_array(int n){
 // int main(){
 	int path_number = 0;
@@ -276,14 +276,15 @@ void recalculate(){
     rotating_flag = 1;
 }
 
+// function to read the sensor data file line by line
 void sensing_loop(FILE* f_sensing){
-	int path_number = 0;
-	//int n = 3;
+    int path_number = 0;
     int line_length = 0;
     double val = 0;
-	int counter_to_path_start=0;
+    int counter_to_path_start=0;
     int space_count = 0;
 	char c = '\0';
+	// calculate length of line
 	while(1){
 	    c = fgetc(f_sensing);
 	    printf("%c", c);
@@ -299,20 +300,20 @@ void sensing_loop(FILE* f_sensing){
 	    }
 	    ++line_length;
 	}
-	fseek(f_sensing, -(line_length+1), SEEK_CUR);
-	//c = fgetc(f_sensing);
-	char* path = (char *)calloc(line_length, sizeof(char));
-    //strcpy(path, "\0");
+    //going back to start of the line
+    fseek(f_sensing, -(line_length+1), SEEK_CUR);
+    char* path = (char *)calloc(line_length, sizeof(char));
+    //Allocating array to store space seperated sensor values
     double* points_array = (double *)calloc((space_count+1), sizeof(double));
     fgets(path, line_length, f_sensing);
     c = fgetc(f_sensing);
     path[line_length-1] = '\0';
     path[line_length-1] = '\0';
     int current_coord = 0;
-    //char temp_string[1] = {'\t'};
     char* temp_token = strtok(path, "\t");
     char* temp_path = strstr(path, " ");
     int iters = 0;
+    //Store the space seperated values in the array
     while(iters<space_count){
         val = atof(temp_token);//1000.0;
         points_array[current_coord] = val;
@@ -323,11 +324,9 @@ void sensing_loop(FILE* f_sensing){
         iters++;
     }
     points_array[current_coord] = atof(temp_token);
-    // for(int i=0;i<space_count+1; i++){
-    // 	printf("%.17g THESE ARE THE VALUES READ\n", points_array[i]);
-    // }
     verify_dist_traversed = points_array[0];
-    if(verify_dist_traversed==0.2274984320097){
+    if(verify_dist_traversed==0.2274984320097){ //handle error in sensor file
+	// order in which the values are stored in the array( verify prefix means that is the actual value and ours should match that)
         verify_angle_rotated = points_array[1];
         verify_angle_rotated = points_array[1];
         verify_current_point[0] = points_array[2];
@@ -349,6 +348,7 @@ void sensing_loop(FILE* f_sensing){
     for(int i=0;i<5;i++){
     	obstacle_flag[i] = 0;
     }
+    // Storing res and distance values for ultasonic sensors
     for(int i=0;i<5;i++){
         double res;
         double distance;
@@ -370,49 +370,36 @@ void sensing_loop(FILE* f_sensing){
     }
 }
 
-
+// function exactly same as the coppeliasim actuation function 
 void actuation(){
-    test_var = atan(1)*180/M_PI;
-	dist_traversed = dist_traversed + lin_vel*timeDiff;
-	angle_rotated = angle_rotated + ang_vel*timeDiff*180.0/M_PI;
+    dist_traversed = dist_traversed + lin_vel*timeDiff;
+    angle_rotated = angle_rotated + ang_vel*timeDiff*180.0/M_PI;
     prev_timeDiff = timeDiff;
     prev_ang_vel = ang_vel;
     prev_lin_vel = lin_vel;
-	if(dist_traversed-verify_dist_traversed<1e-9&&dist_traversed-verify_dist_traversed>(-1e-9)){
-		printf("MATCHED\n");
-	}else{
+    // if statements to verify the values
+    if(dist_traversed-verify_dist_traversed<1e-9&&dist_traversed-verify_dist_traversed>(-1e-9)){
+	printf("MATCHED\n");
+    }else{
         printf("DISTANCE NOT MATCHING %.17g %.17g\n", dist_traversed, verify_dist_traversed);
-	}
-	if(abs(angle_rotated-verify_angle_rotated)>1e-9){
-		printf("ANGLE NOT MATCHING %.17g %.17g\n", angle_rotated, verify_angle_rotated );
-	}else{
-		printf("MATCHED\n");
-	}
-    printf("%.17g \n", dist_traversed-verify_dist_traversed);
-	current_point[0] = stop_point[0] + dist_traversed*cos(angle_rotated*(M_PI/180.0)); //calculates co-ordinates of the current point using the point where the orientation of the bot was last changed
+    }
+    if(abs(angle_rotated-verify_angle_rotated)>1e-9){
+	printf("ANGLE NOT MATCHING %.17g %.17g\n", angle_rotated, verify_angle_rotated );
+    }else{
+	printf("MATCHED\n");
+    }
+    current_point[0] = stop_point[0] + dist_traversed*cos(angle_rotated*(M_PI/180.0)); //calculates co-ordinates of the current point using the point where the orientation of the bot was last changed
 
     current_point[1] = stop_point[1] + dist_traversed*sin(angle_rotated*(M_PI/180.0));
     if(abs(current_point[0]-verify_current_point[0])>1e-9){
-		printf("POINT 0 NOT MATCHING %.17g %.17g\n", current_point[0], verify_current_point[0]);
-	}else{
-		printf("MATCHED\n");
-	}
-	if(abs(current_point[1]-verify_current_point[1])>1e-9){
-		printf("POINT 1 NOT MATCHING %.17g %.17g\n",  current_point[1], verify_current_point[1]);
-	}else{
-		printf("MATCHED\n");
-	}
-    if(verify_dist_traversed==0.19978958480504){
-        printf("YAY\n");
+	printf("POINT 0 NOT MATCHING %.17g %.17g\n", current_point[0], verify_current_point[0]);
+    }else{
+	printf("MATCHED\n");
     }
-    if(verify_dist_traversed==2.3485447120809){
-        printf("YAY\n");
-    }
-    if(verify_dist_traversed==2.3472252431663){
-        printf("YAY\n");
-    }
-    if(prev_time==16.85000038147){
-        printf("YAY\n");
+    if(abs(current_point[1]-verify_current_point[1])>1e-9){
+	printf("POINT 1 NOT MATCHING %.17g %.17g\n",  current_point[1], verify_current_point[1]);
+     }else{
+	printf("MATCHED\n");
     }
     if((prev_time>=time_flag+0.5)&&(prev_time<time_flag+1))
     	forward(1);
@@ -451,6 +438,7 @@ void actuation(){
 }
 
 int main(){
+	// perform sensing actuation loop.
 	FILE* f_sensing = fopen("./sensor_data.txt", "r");
 	points = create_coord_array(4);
 	printf("%d COORDINATES GENERATED\n", run);
