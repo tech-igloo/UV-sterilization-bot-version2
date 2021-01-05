@@ -1,4 +1,4 @@
-#include "server.h"
+#include "algo.h"
 
 static ledc_channel_config_t led_channel[2];       //Data Structure having various fields specifying the PWM details for a single channel. A single channel for a single PWM output. Will have to create another for controlling 2 motors
 #define rightm 20
@@ -12,7 +12,7 @@ struct point{                                   //Data Structure for storing poi
     double y;
     double theta;
 };
-int ch=0;
+int var=0;
 /*Used for setting up PWM Channel (Ref: Official Github Repo)*/
 void init_pwm()
 { //gpio configuration for motor enable and direction control
@@ -56,8 +56,8 @@ void init_pwm()
             .timer_sel  = LEDC_TIMER_0
         },
     };
-    for( ch = 0;ch < 2; ch++) {
-        ledc_channel_config(&led_channel[ch]);
+    for( var = 0;var < 2; var++) {
+        ledc_channel_config(&led_channel[var]);
     }
 }
 
@@ -68,10 +68,10 @@ void move_forward()
     gpio_set_level(leftm, 1);
     gpio_set_level(left_dir, 1);
     //Assuming that motors shows ideal responce when same pwm is given 
-    for (ch = 0; ch < 2; ch++)
+    for (var = 0; var < 2; var++)
     {
-        ledc_set_duty(led_channel[ch].speed_mode, led_channel[ch].channel,8192);
-        ledc_update_duty(led_channel[ch].speed_mode, led_channel[ch].channel);
+        ledc_set_duty(led_channel[var].speed_mode, led_channel[var].channel,8192);
+        ledc_update_duty(led_channel[var].speed_mode, led_channel[var].channel);
     }    
 }                                                                       //Similar functions below with different duty cycles
 
@@ -80,11 +80,11 @@ void move_left()
     gpio_set_level(right_dir, 0);
     gpio_set_level(leftm, 1);
     gpio_set_level(left_dir, 1);
-    for (ch = 0; ch < 2; ch++)
+    for (var = 0; var < 2; var++)
     {
-        ledc_set_duty(led_channel[ch].speed_mode, led_channel[ch].channel,8192);
-        ledc_update_duty(led_channel[ch].speed_mode, led_channel[ch].channel);
-    }    
+        ledc_set_duty(led_channel[var].speed_mode, led_channel[var].channel,8192);
+        ledc_update_duty(led_channel[var].speed_mode, led_channel[var].channel);
+    }  
 }
 
 void move_right()
@@ -92,11 +92,11 @@ void move_right()
     gpio_set_level(right_dir, 1);
     gpio_set_level(leftm, 1);
     gpio_set_level(left_dir, 0);
-    for (ch = 0; ch < 2; ch++)
+    for (var = 0; var < 2; var++)
     {
-        ledc_set_duty(led_channel[ch].speed_mode, led_channel[ch].channel,8192);
-        ledc_update_duty(led_channel[ch].speed_mode, led_channel[ch].channel);
-    }    
+        ledc_set_duty(led_channel[var].speed_mode, led_channel[var].channel,8192);
+        ledc_update_duty(led_channel[var].speed_mode, led_channel[var].channel);
+    }   
 }
 
 void move_back()
@@ -104,11 +104,11 @@ void move_back()
     gpio_set_level(right_dir, 0);
     gpio_set_level(leftm, 1);
     gpio_set_level(left_dir, 0);
-    for (ch = 0; ch < 2; ch++)
+    for (var = 0; var < 2; var++)
     {
-        ledc_set_duty(led_channel[ch].speed_mode, led_channel[ch].channel,8192);
-        ledc_update_duty(led_channel[ch].speed_mode, led_channel[ch].channel);
-    }    
+        ledc_set_duty(led_channel[var].speed_mode, led_channel[var].channel,8192);
+        ledc_update_duty(led_channel[var].speed_mode, led_channel[var].channel);
+    }     
 }
 
 void move_stop()
