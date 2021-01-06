@@ -1,12 +1,12 @@
-#include "algo.h"
+#include "server.h"
 
 static ledc_channel_config_t led_channel[2];       //Data Structure having various fields specifying the PWM details for a single channel. A single channel for a single PWM output. Will have to create another for controlling 2 motors
-#define rightm 20
-#define right_dir 18
-#define rpwm 17
-#define leftm 16
-#define left_dir 15
-#define lpwm 14
+#define rightm 13
+#define right_dir 12
+#define rpwm 14
+#define leftm 27
+#define left_dir 26
+#define lpwm 25
 struct point{                                   //Data Structure for storing points
     double x;
     double y;
@@ -70,7 +70,7 @@ void move_forward()
     //Assuming that motors shows ideal responce when same pwm is given 
     for (var = 0; var < 2; var++)
     {
-        ledc_set_duty(led_channel[var].speed_mode, led_channel[var].channel,8192);
+        ledc_set_duty(led_channel[var].speed_mode, led_channel[var].channel,5000);
         ledc_update_duty(led_channel[var].speed_mode, led_channel[var].channel);
     }    
 }                                                                       //Similar functions below with different duty cycles
@@ -82,7 +82,7 @@ void move_left()
     gpio_set_level(left_dir, 1);
     for (var = 0; var < 2; var++)
     {
-        ledc_set_duty(led_channel[var].speed_mode, led_channel[var].channel,8192);
+        ledc_set_duty(led_channel[var].speed_mode, led_channel[var].channel,5000);
         ledc_update_duty(led_channel[var].speed_mode, led_channel[var].channel);
     }  
 }
@@ -94,7 +94,7 @@ void move_right()
     gpio_set_level(left_dir, 0);
     for (var = 0; var < 2; var++)
     {
-        ledc_set_duty(led_channel[var].speed_mode, led_channel[var].channel,8192);
+        ledc_set_duty(led_channel[var].speed_mode, led_channel[var].channel,5000);
         ledc_update_duty(led_channel[var].speed_mode, led_channel[var].channel);
     }   
 }
@@ -106,7 +106,7 @@ void move_back()
     gpio_set_level(left_dir, 0);
     for (var = 0; var < 2; var++)
     {
-        ledc_set_duty(led_channel[var].speed_mode, led_channel[var].channel,8192);
+        ledc_set_duty(led_channel[var].speed_mode, led_channel[var].channel,5000);
         ledc_update_duty(led_channel[var].speed_mode, led_channel[var].channel);
     }     
 }
