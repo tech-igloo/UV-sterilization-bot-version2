@@ -28,7 +28,6 @@
 #include "mdns.h"
 #include "driver/ledc.h"
 #include <math.h>
-#include "server.h"
 
 /*The various parameters that are used throughout the code*/
 #define EXAMPLE_ESP_MAXIMUM_RETRY 5             //Maximum number of times the esp will try to connect to a network in STA mode
@@ -61,6 +60,8 @@ extern int total_paths;                     //Total number of paths stored till 
 extern int64_t prev_mili;                   //Used for determining the time duration between 2 commands while controlling the bot in manual mode
 extern int64_t curr_mili;                   //Used for determining the time duration between 2 commands while controlling the bot in manual mode
 extern float time_duration;                 //Used for storing the time duration between 2 commands while controlling the bot in manual mode
+extern int point_index;
+
 char buf[DATA_LEN];                      //Used for extracting ssid from POST header data whenever User stores new Network Credentials
 char copy[DATA_LEN];                     //Used for extracting password from POST header data whenevr User stores new Network Credentials
 char line_str[LINE_LEN];                 //Used for extracting lines from stored files
@@ -76,6 +77,8 @@ struct httpd_uri_t {
 httpd_handle_t start_webserver(void);
 void stop_webserver(httpd_handle_t server);
 
+void init_pid();
+void update_points();
 esp_err_t replace_wifi(char* line, int n);
 esp_err_t update_number(int n);
 esp_err_t delete(int n);
@@ -87,12 +90,6 @@ esp_err_t update_paths();
 esp_err_t get_path(int local_flag);
 char determine(int local_flag);
 
-void init_pwm();
-void move_forward();
-void move_left();
-void move_right();
-void move_back();
-void move_stop();
 
 esp_err_t handle_OnConnect(httpd_req_t *req);
 esp_err_t handle_reset(httpd_req_t *req);

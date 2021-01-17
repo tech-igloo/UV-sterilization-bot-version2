@@ -1,4 +1,5 @@
 #include "server.h"
+#include "algo.h"
 // /*The variables that keep track of various things while the code is running*/
 static EventGroupHandle_t s_wifi_event_group;   //Used for Wifi connections during SAP and STA mode
 const char *TAG = "wifi station";        //Name used for ESP_LOGI statements. Feel free to set it to whatever you want
@@ -407,58 +408,6 @@ esp_err_t update_paths()
     return ESP_OK;
 }
 
-/*Execute the local_flag th path*/
-esp_err_t get_path(int local_flag)
-{
-    char str[LINE_LEN];
-    int linectr = 0;
-    FILE* f_r = fopen("/spiffs/paths.txt", "r");
-    if (f_r == NULL) {
-        ESP_LOGE(TAG, "Failed to open file for reading");
-        return ESP_FAIL;
-    }
-    while(!feof(f_r))
-    {
-        strcpy(str, "\0");
-        fgets(str, LINE_LEN, f_r);
-        if(!feof(f_r))
-        {
-            linectr++;
-            if(linectr == (local_flag+1)) //1st line contains the number of valid paths, so nth path will be on (n+1)th line
-                break;
-        }
-    }
-    ESP_LOGI(TAG, "%s", str);
-    fclose(f_r);
-    //return ESP_OK;
-    char* token = strtok(str, "\t");    //The elements are seperated by "\t"
-    auto_flag = 1;                      
-    while(token!=NULL)					//iterate through each of the elements
-    {
-        char ch = token[0];             //Get the first character which denotes the direction to be travelled
-        switch(ch){
-            case 'f'://move_forward();break;
-                        flag = 0; break;	//The flag values are set here. The infinite Loop in Task 1 checks these flag variables and calls the appropriate functions
-            case 'l'://move_left();break;
-                        flag = 1; break;
-            case 'r'://move_right();break;
-                        flag = 2; break;
-            case 'b'://move_back();break;
-                        flag = 3; break;
-            default://move_stop();break;
-                        flag = 4; break;
-        }
-        ESP_LOGI(TAG, "Direction: %c", ch);
-        token++;                        //Increment the pointer to get the numerical value stored after the first character
-        float time = atof(token);       //Convert the value from string to float
-        ESP_LOGI(TAG, "Time: %f", time);
-        vTaskDelay(time/portTICK_PERIOD_MS);    //Wait for the appropriate time
-        token = strtok(NULL, "\t");             //Get the next element
-    }
-    //move_stop();
-    auto_flag = 0;
-    return ESP_OK;
-}
 
 /*Get the character to be used for storing the direction*/
 char determine(int local_flag)
@@ -652,6 +601,7 @@ void app_main(void)
 {
     static httpd_handle_t server = NULL;
     init_spiffs();  //Initialize SPIFFS File System
+    init_pid();
     init_pwm();     //Initialize PWM channel
     conn_flag = main_update();  //Update the necessary variables
     if(conn_flag == 0)          //Check the returned value         

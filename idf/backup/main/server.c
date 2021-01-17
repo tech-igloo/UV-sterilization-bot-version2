@@ -1,5 +1,6 @@
-#include"server.h"
-
+#include "server.h"
+#include "algo.h"
+int point_index;
 /*The following are structures linking each web address with their corresponding callback functions
   Each structure contains the web address, the corresponding callback function, the HTTP method (HTTP_GET or HTTP_POST) and any user context(NULL for all the structures)*/
 httpd_uri_t uri_reset = {
@@ -451,15 +452,19 @@ esp_err_t handle_start(httpd_req_t *req)
 
 /*Callback function whenever "/path1" is accessed*/
 esp_err_t handle_path1(httpd_req_t *req)
-{
+{   
     ESP_ERROR_CHECK(get_path(1)); //Execute Path 1
-    char* resp = get_home(0);   //Get the HTML Code to display
+    point_index =1;
+    char* resp =get_home(0);   //Get the HTML Code to display
     httpd_resp_send(req, resp, strlen(resp));   //Display the HTML Code
     free(resp);
     //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+
     ESP_LOGI(TAG, "Now displaying /path1");
     ESP_LOGI(TAG, "Callback Function called: handle_path1()");
     ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_home(0)");
+
+    //update_points();
     return ESP_OK;
 }
 
@@ -713,7 +718,7 @@ esp_err_t handle_forward(httpd_req_t *req)
     ESP_LOGI(TAG, "Record Flag: %d", record_flag);
     if(record_flag == 1)        //if the path is recording
     {
-        //move_forward();
+        move_forward();
         FILE* f = fopen("/spiffs/paths.txt", "a");		//Open the File for writing the value
         if (f == NULL) {
             ESP_LOGE(TAG, "Failed to open file for writing");
@@ -747,7 +752,7 @@ esp_err_t handle_left(httpd_req_t *req)
     ESP_LOGI(TAG, "Record Flag: %d", record_flag);
     if(record_flag == 1)        //if the path is recording
     {
-        //move_left();
+        move_left();
         FILE* f = fopen("/spiffs/paths.txt", "a");
         if (f == NULL) {
             ESP_LOGE(TAG, "Failed to open file for writing");
@@ -780,7 +785,7 @@ esp_err_t handle_right(httpd_req_t *req)
     ESP_LOGI(TAG, "Record Flag: %d", record_flag);
     if(record_flag == 1)
     {
-        //move_right();
+        move_right();
         FILE* f = fopen("/spiffs/paths.txt", "a");
         if (f == NULL) {
             ESP_LOGE(TAG, "Failed to open file for writing");
@@ -813,7 +818,7 @@ esp_err_t handle_back(httpd_req_t *req)
     ESP_LOGI(TAG, "Record Flag: %d", record_flag);
     if(record_flag == 1)
     {
-        //move_back();
+        move_back();
         FILE* f = fopen("/spiffs/paths.txt", "a");
         if (f == NULL) {
             ESP_LOGE(TAG, "Failed to open file for writing");
@@ -902,6 +907,7 @@ esp_err_t handle_save(httpd_req_t *req)
 {
     update_number(1); //total_paths is updated in paths.txt and the global variable is also updated
     ESP_ERROR_CHECK(convert_paths(total_paths+1));  //convert the saved path into co-ordinate based representation, you can comment this part out
+    
     char* resp = get_home(3);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
