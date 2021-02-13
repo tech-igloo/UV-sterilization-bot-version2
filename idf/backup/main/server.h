@@ -7,7 +7,6 @@
 #include "esp_system.h"
 #include "esp_event.h"
 #include "nvs_flash.h"
-#include "driver/gpio.h"
 #include <esp_http_server.h>
 #include <string.h>
 #include <esp_log.h>
@@ -26,8 +25,10 @@
 #include <sys/stat.h>
 #include "esp_err.h"
 #include "mdns.h"
-#include "driver/ledc.h"
 #include <math.h>
+#include "driver/uart.h"
+#include "driver/gpio.h"
+#include "string.h" 
 
 /*The various parameters that are used throughout the code*/
 #define EXAMPLE_ESP_MAXIMUM_RETRY 5             //Maximum number of times the esp will try to connect to a network in STA mode
@@ -45,9 +46,6 @@
 #define DATA_LEN 108                            //108 = 4 + 1 + 32 + 1 + 4 + 1 + 64 + 1 (The maximum length of a header data being sent during saving of a network credential)
 #define LINE_LEN 98                             //98 = 32 + 1 + 64 + 1 (The maximum length of a sentence in 1 line in the network credential storage file)
 #define PATH_NUM 5                              //The maximum number of paths that can be stored
-#define resolution 0.1                            //The resolution of points used in the co-ordinate system
-#define DEFAULT_LIN_SPEED 1.5                   //Temporary constants I used. To be deleted when encoder feedback is used
-#define DEFAULT_ANG_SPEED 10                    //Temporary constants I used. To be deleted when encoder feedback is used
 
 /*The variables that keep track of various things while the code is running*/
 extern const char *TAG;                     //Name used for ESP_LOGI statements. Feel free to set it to whatever you want
@@ -55,41 +53,24 @@ extern int flag;                           //Used for determining in which direc
 extern int record_flag;                     //Denote whether path is being recorded or not
 extern int conn_flag;                      //Denote which Wifi mode the ESP is used : 0 = SAP, 1 to WIFI_NUM = STA wifi index
 extern int auto_flag;                       //Denote whether auto mode is on or off
+extern int manual_flag;
 extern int total ;                           //Total number of network credentials for STA mode stored till now
 extern int total_paths;                     //Total number of paths stored till now
 extern int64_t prev_mili;                   //Used for determining the time duration between 2 commands while controlling the bot in manual mode
 extern int64_t curr_mili;                   //Used for determining the time duration between 2 commands while controlling the bot in manual mode
 extern float time_duration;                 //Used for storing the time duration between 2 commands while controlling the bot in manual mode
-extern int point_index;
-
 char buf[DATA_LEN];                      //Used for extracting ssid from POST header data whenever User stores new Network Credentials
 char copy[DATA_LEN];                     //Used for extracting password from POST header data whenevr User stores new Network Credentials
 char line_str[LINE_LEN];                 //Used for extracting lines from stored files
 char ssid[WIFI_NUM][SSID_LEN];           //Store all the network ssids that the ESP can use in STA mode
 char pass[WIFI_NUM][PASS_LEN];           //Store all the network passwords that the ESP can use in STA mode
 
-struct httpd_uri_t {
-    const char       *uri;   
+struct httpd_uri_t {                     //structure intialization for all the structure pointer
+    const char       *uri;               //linking web addresses and corresponding call back functions
     httpd_method_t    method; 
     esp_err_t (*handler)(httpd_req_t *r);
     void *user_ctx;
 };
-httpd_handle_t start_webserver(void);
-void stop_webserver(httpd_handle_t server);
-
-void init_pid();
-void update_points();
-esp_err_t replace_wifi(char* line, int n);
-esp_err_t update_number(int n);
-esp_err_t delete(int n);
-esp_err_t delete_specific_path(int n);
-esp_err_t convert_paths(int n);
-esp_err_t delete_paths(int n);
-esp_err_t update_wifi();
-esp_err_t update_paths();
-esp_err_t get_path(int local_flag);
-char determine(int local_flag);
-
 
 esp_err_t handle_OnConnect(httpd_req_t *req);
 esp_err_t handle_reset(httpd_req_t *req);
@@ -148,7 +129,6 @@ esp_err_t handle_data_3(httpd_req_t *req);
 esp_err_t handle_data_4(httpd_req_t *req);
 esp_err_t handle_data_5(httpd_req_t *req);
 
-
 char* default_page();
 char* choose_page();
 char* get_sta();
@@ -160,6 +140,18 @@ char* get_home(int local_flag);
 char* manual_mode();
 char* SendHTML(uint8_t local_flag);
 char* get_stop();
+
+httpd_handle_t start_webserver(void);
+void stop_webserver(httpd_handle_t server);
+/* All the above functions defined in "server.c" file */
+
+esp_err_t replace_wifi(char* line, int n);
+esp_err_t update_number(int n);
+esp_err_t delete(int n);
+esp_err_t delete_specific_path(int n);
+esp_err_t delete_paths(int n);
+esp_err_t update_wifi();
+esp_err_t update_paths();
 
 #endif
 // WE should only declare the vars in .h and define it in any one c file

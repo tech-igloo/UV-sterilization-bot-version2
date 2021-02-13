@@ -1,5 +1,6 @@
 #include "server.h"
 #include "algo.h"
+
 // /*The variables that keep track of various things while the code is running*/
 static EventGroupHandle_t s_wifi_event_group;   //Used for Wifi connections during SAP and STA mode
 const char *TAG = "wifi station";        //Name used for ESP_LOGI statements. Feel free to set it to whatever you want
@@ -8,19 +9,16 @@ static int s_retry_num = 0;                     //Number of times the esp has tr
 int64_t prev_mili = 0;                   //Used for determining the time duration between 2 commands while controlling the bot in manual mode
 int64_t curr_mili = 0;                   //Used for determining the time duration between 2 commands while controlling the bot in manual mode
 float time_duration = 0;                 //Used for storing the time duration between 2 commands while controlling the bot in manual mode
-// static char buf[DATA_LEN];                      //Used for extracting ssid from POST header data whenever User stores new Network Credentials
-// static char copy[DATA_LEN];                     //Used for extracting password from POST header data whenevr User stores new Network Credentials
 int conn_flag = 0;                       //Denote which Wifi mode the ESP is used : 0 = SAP, 1 to WIFI_NUM = STA wifi index
 int record_flag = 0;                     //Denote whether path is being recorded or not
-// static char ssid[WIFI_NUM][SSID_LEN];           //Store all the network ssids that the ESP can use in STA mode
-// static char pass[WIFI_NUM][PASS_LEN];           //Store all the network passwords that the ESP can use in STA mode
 static char EXAMPLE_ESP_WIFI_SSID[SSID_LEN];    //Store the network ssid that the esp is using currently in STA mode
 static char EXAMPLE_ESP_WIFI_PASS[PASS_LEN];    //Store the network password that the esp is using currently in STA mode
 int total = 0;                           //Total number of network credentials for STA mode stored till now
-// static char line_str[LINE_LEN];                 //Used for extracting lines from stored files
 int total_paths = 0;                     //Total number of paths stored till now
 int auto_flag = 0;                       //Denote whether auto mode is on or off
+int manual_flag = 0;                     //To check if it is in manual motion mode
 static TaskHandle_t Task1;                      //Task handle to keep track of created task running on Core 1
+
 
 /*Replaces the nth line in the file /wifi_conf.txt with the line supplied in the argument
   The 1st line contains "SAP" or "STA" to denote which connection mode to use
@@ -68,7 +66,7 @@ esp_err_t replace_wifi(char* line, int n)
 esp_err_t update_number(int n){
     char line[2];
     char str[LINE_LEN];
-    int linectr = 0;
+    int linectr = 0,  count_flag = 1;
     total_paths = total_paths + n;          //Update the total_paths global variable
     sprintf(line, "%d", total_paths);		//convert total_paths from an integer to a string and store it on 'line' variable
     FILE* f_r = fopen("/spiffs/paths.txt", "r");
@@ -85,15 +83,23 @@ esp_err_t update_number(int n){
     {
         strcpy(str, "\0");					//initialize to null string
         fgets(str, LINE_LEN, f_r);
-        if(!feof(f_r))
-        {
-            linectr++;
+        if(!feof(f_r)){
+
+            if (count_flag){
+                linectr++;
+                count_flag = 0;
+            }                
+            if (strchr(str, '\n'))      //We only increment the linectr when we have \n, because of a single path having multiple lines
+                count_flag=1;
+
             if(linectr == 1){				//since it is stored in the 1st line
                 fprintf(f_w, "%s", line);   //Update the value stored in the file by writing the 'line' variable that contains the string representaion of total_paths
                 fprintf(f_w, "%s", "\n");
             }
             else
                 fprintf(f_w, "%s", str);	//else write the string that was extracted from the file
+                ESP_LOGI(TAG, "%s", str);
+
         }
     }
     fclose(f_r);
@@ -149,7 +155,7 @@ esp_err_t delete(int n)
 esp_err_t delete_specific_path(int n)
 {
     char str[LINE_LEN];
-    int linectr = 0;
+    int linectr = 0, count_flag = 1;
     FILE* f_r = fopen("/spiffs/paths.txt", "r");
     FILE* f_w = fopen("/spiffs/temp.txt", "w");
     if(f_r == NULL){
@@ -164,9 +170,15 @@ esp_err_t delete_specific_path(int n)
     {
         strcpy(str, "\0");
         fgets(str, LINE_LEN, f_r);
-        if(!feof(f_r))
-        {
-            linectr++;
+        if(!feof(f_r)){
+
+            if (count_flag){
+                linectr++;
+                count_flag = 0;
+            }                
+            if (strchr(str, '\n'))      //We only increment the linectr when we have \n, because of a single path having multiple lines
+                count_flag=1;
+
             if(linectr == (n+1)){           //Since the 1st line contains the number of valid paths, so the nth path will be on the (n+1)th Line
                 continue;
             }
@@ -184,7 +196,7 @@ esp_err_t delete_specific_path(int n)
 /*Keeps all the lines in paths.txt till the nth line and deletes all the lines after that*/
 esp_err_t delete_paths(int n){
     char str[LINE_LEN];
-    int linectr = 0;
+    int linectr = 0, count_flag = 1;
     FILE* f_r = fopen("/spiffs/paths.txt", "r");
     FILE* f_w = fopen("/spiffs/temp.txt", "w");
     if(f_r == NULL){
@@ -199,9 +211,16 @@ esp_err_t delete_paths(int n){
     {
         strcpy(str, "\0");              //Used for intializing str to NULL before extracting each line
         fgets(str, LINE_LEN, f_r);
-        if(!feof(f_r))
-        {
-            linectr++;
+       // ESP_LOGI(TAG, "%s", str);
+        if(!feof(f_r)){   
+            
+            if (count_flag){
+                linectr++;
+                count_flag = 0;
+            }                
+            if (strchr(str, '\n'))      //We only increment the linectr when we have \n, because of a single path having multiple lines
+                count_flag=1;
+
             if(linectr <= n)
                 fprintf(f_w, "%s", str);
             else
@@ -408,22 +427,6 @@ esp_err_t update_paths()
     return ESP_OK;
 }
 
-
-/*Get the character to be used for storing the direction*/
-char determine(int local_flag)
-{
-    char c;
-    switch(local_flag){
-        case -1:c = 's';break;
-        case 0: c = 'f';break;
-        case 1: c = 'l';break;
-        case 2: c = 'r';break;
-        case 3: c = 'b';break;
-        default:c = 'a';break;
-    }
-    return c;
-}
-
 /*Not really required(Ref: Official Github Repo)*/
 static void wifi_event_handler(void* arg, esp_event_base_t event_base,
                                     int32_t event_id, void* event_data)
@@ -571,29 +574,80 @@ void wifi_init_sta(void)
     ESP_ERROR_CHECK(esp_event_handler_instance_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, instance_any_id));
     vEventGroupDelete(s_wifi_event_group);
 }
-
+void encoder(int num){
+    
+     if (num == LEFT_ENCODERA){
+                    leftTicks++;
+                    if (leftTicks >= ENCODERresolution){
+                        leftRot++;                         
+                        leftTicks=0;
+                    }
+                    // if (flag == 0 || flag == 2)   //commenting this cause we don't really need ve- ticks
+                    //     leftTicks++;
+                    // else if (flag == 3 || flag == 1)
+                    //     leftTicks--;
+                    // if (leftTicks >= ENCODERresolution){
+                    //     leftRot++;                         
+                    //     leftTicks=0;
+                    // }else if (leftTicks <= (-1*ENCODERresolution)){
+                    //     leftRot--;                         
+                    //     leftTicks=0;
+                    // }
+                }
+                else if (num == RIGHT_ENCODERA){
+                    rightTicks++;
+                    if (rightTicks >= ENCODERresolution){
+                        rightRot++;
+                        rightTicks=0;
+                    }
+                    // if (flag == 0 || flag == 1)
+                    //     rightTicks++;
+                    // else if (flag == 3 || flag == 2)
+                    //     rightTicks--;
+                    // if (rightTicks >= ENCODERresolution){
+                    //     rightRot++;
+                    //     rightTicks=0;
+                    // }else if (rightTicks <= (-1*ENCODERresolution)){
+                    //     rightRot--;                         
+                    //     rightTicks=0;
+                    // }
+                }
+}
 /*Function that will run parallely on Core 1*/
 void Task1code( void * pvParameters ){
-	
-    while(1){   //Put code here. This is like void loop() in arduino
+    uint32_t io_num;
+
+    init_gpio();    //Initialize encoder and sensor pins
+	init_pwm();     //Initialize PWM channel
+   
+    while(1){   
     	//ESP_LOGI(TAG, "Infinite Loop running On core %d", xPortGetCoreID());
-        if(record_flag == 1){					//record_flag, flag, auto_flag are updated in other portions of the code 
+        if(record_flag == 1 || manual_flag == 1){					//manual_flag, record_flag, flag, auto_flag are updated in other portions of the code 
             if(flag == 0) move_forward();
             else if(flag == 1) move_left();
             else if(flag == 2) move_right();
             else if(flag == 3) move_back();
             else move_stop();
+            
+            if(xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
+                //printf("GPIO[%d] intr, val: %d\n", io_num, gpio_get_level(io_num)); 
+                if(io_num== LEFT_ENCODERA)encoder(LEFT_ENCODERA);
+                else if(io_num==RIGHT_ENCODERA)encoder(RIGHT_ENCODERA);
+            }      
         }
-        else if(auto_flag == 1){
-            if(flag == 0) move_forward();
-            else if(flag == 1) move_left();
-            else if(flag == 2) move_right();
-            else if(flag == 3) move_back();
-            else move_stop();
+        else if (auto_flag==1){
+            sensing();
+            actuation();
         }
         else
             move_stop();
     }
+}
+
+void IRAM_ATTR gpio_encoder_isr_handler(void* arg)
+{
+    uint32_t gpio_num = (uint32_t) arg;
+    xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
 }
 
 /*Main function that gets called once at the start when ESP boots*/
@@ -601,8 +655,6 @@ void app_main(void)
 {
     static httpd_handle_t server = NULL;
     init_spiffs();  //Initialize SPIFFS File System
-    init_pid();
-    init_pwm();     //Initialize PWM channel
     conn_flag = main_update();  //Update the necessary variables
     if(conn_flag == 0)          //Check the returned value         
         init_sap();				//Start SAP mode
