@@ -23,14 +23,15 @@
 #define ULTRA3 5
 #define ULTRA4 6
 #define ULTRA5 7
+#define GPIO_ULTRA_PIN_SEL ((1ULL<<ULTRA1)|(1ULL<<ULTRA2)|(1ULL<<ULTRA3)|(1ULL<<ULTRA4)|(1ULL<<ULTRA5))
 
 #define ENCODERresolution 1200              //The resolution of encoder, current using any edge single channel
 #define wheeldist_perTick 0.000445           //in meters
 #define wheelbase 0.30                   //in meters
-#define DEFAULT_LIN_SPEED 0.03               // meter/sec    //Temporary constants I used. To be deleted when encoder feedback is used
-#define DEFAULT_ANG_SPEED 0.2            //rad/sec        //Temporary constants I used. To be deleted when encoder feedback is used
 #define sampleTime 100000     //In microsec
 #define sampleTimeInSec 0.1
+extern int  DEFAULT_LIN_SPEED;              // meter/sec    //Temporary constants I used. To be deleted when encoder feedback is used
+extern int DEFAULT_ANG_SPEED ;            //rad/sec        //Temporary constants I used. To be deleted when encoder feedback is used
 
 extern int Lpwm;                       //Variables to pass pwm to the LEDC set duty function
 extern int Rpwm;  

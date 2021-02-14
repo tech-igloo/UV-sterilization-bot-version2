@@ -1,7 +1,8 @@
 #include "server.h"
 #include "algo.h"
 #include<math.h>
-
+int  DEFAULT_LIN_SPEED =0.03;
+int DEFAULT_ANG_SPEED =0.2;  
 int Lpwm = 0; 
 int Rpwm = 0;     //Always remember you can't define the variable in .h file     
 
@@ -34,7 +35,7 @@ float current_error;
 float accumulated_error;
 float prev_error;
 int point_index=0;
-double path_points[20];
+double path_points[10];
 double dist_traversed;
 int stop_point[10];
 int current_point[10];
@@ -56,7 +57,7 @@ double Kd = 1/sampleTimeInSec;
 double Ki = 1*sampleTimeInSec;
 xQueueHandle gpio_evt_queue = NULL;
 
- char enpwmcmd[7]={0x44,0x00,0x55,0x01,0x99,0x02,0xaa}; // sensor commands
+char enpwmcmd[7]={0x44,0x00,0x55,0x01,0x99,0x02,0xaa}; // sensor commands
 /*To initialize the motor direction, encoder, and sensor I/O pins*/ 
 void init_gpio()
 {
@@ -66,6 +67,12 @@ void init_gpio()
     ENCODER.pull_up_en = 0;
     ENCODER.pin_bit_mask = GPIO_ENCODER_PIN_SEL; /*!< GPIO pin: set with bit mask, each bit maps to a GPIO */
     gpio_config(&ENCODER);
+    ULTRASONIC.intr_type=GPIO_INTR_DISABLE;
+    ULTRASONIC.mode=GPIO_MODE_INPUT;
+    ULTRASONIC.pull_down_en = 0;
+    ULTRASONIC.pull_up_en = 0;    
+    ULTRASONIC.pin_bit_mask=GPIO_ULTRA_PIN_SEL;
+    gpio_config(&ULTRASONIC);
     
    // .intr_type=GPIO_INTR_DISABLE;
 
@@ -121,6 +128,7 @@ void init_pwm()
     motorR.timer_sel = LEDC_TIMER_0;
     ledc_channel_config(&motorR);
 }
+//UART sensor initlisation by installing the drivers and deleting them after that to save the resources
 void sensor_initilize()
 {
      const uart_config_t uart_config = {
@@ -144,6 +152,7 @@ void sensor_initilize()
     uart_driver_delete(UART_NUM_2);
 
 }
+
 /*The following are dummy functions for movement of the bot*/
 void move_forward()
 {   
@@ -157,8 +166,8 @@ void move_forward()
         Rpwm = pid_velRight(right_vel, DEFAULT_LIN_SPEED);
         prev_tim = esp_timer_get_time();
     }
-gpio_set_level(LEFT_MOTOR_ENABLE,1);//TO ENABLE THE MOTORS NOT REQUIRED TOO MANY TIMES ..
-gpio_set_level(RIGHT_MOTOR_ENABLE,1);
+    gpio_set_level(LEFT_MOTOR_ENABLE,1);//TO ENABLE THE MOTORS NOT REQUIRED TOO MANY TIMES ..
+    gpio_set_level(RIGHT_MOTOR_ENABLE,1);
     gpio_set_level(LEFT_MOTOR_DIRECTION, 1);    //BOTH IN SAME DIRECTION
     gpio_set_level(RIGHT_MOTOR_DIRECTION, 1);
     ledc_set_duty(motorL.speed_mode, motorL.channel, Lpwm);   //Update the PWM value to be used by this lED Channel.
@@ -182,8 +191,8 @@ void move_left()
         Rpwm = pid_velRight(right_vel, DEFAULT_ANG_SPEED);
         prev_tim = esp_timer_get_time();
     }
-gpio_set_level(LEFT_MOTOR_ENABLE,1);
-gpio_set_level(RIGHT_MOTOR_ENABLE,1);
+    gpio_set_level(LEFT_MOTOR_ENABLE,1);
+    gpio_set_level(RIGHT_MOTOR_ENABLE,1);
     gpio_set_level(LEFT_MOTOR_DIRECTION, 1);    //IN OPP DIRECTION
     gpio_set_level(RIGHT_MOTOR_DIRECTION, 0);
     ledc_set_duty(motorL.speed_mode, motorL.channel, Lpwm);
@@ -194,7 +203,8 @@ gpio_set_level(RIGHT_MOTOR_ENABLE,1);
 
 void move_right()
 {
-    if((esp_timer_get_time() - prev_tim) >= sampleTime){
+    if((esp_timer_get_time() - prev_tim) >= sampleTime)
+    {
         left_vel = ((leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick - prev_disL)/0.1;  // VELCOTIY IN rad/sec
         prev_disL = left_vel*0.1 + prev_disL;
         left_vel = left_vel*2/wheelbase;    //angular velocity
@@ -207,8 +217,8 @@ void move_right()
         Rpwm = pid_velRight(right_vel, DEFAULT_ANG_SPEED);
         prev_tim = esp_timer_get_time();
     }    
-gpio_set_level(LEFT_MOTOR_ENABLE,1);
-gpio_set_level(RIGHT_MOTOR_ENABLE,1);
+    gpio_set_level(LEFT_MOTOR_ENABLE,1);
+    gpio_set_level(RIGHT_MOTOR_ENABLE,1);
     gpio_set_level(LEFT_MOTOR_DIRECTION, 0);    //IN OPP DIRECTION
     gpio_set_level(RIGHT_MOTOR_DIRECTION, 1);
     ledc_set_duty(motorL.speed_mode, motorL.channel, Lpwm);
@@ -229,8 +239,8 @@ void move_back()
         Rpwm = pid_velRight(right_vel, DEFAULT_LIN_SPEED);
         prev_tim = esp_timer_get_time();
     }
-gpio_set_level(LEFT_MOTOR_ENABLE,1);
-gpio_set_level(RIGHT_MOTOR_ENABLE,1);
+    gpio_set_level(LEFT_MOTOR_ENABLE,1);
+    gpio_set_level(RIGHT_MOTOR_ENABLE,1);
     gpio_set_level(LEFT_MOTOR_DIRECTION, 0);    //BOTH IN SAME DIRECTION
     gpio_set_level(RIGHT_MOTOR_DIRECTION, 0);
     ledc_set_duty(motorL.speed_mode, motorL.channel, Lpwm);
@@ -277,7 +287,7 @@ int pid_velLeft(double actualvel, double desiredvel){
     prev_errorL = current_errorL;
     return map1(pid, 0, 10, 0, 4095);   //set maximum PWM as the top speed required
 }
-int get_pid_dist(int current_val,int target_val)
+/*int get_pid_dist(int current_val,int target_val)
 { int local_val;//for pid 
     current_error=target_val-current_val;
     accumulated_error=accumulated_error+current_error*timediff;
@@ -304,8 +314,9 @@ int get_pid_angle(int current_val,int target_val){
     if(abs(local_val)<0.005)pid_flag=1;
     prev_error=current_error;
     return(local_val);
-}
+}*/
 void path_update(){
+    flag=-1;
     char str[LINE_LEN], temp[500] = "";
     FILE* f_r = fopen("/spiffs/path.txt", "r");
     while(f_r !=NULL) {
@@ -328,35 +339,35 @@ void path_update(){
         }
     }
     }
-    char* token = strtok(temp, "\t");    //The elements are seperated by "\t"
+    char* token = strtok(temp, " ");    //The elements are seperated by "\t"
     int i=0;
     while(token!=NULL){
         if (i==point_index){
-            char ch=token[i];
-            path_points[0]=ch;
-            ch=token[i+1];
-            path_points[1]=ch;
             
+            path_points[0]=atof(token);
+            token = strtok(NULL, " ");
+            path_points[1]=atof(token);            
+            token = strtok(NULL, " ");
             break;
             }
+        
         i=i+2;
     }
     if(point_index>i){
         auto_flag=0;
-    }
+      }
     fclose(f_r);
-    
 }
 void update_points()
 {   path_update();
     dist_required =(double)sqrt(pow((path_points[0]-prev_point[1]),2) - pow((path_points[0]-prev_point[2]),2));
     if(path_points[0]-prev_point[1]>=0)
     { 
-        angle_required=atan((prev_point[1]-current_point[2])/(prev_point[0]-current_point[1]));
+        angle_required=atan((prev_point[1]-current_point[1])/(prev_point[0]-current_point[1]));
     }
     else
     {
-         angle_required=(-1)*(atan((prev_point[1]-current_point[1])/(prev_point[2]-current_point[2])));
+         angle_required=(-1)*(atan((prev_point[1]-current_point[1])/(prev_point[0]-current_point[0])));
          if(path_points[2]-prev_point[2]>=0)
          {
               angle_required= angle_required+90;
@@ -381,11 +392,11 @@ void recalculate()
 {
     dist_required=(double) sqrt(pow((prev_point[1]-current_point[1]),2)+pow((prev_point[0]-current_point[0]),2));
     if(prev_point[0]-current_point[0] >= 0){
-        angle_required=atan((prev_point[1]-current_point[2])/(prev_point[0]-current_point[1]));
+        angle_required=atan((prev_point[1]-current_point[1])/(prev_point[0]-current_point[0]));
     }
     else
     {
-         angle_required=(-1)*(atan((prev_point[1]-current_point[1])/(prev_point[1]-current_point[1])));
+         angle_required=(-1)*(atan((prev_point[1]-current_point[1])/(prev_point[0]-current_point[0])));
          if(prev_point[1]-current_point[1] >= 0)
          {
               angle_required= angle_required-90;
@@ -396,27 +407,47 @@ void recalculate()
     init_pid();
     rotation_flag=1;
 }
+
+void rotate()
+{
+    if((angle_required-angle_rotated)>0){
+        flag=1;
+    }
+    else flag=2;
+    if((angle_required - angle_rotated*180/M_PI) < 0.5){
+        pid_flag = 1;
+            
+
+    }  //set some threshold after which it can move 
+
+}
+ void forward(){
+    flag = 0; 
+    if((dist_required - dist_traversed)< 0.1)  //set some threshold after which it can move 
+        pid_flag = 1;
+
+}
+
 void normal_motion(){
-    if(rotating_flag==1){
-        double val = get_pid_angle(angle_rotated, angle_required);
+    if(rotating_flag == 1){
+        
         if(pid_flag==1){
             init_pid();
-            move_stop();//change to flag
+           flag=-1;//change to flag
             rotating_flag = 0;
-        }else{
-            move_right(val);//change needed
         }
-    }else{
-        double val = get_pid_dist(dist_traversed, dist_required);
-        printf("VAL: %.17g\n", val);
+        else{ rotate();
+        }
+    }
+    else{
         if(pid_flag==1){
             init_pid();
-            move_stop();//change to flag
+            flag=-1;//change to flag
             update_points();
             update_stopPoint();
             rotating_flag = 1;
         }else{
-            move_forward();//change to flag
+            forward();//change to flag
         }
     }
 }
@@ -649,37 +680,49 @@ esp_err_t get_path(int local_flag)
     //auto_flag = 0;
     return ESP_OK;
 }
-void actuation(){
-    dist_traversed = dist_traversed + lin_vel*timediff; //update the distance travlled using the linear velocity calculated in sysCall_sensing
-    angle_rotated = angle_rotated + ang_vel*timediff*180.0/M_PI ;//  --update the orientation(in degrees, +ve for clockwise an -ve for anticlockwise)
-    current_point[1] = stop_point[1] + dist_traversed*cos((angle_rotated*M_PI)/180);// --calculates co-ordinates of the current point using the point where the orientation of the bot was last changed
-    current_point[2] = stop_point[2] + dist_traversed*sin((angle_rotated*M_PI)/180);
+void actuation()
+{
+    dist_traversed = (leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick; //In meters //To know if the target has been reached
+    if (flag == 1 || flag == 2){  //angle_rotated is a static variable and is not being reset to zero in between
+        if (flag == 1) //anti clockwise for positive angle
+            angle_rotated = angle_rotated + ((leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick*2)/wheelbase; //Angle of the bot in radians
+        else           //Clockwise negative angle
+            angle_rotated = angle_rotated - ((leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick*2)/wheelbase; //Angle of the bot in radians
+    }        
+    current_point[0] = stop_point[0] + dist_traversed*cos((angle_rotated*M_PI)/180);// --calculates co-ordinates of the current point using the point where the orientation of the bot was last changed
+    current_point[1] = stop_point[1] + dist_traversed*sin((angle_rotated*M_PI)/180);
     if (prev_time >=time_flag+0.5 && prev_time <time_flag+1){
-        move_forward();
+        flag=0;
     }
-    if (detect_flag ==0 && prev_time >= time_flag+1){normal_motion();}
-    else if (detect_flag ==1 && prev_time >= time_flag+1){
+    if (detect_flag ==0 && prev_time >= time_flag+1){
+        DEFAULT_LIN_SPEED =0.03;
+        DEFAULT_ANG_SPEED =0.2; 
+         flag=-1;
+        normal_motion();}
+    else if (detect_flag ==1 && prev_time >= time_flag+1)
+    {       DEFAULT_ANG_SPEED =0.01; 
+
         if(sensor_readings[1]==1 && sensor_readings[3]==0){
             time_flag=prev_time;
-            move_left();
+            flag=1;
             dist_traversed =0;
             update_stopPoint();
         }
         else if (sensor_readings[3]==1 && sensor_readings[1]==0){
             time_flag= prev_time;
-            move_right();
+            flag=2;
             dist_traversed=0;
             update_stopPoint();
         }
         else if (sensor_readings[1]==1 && sensor_readings[3]==1 ){
             time_flag= prev_time;
-            move_right();
+            flag=2;
             dist_traversed=0;
             update_stopPoint();
         }
-        else if (sensor_readings[1]==0 && sensor_readings[3]==0 && sensor_readings[2]==0){
+        else if (sensor_readings[1]==0 && sensor_readings[3]==0 && sensor_readings[2]==1){
             time_flag= prev_time;
-            move_right();
+            flag=2;
             dist_traversed=0;
             update_stopPoint();
         }
@@ -698,10 +741,10 @@ void sensing(){
     prev_time=curr_time;
     for (int i =0;i<5;i++){sensor_readings[i]=0;}
     if(gpio_get_level(ULTRA1) == 0)sensor_readings[0]=1;
-    if(gpio_get_level(ULTRA2)== 0){sensor_readings[1]=1;detect_flag=1;}
-    if(gpio_get_level(ULTRA3)== 0){sensor_readings[2]=1;detect_flag=1;}
-    if(gpio_get_level(ULTRA4)== 0){sensor_readings[3]=1;detect_flag=1;}
-    if(gpio_get_level(ULTRA5)== 0)sensor_readings[4]=1;
+    if(gpio_get_level(ULTRA2) == 0){sensor_readings[1]=1;detect_flag=1;}
+    if(gpio_get_level(ULTRA3) == 0){sensor_readings[2]=1;detect_flag=1;}
+    if(gpio_get_level(ULTRA4) == 0){sensor_readings[3]=1;detect_flag=1;}
+    if(gpio_get_level(ULTRA5) == 0)sensor_readings[4]=1;
 
  
 }

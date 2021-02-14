@@ -616,7 +616,7 @@ void encoder(int num){
 /*Function that will run parallely on Core 1*/
 void Task1code( void * pvParameters ){
     uint32_t io_num;
-
+    sensor_initilize();
     init_gpio();    //Initialize encoder and sensor pins
 	init_pwm();     //Initialize PWM channel
    
@@ -636,8 +636,19 @@ void Task1code( void * pvParameters ){
             }      
         }
         else if (auto_flag==1){
+                        
+            if(xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
+                //printf("GPIO[%d] intr, val: %d\n", io_num, gpio_get_level(io_num)); 
+                if(io_num== LEFT_ENCODERA)encoder(LEFT_ENCODERA);
+                else if(io_num==RIGHT_ENCODERA)encoder(RIGHT_ENCODERA);
+            } 
             sensing();
             actuation();
+            if(flag == 0) move_forward();
+            else if(flag == 1) move_left();
+            else if(flag == 2) move_right();
+            else if(flag == 3) move_back();
+            else move_stop();
         }
         else
             move_stop();
