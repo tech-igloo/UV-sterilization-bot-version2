@@ -11,6 +11,9 @@
 #define LEFT_MOTOR_DIRECTION 26 
 #define RIGHT_MOTOR_DIRECTION 14
 
+#define TXD_PIN (GPIO_NUM_17) // ULTRASONIC PINS
+#define RXD_PIN (GPIO_NUM_16)
+
 #define LEFT_ENCODERA 36                       //Only signal A of both the motor is being used for now
 #define LEFT_ENCODERB 39
 #define RIGHT_ENCODERA 34                      //as the direction is set buy us, but for point we might need to use both

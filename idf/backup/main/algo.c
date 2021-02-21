@@ -1,6 +1,6 @@
 #include "server.h"
 #include "algo.h"
-#include<math.h>
+#include <math.h>
 int  DEFAULT_LIN_SPEED =0.03;
 int DEFAULT_ANG_SPEED =0.2;  
 int Lpwm = 0; 
@@ -57,7 +57,8 @@ double Kd = 1/sampleTimeInSec;
 double Ki = 1*sampleTimeInSec;
 xQueueHandle gpio_evt_queue = NULL;
 
-char enpwmcmd[7]={0x44,0x00,0x55,0x01,0x99,0x02,0xaa}; // sensor commands
+char enpwmcmd[7]={0x44,0x00,0x55,0x01,0x99,0x02,0xaa,}; // sensor commands
+
 /*To initialize the motor direction, encoder, and sensor I/O pins*/ 
 void init_gpio()
 {
@@ -142,9 +143,9 @@ void sensor_initilize()
         uart_param_config(UART_NUM_2, &uart_config);
 
     // We won't use a buffer for sending data.
-    uart_set_pin(UART_NUM_2, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE,UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);// Set UART pins(TX: IO16 (UART2 default), RX: IO17 (UART2 default), RTS: pin no change, CTS: pin no change )
+   uart_set_pin(UART_NUM_2,TXD_PIN, RXD_PIN,UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);// Set UART pins(TX: IO16 (UART2 default), RX: IO17 (UART2 default), RTS: pin no change, CTS: pin no change )
     uart_driver_install(UART_NUM_2,  2*1024, 0, 0, NULL, 0);
-    for(int i=0;i<7;i++){
+    for(int i=0;i<8;i++){
         const char *data =&(enpwmcmd[i]);
         uart_write_bytes(UART_NUM_2,data,strlen(data));
     }

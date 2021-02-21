@@ -1,6 +1,7 @@
 #include "server.h"
 #include "algo.h"
-
+int DEFAULT_LIN_SPEED;
+int DEFAULT_ANG_SPEED ; 
 /*The following are structures linking each web address with their corresponding callback functions
   Each structure contains the web address, the corresponding callback function, the HTTP method (HTTP_GET or HTTP_POST) and any user context(NULL for all the structures)*/
 httpd_uri_t uri_reset = {
@@ -435,9 +436,6 @@ esp_err_t handle_start(httpd_req_t *req)
     manual_flag = 0;
     flag = -1;       //-1 denotes stop
 
-    gpio_intr_enable(LEFT_ENCODERA);    //Enabled when recording start
-    gpio_intr_enable(RIGHT_ENCODERA);
-
     ESP_LOGI(TAG, "Record Flag: %d", record_flag);
     char* resp = manual_mode();
     httpd_resp_send(req, resp, strlen(resp));
@@ -524,10 +522,16 @@ esp_err_t handle_manual(httpd_req_t *req)
 {   
     manual_flag = 1; //only when in manual mode, set to 0 again if start(recording) is pressed
     record_flag = 0; //recording has not yet started
-    ESP_LOGI(TAG, "Record Flag: %d", record_flag);
     
-    prev_mili = esp_timer_get_time();
+    DEFAULT_LIN_SPEED =0.03              ;
+  DEFAULT_ANG_SPEED =0.2;
+    
+    ESP_LOGI(TAG, "Record Flag: %d", record_flag);
+
     flag = -1;
+
+    gpio_intr_enable(LEFT_ENCODERA);    //Enabled when in active mode(ready to move)
+    gpio_intr_enable(RIGHT_ENCODERA);
     
     delete_paths(total_paths+1); //Ensure that the correct number of valid paths is stored in the file, this is done in case the path is not saved in the previous try
     char* resp = manual_mode();
@@ -687,6 +691,8 @@ esp_err_t handle_delete_path5(httpd_req_t *req)
 esp_err_t handle_auto(httpd_req_t *req)
 {
     flag = 4;
+    DEFAULT_LIN_SPEED=0.3;
+    DEFAULT_ANG_SPEED=0.2;
     //auto_flag = 1; //activates only when execute is pressed
     char* resp = get_auto();
     httpd_resp_send(req, resp, strlen(resp));
@@ -703,28 +709,24 @@ esp_err_t handle_forward(httpd_req_t *req)
 {
     char det = determine(flag);     //determine the direction it was going earlier
     
+    /* Previously implemented to test without encoders
     curr_mili = esp_timer_get_time();
     time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
     ESP_LOGI(TAG,"%c%f",det,time_duration);
     prev_mili = esp_timer_get_time();
-    
-    /*Code when interrupts are implemented*/
-    /* 
+    */
+    //Code when interrupts are implemented
     if(flag == 0 || flag == 3){                      //for forward and backward
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead as well
     }
     else if(flag == 1 || flag == 2){                  //to calculated angle
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead here as well, this gives us the arc length
         time_duration = (time_duration*2)/wheelbase;  //angle= arc/radius gives angle in radians
-        time_duration = time_duration%(2*M_2_PI)      //if more than 2pi then take the remainder
+        time_duration = fmod(time_duration, 2*M_PI);      //if more than 2pi then take the remainder
     }
     ESP_LOGI(TAG,"%c%f",det,time_duration);
-    leftRot = 0;     //Advantage of incremental encoders
-    leftTicks = 0;
-    rightRot = 0;
-    rightTicks = 0;
-    */
-    init_pid();
+    
+    init_pid();                    //reset the PID variables
     flag = 0;                       //denotes that is now going in forward direction
 
     char* resp = SendHTML(flag);	//the HTML code for displaying the webpage
@@ -733,7 +735,6 @@ esp_err_t handle_forward(httpd_req_t *req)
     ESP_LOGI(TAG, "Record Flag: %d", record_flag);
     if(record_flag == 1 && det != 's')        //if the path is recording
     {
-        //move_forward();
         FILE* f = fopen("/spiffs/paths.txt", "a");		//Open the File for writing the value
         if (f == NULL) {
             ESP_LOGE(TAG, "Failed to open file for writing");
@@ -756,26 +757,18 @@ esp_err_t handle_forward(httpd_req_t *req)
 esp_err_t handle_left(httpd_req_t *req)
 {
     char det = determine(flag);     //determine the direction it was going earlier
-    curr_mili = esp_timer_get_time();
-    time_duration = (curr_mili - prev_mili)/1000.0;     //the time for which it was going in the previous direction(in ms)
-    ESP_LOGI(TAG,"%c%f",det,time_duration);
-    prev_mili = esp_timer_get_time();
+
     /*Code when interrupts are implemented*/
-    /* 
     if(flag == 0 || flag == 3){                      //for forward and backward
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead as well
     }
     else if(flag == 1 || flag == 2){                  //to calculated angle
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead here as well, this gives us the arc length
         time_duration = (time_duration*2)/wheelbase;  //angle= arc/radius gives angle in radians
-        time_duration = time_duration%(2*M_2_PI)
+        time_duration = fmod(time_duration, 2*M_PI);
     }
     ESP_LOGI(TAG,"%c%f",det,time_duration);
-    leftRot = 0;     //Advantage of incremental encoders
-    leftTicks = 0;
-    rightRot = 0;
-    rightTicks = 0;
-    */
+
     init_pid();
     flag = 1;                       //denotes that is now going in left direction
 
@@ -785,7 +778,6 @@ esp_err_t handle_left(httpd_req_t *req)
     ESP_LOGI(TAG, "Record Flag: %d", record_flag);
     if(record_flag == 1 && det != 's')        //if the path is recording
     {
-        //move_left();
         FILE* f = fopen("/spiffs/paths.txt", "a");
         if (f == NULL) {
             ESP_LOGE(TAG, "Failed to open file for writing");
@@ -807,26 +799,19 @@ esp_err_t handle_left(httpd_req_t *req)
 esp_err_t handle_right(httpd_req_t *req)
 {
     char det = determine(flag);
-    curr_mili = esp_timer_get_time();
-    time_duration = (curr_mili - prev_mili)/1000.0;
-    ESP_LOGI(TAG,"%c%f",det,time_duration);
-    prev_mili = esp_timer_get_time();
+
     /*Code when interrupts are implemented*/
-    /* 
+    //Dis is stored in meters and angle in radians
     if(flag == 0 || flag == 3){                      //for forward and backward
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead as well
     }
     else if(flag == 1 || flag == 2){                  //to calculated angle
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead here as well, this gives us the arc length
         time_duration = (time_duration*2)/wheelbase;  //angle= arc/radius gives angle in radians
-        time_duration = time_duration%(2*M_2_PI)
+        time_duration = fmod(time_duration, 2*M_PI);
     }
     ESP_LOGI(TAG,"%c%f",det,time_duration);
-    leftRot = 0;     //Advantage of incremental encoders
-    leftTicks = 0;
-    rightRot = 0;
-    rightTicks = 0;
-    */    
+
     init_pid();
     flag = 2;               //Now going in right direction, everything else is same as previous
     
@@ -836,7 +821,6 @@ esp_err_t handle_right(httpd_req_t *req)
     ESP_LOGI(TAG, "Record Flag: %d", record_flag);
     if(record_flag == 1 && det != 's')
     {
-        //move_right();
         FILE* f = fopen("/spiffs/paths.txt", "a");
         if (f == NULL) {
             ESP_LOGE(TAG, "Failed to open file for writing");
@@ -858,26 +842,18 @@ esp_err_t handle_right(httpd_req_t *req)
 esp_err_t handle_back(httpd_req_t *req)
 {
     char det = determine(flag);
-    curr_mili = esp_timer_get_time();  //In micro seconds
-    time_duration = (curr_mili - prev_mili)/1000.0;      //Converting in milli
-    ESP_LOGI(TAG,"%c%f",det,time_duration);
-    prev_mili = esp_timer_get_time();
-    /*Code when interrupts are implemented*/
-    /* 
+
+    /*Code when interrupts are implemented*/ 
     if(flag == 0 || flag == 3){                      //for forward and backward
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead as well
     }
     else if(flag == 1 || flag == 2){                  //to calculated angle
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead here as well, this gives us the arc length
         time_duration = (time_duration*2)/wheelbase;  //angle= arc/radius gives angle in radians
-        time_duration = time_duration%(2*M_2_PI)
+        time_duration = fmod(time_duration, 2*M_PI);
     }
     ESP_LOGI(TAG,"%c%f",det,time_duration);
-    leftRot = 0;     //Advantage of incremental encoders
-    leftTicks = 0;
-    rightRot = 0;
-    rightTicks = 0;
-    */    
+
     init_pid();
     flag = 3;       //Now going in back direction, everything else same as forward and left and right
  
@@ -887,7 +863,6 @@ esp_err_t handle_back(httpd_req_t *req)
     ESP_LOGI(TAG, "Record Flag: %d", record_flag);
     if(record_flag == 1 && det != 's')
     {
-        //move_back();
         FILE* f = fopen("/spiffs/paths.txt", "a");
         if (f == NULL) {
             ESP_LOGE(TAG, "Failed to open file for writing");
@@ -909,28 +884,19 @@ esp_err_t handle_back(httpd_req_t *req)
 esp_err_t handle_stop(httpd_req_t *req)
 {
     char det = determine(flag);         //Note that total_paths is not updated here, it is only updated in "/save", because if the author chooses to discard this path then "/manual" will automatically delete this path
-    curr_mili = esp_timer_get_time();
-    time_duration = (curr_mili - prev_mili)/1000.0;
-    ESP_LOGI(TAG,"%c%f",det,time_duration);
-    prev_mili = esp_timer_get_time();
+
     /*Code when interrupts are implemented*/
-    /* 
     if(flag == 0 || flag == 3){                      //for forward and backward
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead as well
     }
     else if(flag == 1 || flag == 2){                  //to calculated angle
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead here as well, this gives us the arc length
         time_duration = (time_duration*2)/wheelbase;  //angle= arc/radius gives angle in radians
-        time_duration = time_duration%(2*M_2_PI)
+        time_duration = fmod(time_duration, 2*M_PI);
     }
     else
         time_duration = 0;                          //special case for stop
     ESP_LOGI(TAG,"%c%f",det,time_duration);
-    leftRot = 0;     //Advantage of incremental encoders
-    leftTicks = 0;
-    rightRot = 0;
-    rightTicks = 0;
-    */
     
     flag = -1;   //Stop the bot as well
     init_pid();
@@ -940,7 +906,6 @@ esp_err_t handle_stop(httpd_req_t *req)
 
     if(record_flag == 1)
     {
-        //move_stop();
         FILE* f = fopen("/spiffs/paths.txt", "a");
         if (f == NULL) {
             ESP_LOGE(TAG, "Failed to open file for writing");
@@ -967,27 +932,18 @@ esp_err_t handle_stop(httpd_req_t *req)
 esp_err_t handle_pause(httpd_req_t *req)
 {
     char det = determine(flag); //Get which direction it was travelling earlier
-    curr_mili = esp_timer_get_time();
-    time_duration = (curr_mili - prev_mili)/1000.0;
-    ESP_LOGI(TAG,"%c%f",det,time_duration);
-    prev_mili = esp_timer_get_time();
+
     /*Code when interrupts are implemented*/
-    /* 
     if(flag == 0 || flag == 3){                      //for forward and backward
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead as well
     }
     else if(flag == 1 || flag == 2){                  //to calculated angle
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead here as well, this gives us the arc length
         time_duration = (time_duration*2)/wheelbase;  //angle= arc/radius gives angle in radians
-        time_duration = time_duration%(2*M_2_PI)
+        time_duration = fmod(time_duration, 2*M_PI);
     }
     ESP_LOGI(TAG,"%c%f",det,time_duration);
-    leftRot = 0;     //Advantage of incremental encoders
-    leftTicks = 0;
-    rightRot = 0;
-    rightTicks = 0;
-    */
-    
+   
     flag = -1;
     init_pid();
 
@@ -995,7 +951,7 @@ esp_err_t handle_pause(httpd_req_t *req)
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
     ESP_LOGI(TAG, "Record Flag: %d", record_flag);
-    if(record_flag == 1 && det != 's') //If recording is ongoing, then store the direction in which it was travelling and the time duration for whcih it had travelled in that direction
+    if(record_flag == 1 && det != 's') //If recording is ongoing, then store the direction in which it was travelling and the time duration for which it had travelled in that direction
     {
         FILE* f = fopen("/spiffs/paths.txt", "a");
         if (f == NULL) {
