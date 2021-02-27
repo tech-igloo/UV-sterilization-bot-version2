@@ -15,7 +15,7 @@ static char EXAMPLE_ESP_WIFI_SSID[SSID_LEN];    //Store the network ssid that th
 static char EXAMPLE_ESP_WIFI_PASS[PASS_LEN];    //Store the network password that the esp is using currently in STA mode
 int total = 0;                           //Total number of network credentials for STA mode stored till now
 int total_paths = 0;                     //Total number of paths stored till now
-int auto_flag = 0;                       //Denote whether auto mode is on or off
+int auto_flag =0;                       //Denote whether auto mode is on or off
 int manual_flag = 0;                     //To check if it is in manual motion mode
 static TaskHandle_t Task1;                      //Task handle to keep track of created task running on Core 1
 
@@ -574,9 +574,36 @@ void wifi_init_sta(void)
     ESP_ERROR_CHECK(esp_event_handler_instance_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, instance_any_id));
     vEventGroupDelete(s_wifi_event_group);
 }
-void encoder(int num){
-    
-     if (num == LEFT_ENCODERA){
+
+/*Function that will run parallely on Core 1*/
+void Task1code( void * pvParameters ){
+    uint32_t io_num;
+
+    init_gpio();    //Initialize encoder and sensor pins
+	init_pwm();     //Initialize PWM channel
+   
+    while(1){  
+        if(auto_flag == 1){
+            
+            actuationAuto();
+            sensing();
+            if(flag == 0) move_forward();
+            else if(flag == 1) move_left();
+            else if(flag == 2) move_right();
+            else if(flag == 3) move_back();
+            else move_stop();
+        }  
+    	//ESP_LOGI(TAG, "Infinite Loop running On core %d", xPortGetCoreID());
+        if(record_flag == 1 || manual_flag == 1){					//manual_flag, record_flag, flag, auto_flag are updated in other portions of the code 
+            if(flag == 0) move_forward();
+            else if(flag == 1) move_left();
+            else if(flag == 2) move_right();
+            else if(flag == 3) move_back();
+            else move_stop();
+            
+            if(xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
+                printf("GPIO[%d] intr, val: %d\n", io_num, gpio_get_level(io_num)); 
+                if (io_num == LEFT_ENCODERA){
                     leftTicks++;
                     if (leftTicks >= ENCODERresolution){
                         leftRot++;                         
@@ -594,7 +621,7 @@ void encoder(int num){
                     //     leftTicks=0;
                     // }
                 }
-                else if (num == RIGHT_ENCODERA){
+                else if (io_num == RIGHT_ENCODERA){
                     rightTicks++;
                     if (rightTicks >= ENCODERresolution){
                         rightRot++;
@@ -612,43 +639,7 @@ void encoder(int num){
                     //     rightTicks=0;
                     // }
                 }
-}
-/*Function that will run parallely on Core 1*/
-void Task1code( void * pvParameters ){
-    uint32_t io_num;
-    sensor_initilize();
-    init_gpio();    //Initialize encoder and sensor pins
-	init_pwm();     //Initialize PWM channel
-   
-    while(1){   
-    	//ESP_LOGI(TAG, "Infinite Loop running On core %d", xPortGetCoreID());
-        if(record_flag == 1 || manual_flag == 1){					//manual_flag, record_flag, flag, auto_flag are updated in other portions of the code 
-            if(flag == 0) move_forward();
-            else if(flag == 1) move_left();
-            else if(flag == 2) move_right();
-            else if(flag == 3) move_back();
-            else move_stop();
-            
-            if(xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
-                //printf("GPIO[%d] intr, val: %d\n", io_num, gpio_get_level(io_num)); 
-                if(io_num== LEFT_ENCODERA)encoder(LEFT_ENCODERA);
-                else if(io_num==RIGHT_ENCODERA)encoder(RIGHT_ENCODERA);
             }      
-        }
-        else if (auto_flag==1){
-                        
-            if(xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
-                //printf("GPIO[%d] intr, val: %d\n", io_num, gpio_get_level(io_num)); 
-                if(io_num== LEFT_ENCODERA)encoder(LEFT_ENCODERA);
-                else if(io_num==RIGHT_ENCODERA)encoder(RIGHT_ENCODERA);
-            } 
-            sensing();
-            actuation();
-            if(flag == 0) move_forward();
-            else if(flag == 1) move_left();
-            else if(flag == 2) move_right();
-            else if(flag == 3) move_back();
-            else move_stop();
         }
         else
             move_stop();
@@ -672,6 +663,7 @@ void app_main(void)
     else
         wifi_init_sta();		//Start STA mode
     server = start_webserver(); //Start the web server
+    sensor_initilize();
     xTaskCreatePinnedToCore(    //Pinning a task in core 1
                     Task1code,   /* Task function. */
                     "Task1",     /* name of task. */

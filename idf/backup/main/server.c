@@ -1,7 +1,6 @@
 #include "server.h"
 #include "algo.h"
-int DEFAULT_LIN_SPEED;
-int DEFAULT_ANG_SPEED ; 
+
 /*The following are structures linking each web address with their corresponding callback functions
   Each structure contains the web address, the corresponding callback function, the HTTP method (HTTP_GET or HTTP_POST) and any user context(NULL for all the structures)*/
 httpd_uri_t uri_reset = {
@@ -523,8 +522,8 @@ esp_err_t handle_manual(httpd_req_t *req)
     manual_flag = 1; //only when in manual mode, set to 0 again if start(recording) is pressed
     record_flag = 0; //recording has not yet started
     
-    DEFAULT_LIN_SPEED =0.03              ;
-  DEFAULT_ANG_SPEED =0.2;
+    lin_speed = DEFAULT_LIN_SPEED;
+    ang_speed = DEFAULT_ANG_SPEED;
     
     ESP_LOGI(TAG, "Record Flag: %d", record_flag);
 
@@ -556,6 +555,7 @@ esp_err_t handle_specific_path1(httpd_req_t *req)
     ESP_LOGI(TAG, "Now displaying /path_details1");
     ESP_LOGI(TAG, "Callback Function called: handle_specific_path1()");
     ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_path_specific(1)");
+    //auto_flag=1;
     return ESP_OK;
 }
 
@@ -569,6 +569,7 @@ esp_err_t handle_specific_path2(httpd_req_t *req)
     ESP_LOGI(TAG, "Now displaying /path_details2");
     ESP_LOGI(TAG, "Callback Function called: handle_specific_path2()");
     ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_path_specific(2)");
+    //auto_flag=1;
     return ESP_OK;
 }
 
@@ -582,6 +583,7 @@ esp_err_t handle_specific_path3(httpd_req_t *req)
     ESP_LOGI(TAG, "Now displaying /path_details3");
     ESP_LOGI(TAG, "Callback Function called: handle_specific_path3()");
     ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_path_specific(3)");
+    //auto_flag=1;
     return ESP_OK;
 }
 
@@ -595,6 +597,7 @@ esp_err_t handle_specific_path4(httpd_req_t *req)
     ESP_LOGI(TAG, "Now displaying /path_details4");
     ESP_LOGI(TAG, "Callback Function called: handle_specific_path4()");
     ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_path_specific(4)");
+    //auto_flag=1;
     return ESP_OK;
 }
 
@@ -608,6 +611,7 @@ esp_err_t handle_specific_path5(httpd_req_t *req)
     ESP_LOGI(TAG, "Now displaying /path_details5");
     ESP_LOGI(TAG, "Callback Function called: handle_specific_path5()");
     ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_path_specific(5)");
+    //auto_flag=1;
     return ESP_OK;
 }
 
@@ -691,8 +695,8 @@ esp_err_t handle_delete_path5(httpd_req_t *req)
 esp_err_t handle_auto(httpd_req_t *req)
 {
     flag = 4;
-    DEFAULT_LIN_SPEED=0.3;
-    DEFAULT_ANG_SPEED=0.2;
+    lin_speed = DEFAULT_LIN_SPEED;
+    ang_speed = DEFAULT_ANG_SPEED;
     //auto_flag = 1; //activates only when execute is pressed
     char* resp = get_auto();
     httpd_resp_send(req, resp, strlen(resp));
@@ -709,21 +713,22 @@ esp_err_t handle_forward(httpd_req_t *req)
 {
     char det = determine(flag);     //determine the direction it was going earlier
     
-    /* Previously implemented to test without encoders
-    curr_mili = esp_timer_get_time();
-    time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
-    ESP_LOGI(TAG,"%c%f",det,time_duration);
-    prev_mili = esp_timer_get_time();
-    */
-    //Code when interrupts are implemented
-    if(flag == 0 || flag == 3){                      //for forward and backward
+     //Previously implemented to test without encoders
+     curr_mili = esp_timer_get_time();
+     time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
+     ESP_LOGI(TAG,"%c%f",det,time_duration);
+     prev_mili = esp_timer_get_time();
+    
+
+    //Code when interrupts are implemented 
+    /*if(flag == 0 || flag == 3){                      //for forward and backward
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead as well
     }
     else if(flag == 1 || flag == 2){                  //to calculated angle
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead here as well, this gives us the arc length
         time_duration = (time_duration*2)/wheelbase;  //angle= arc/radius gives angle in radians
         time_duration = fmod(time_duration, 2*M_PI);      //if more than 2pi then take the remainder
-    }
+    }*/
     ESP_LOGI(TAG,"%c%f",det,time_duration);
     
     init_pid();                    //reset the PID variables
@@ -757,16 +762,19 @@ esp_err_t handle_forward(httpd_req_t *req)
 esp_err_t handle_left(httpd_req_t *req)
 {
     char det = determine(flag);     //determine the direction it was going earlier
-
-    /*Code when interrupts are implemented*/
-    if(flag == 0 || flag == 3){                      //for forward and backward
+     curr_mili = esp_timer_get_time();
+     time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
+     ESP_LOGI(TAG,"%c%f",det,time_duration);
+     prev_mili = esp_timer_get_time();
+    //Code when interrupts are implemented
+    /*if(flag == 0 || flag == 3){                      //for forward and backward
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead as well
     }
     else if(flag == 1 || flag == 2){                  //to calculated angle
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead here as well, this gives us the arc length
         time_duration = (time_duration*2)/wheelbase;  //angle= arc/radius gives angle in radians
         time_duration = fmod(time_duration, 2*M_PI);
-    }
+    }*/
     ESP_LOGI(TAG,"%c%f",det,time_duration);
 
     init_pid();
@@ -799,17 +807,20 @@ esp_err_t handle_left(httpd_req_t *req)
 esp_err_t handle_right(httpd_req_t *req)
 {
     char det = determine(flag);
-
+     curr_mili = esp_timer_get_time();
+     time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
+     ESP_LOGI(TAG,"%c%f",det,time_duration);
+     prev_mili = esp_timer_get_time();
     /*Code when interrupts are implemented*/
     //Dis is stored in meters and angle in radians
-    if(flag == 0 || flag == 3){                      //for forward and backward
+    /*if(flag == 0 || flag == 3){                      //for forward and backward
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead as well
     }
     else if(flag == 1 || flag == 2){                  //to calculated angle
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead here as well, this gives us the arc length
         time_duration = (time_duration*2)/wheelbase;  //angle= arc/radius gives angle in radians
         time_duration = fmod(time_duration, 2*M_PI);
-    }
+    }*/
     ESP_LOGI(TAG,"%c%f",det,time_duration);
 
     init_pid();
@@ -842,16 +853,19 @@ esp_err_t handle_right(httpd_req_t *req)
 esp_err_t handle_back(httpd_req_t *req)
 {
     char det = determine(flag);
-
+     curr_mili = esp_timer_get_time();
+     time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
+     ESP_LOGI(TAG,"%c%f",det,time_duration);
+     prev_mili = esp_timer_get_time();
     /*Code when interrupts are implemented*/ 
-    if(flag == 0 || flag == 3){                      //for forward and backward
+    /*if(flag == 0 || flag == 3){                      //for forward and backward
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead as well
     }
     else if(flag == 1 || flag == 2){                  //to calculated angle
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead here as well, this gives us the arc length
         time_duration = (time_duration*2)/wheelbase;  //angle= arc/radius gives angle in radians
         time_duration = fmod(time_duration, 2*M_PI);
-    }
+    }*/
     ESP_LOGI(TAG,"%c%f",det,time_duration);
 
     init_pid();
@@ -884,8 +898,11 @@ esp_err_t handle_back(httpd_req_t *req)
 esp_err_t handle_stop(httpd_req_t *req)
 {
     char det = determine(flag);         //Note that total_paths is not updated here, it is only updated in "/save", because if the author chooses to discard this path then "/manual" will automatically delete this path
-
-    /*Code when interrupts are implemented*/
+     curr_mili = esp_timer_get_time();
+     time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
+     ESP_LOGI(TAG,"%c%f",det,time_duration);
+     prev_mili = esp_timer_get_time();
+    /*Code when interrupts are implemented
     if(flag == 0 || flag == 3){                      //for forward and backward
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead as well
     }
@@ -895,7 +912,7 @@ esp_err_t handle_stop(httpd_req_t *req)
         time_duration = fmod(time_duration, 2*M_PI);
     }
     else
-        time_duration = 0;                          //special case for stop
+        time_duration = 0;    */                      //special case for stop
     ESP_LOGI(TAG,"%c%f",det,time_duration);
     
     flag = -1;   //Stop the bot as well
@@ -932,16 +949,19 @@ esp_err_t handle_stop(httpd_req_t *req)
 esp_err_t handle_pause(httpd_req_t *req)
 {
     char det = determine(flag); //Get which direction it was travelling earlier
-
+     curr_mili = esp_timer_get_time();
+     time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
+     ESP_LOGI(TAG,"%c%f",det,time_duration);
+     prev_mili = esp_timer_get_time();
     /*Code when interrupts are implemented*/
-    if(flag == 0 || flag == 3){                      //for forward and backward
+    /*if(flag == 0 || flag == 3){                      //for forward and backward
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead as well
     }
     else if(flag == 1 || flag == 2){                  //to calculated angle
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead here as well, this gives us the arc length
         time_duration = (time_duration*2)/wheelbase;  //angle= arc/radius gives angle in radians
         time_duration = fmod(time_duration, 2*M_PI);
-    }
+    }*/
     ESP_LOGI(TAG,"%c%f",det,time_duration);
    
     flag = -1;
@@ -1084,7 +1104,7 @@ esp_err_t handle_modify1(httpd_req_t *req)
 
 /*Callback function whenever "/sta_delete_1 is accessed"*/
 esp_err_t handle_delete1(httpd_req_t *req)
-{
+{ auto_flag=0;
     char* resp = get_home(2);	//Get the HTML Code, this 2 is not related to the Network number	
     httpd_resp_send(req, resp, strlen(resp));	//Display the webpage
     free(resp);
@@ -1153,7 +1173,7 @@ esp_err_t handle_modify2(httpd_req_t *req)
 
 /*Callback function whenever "/sta_delete_2 is accessed"*/
 esp_err_t handle_delete2(httpd_req_t *req)
-{
+{ auto_flag=0;
     char* resp = get_home(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -1218,7 +1238,7 @@ esp_err_t handle_modify3(httpd_req_t *req)
 
 /*Callback function whenever "/sta_delete_3 is accessed"*/
 esp_err_t handle_delete3(httpd_req_t *req)
-{
+{ auto_flag=0;
     char* resp = get_home(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -1283,7 +1303,7 @@ esp_err_t handle_modify4(httpd_req_t *req)
 
 /*Callback function whenever "/sta_delete_4 is accessed"*/
 esp_err_t handle_delete4(httpd_req_t *req)
-{
+{ auto_flag=0;
     char* resp = get_home(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -1348,7 +1368,7 @@ esp_err_t handle_modify5(httpd_req_t *req)
 
 /*Callback function whenever "/sta_delete_5 is accessed"*/
 esp_err_t handle_delete5(httpd_req_t *req)
-{
+{ auto_flag=0;
     char* resp = get_home(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);

@@ -26,9 +26,6 @@
 #include "esp_err.h"
 #include "mdns.h"
 #include <math.h>
-#include "driver/uart.h"
-#include "driver/gpio.h"
-#include "string.h" 
 
 /*The various parameters that are used throughout the code*/
 #define EXAMPLE_ESP_MAXIMUM_RETRY 5             //Maximum number of times the esp will try to connect to a network in STA mode
