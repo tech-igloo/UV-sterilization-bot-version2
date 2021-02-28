@@ -1961,32 +1961,6 @@ char* manual_mode()
 
     strcat(ptr, "</body>\n");
     strcat(ptr, "</html>\n");
-/*    strcat(ptr, "<html><head></head><style>");
-    strcat(ptr, "body {background-color: lightyellow}");
-    strcat(ptr, "h1 {color:blue}");
-    strcat(ptr, "p {color: blue}");
-    strcat(ptr, "button {color: blue;background:lightblue;border: 1px solid #000;border-radius: 8px;position: center;}");
-    strcat(ptr, "</style><body>");
-    strcat(ptr, "<div style=\"text-align:center\">");
-    strcat(ptr, "<h1>Direction Controller</h1><br><br>");
-    strcat(ptr, "<button style=\"height: 50px; width: 100px; font-size: 18px\">Start</button>");
-    strcat(ptr, "<img hspace=\"20\" style=\"padding-left: 200px\">");
-    strcat(ptr, "<button style=\"height: 50px; width: 100px; font-size: 18px\">Stop</button><br><br>");
-    strcat(ptr, "<span style=\"display:inline-block;padding:5px;border:1px solid #ff0000; font-size: 140%;font-weight:bold;\">");
-    strcat(ptr, "<br><button style=\"height: 70px; width: 80px; font-size: 18px\">Forward</button><br><br><br><br>");
-    strcat(ptr, "<img hspace=\"10\" style=\"padding-left: 5px\">");
-    strcat(ptr, "<button style=\"height: 70px; width: 80px; font-size: 18px\">Left</button>");
-    strcat(ptr, "<img hspace=\"20\" style=\"padding-left: 10px\">");
-    strcat(ptr, "<button style=\"height: 70px; width: 80px; font-size: 18px\">Stop</button>");
-    strcat(ptr, "<img hspace=\"20\" style=\"padding-left: 10px\">");
-    strcat(ptr, "<button style=\"height: 70px; width: 80px; font-size: 18px\">Right</button>");
-    strcat(ptr, "<img hspace=\"10\" style=\"padding-left: 5px\"><br><br><br><br>");
-    strcat(ptr, "<button style=\"height: 70px; width: 80px; font-size: 18px\">Back</button><br><br><br>");
-    strcat(ptr, "<p>Additional Options</p>");
-    strcat(ptr, "<img hspace=\"10\" style=\"padding-left: 5px\">");
-    strcat(ptr, "<button style=\"height: 50px; width: 100px; font-size: 18px\">HOME</button>");
-    strcat(ptr, "<img hspace=\"10\" style=\"padding-left: 5px\">");
-    strcat(ptr, "<br><br></span></div></body></html>");*/
     return ptr;
 }
 

@@ -8,7 +8,6 @@ int leftRot = 0;
 int leftTicks = 0;
 int rightRot = 0;
 int rightTicks = 0;
-char* pointer;
 double left_vel = 0;
 double right_vel = 0;
 double prev_disL = 0;
@@ -17,6 +16,8 @@ double prev_disR = 0;
 double lin_speed = DEFAULT_LIN_SPEED;
 double ang_speed = DEFAULT_ANG_SPEED;
 int64_t prev_tim = 0;
+
+int point_index=0;
 
 double current_errorL = 0;
 double accumulated_errorL = 0;
@@ -138,7 +139,7 @@ void init_pwm()
 
 /*The following are the actuation functions for movement of the bot with velocity feedback control*/
 void move_forward()
-{   
+{   //ESP_LOGI(TAG,"FORWARD :CURRENT(x,y):%f %f path point(x,y): %f %f ",current_point[0],current_point[1],stop_point[0],stop_point[1]);
     if((esp_timer_get_time() - prev_tim) >= sampleTime) //Running the PID at a specific frequency
     {
         left_vel = ((leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick - prev_disL)/0.1;  // 9Current_dis-prev_dis)/time VELCOTIY IN m/sec
@@ -160,8 +161,8 @@ void move_forward()
 }                                                                       
 
 void move_left()
-{   
-    if((esp_timer_get_time() - prev_tim) >= sampleTime){
+{    //ESP_LOGI(TAG,"FORWARD :CURRENT(x,y):%f %f path point(x,y): %f %f ",current_point[0],current_point[1],stop_point[0],stop_point[1]);   
+ if((esp_timer_get_time() - prev_tim) >= sampleTime){
         left_vel = ((leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick - prev_disL)/0.1;  // VELCOTIY IN rad/sec
         prev_disL = left_vel*0.1 + prev_disL;
         left_vel = left_vel*2/wheelbase;    //angular velocity
@@ -184,8 +185,8 @@ void move_left()
 }
 
 void move_right()
-{
-    if((esp_timer_get_time() - prev_tim) >= sampleTime){
+{ //ESP_LOGI(TAG,"FORWARD :CURRENT(x,y):%f %f path point(x,y): %f  %f ",current_point[0],current_point[1],stop_point[0],stop_point[1]);    
+if((esp_timer_get_time() - prev_tim) >= sampleTime){
         left_vel = ((leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick - prev_disL)/0.1;  // VELCOTIY IN rad/sec
         prev_disL = left_vel*0.1 + prev_disL;
         left_vel = left_vel*2/wheelbase;    //angular velocity
@@ -208,7 +209,7 @@ void move_right()
 }
 
 void move_back()
-{   
+{   //ESP_LOGI(TAG,"FORWARD :CURRENT(x,y):%f %f path point(x,y): %f %f ",current_point[0],current_point[1],stop_point[0],stop_point[1]);   
     if((esp_timer_get_time() - prev_tim) >= sampleTime){
         left_vel = ((leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick - prev_disL)/0.1;  // VELCOTIY IN m/sec
         right_vel = ((rightRot*ENCODERresolution + rightTicks)*wheeldist_perTick - prev_disR)/0.1;
@@ -238,6 +239,7 @@ void move_stop()
 
 /*To reset the PID error variable*/ 
 void init_pid(){
+    
     current_errorL = 0;
     accumulated_errorL = 0;
     prev_errorL = 0;
@@ -253,6 +255,7 @@ void init_pid(){
     leftTicks = 0;
     rightRot = 0;
     rightTicks = 0;
+   
 }
 
 /*Simple PID funtions, can be upgraded while testing according to the performance. Like integral windup etc.*/
@@ -420,13 +423,14 @@ esp_err_t convert_paths(int n){
 }
 void point_update()
 { //auto_flag=1;
+    int i=0;
     char str[LINE_LEN];
     //char space="";
     char temp[500] = ""; // Change this temp to calloc
     FILE* f_a = fopen("/spiffs/currentpath.txt", "r");
-    if (f_a == NULL) {
+    if (f_a == NULL) 
+    {
         ESP_LOGE(TAG, "Failed to open file for reading");
-        //return ESP_FAIL;
     }
     while(!feof(f_a))
     {     
@@ -440,30 +444,33 @@ void point_update()
         }
         //printf("%s",temp);
     }
-
+    char* pointer = strtok(temp, " ");
+    while(pointer!=NULL){
     //ESP_LOGE(TAG, "path from pathpoint: %s",temp);
-    pointer = strtok(temp, " ");
-    if(pointer!=NULL)					//iterate through each of the elements
+
+    if(point_index == i )					//iterate through each of the elements
     {
         double xCoor = atof(pointer);       //Convert the value from string to float
         pointer = strtok(NULL, " ");             //Get the next element
         double yCoor = atof(pointer);      
-        ESP_LOGI(TAG, "Current (X,Y):(%f, %f)",xCoor, yCoor);
+        ESP_LOGI(TAG, "Current (X,Y):(%f, %f) length:%d",xCoor, yCoor, strlen(temp));
         //All the code to reach the destination with obstacle avoidance
         updateParams(xCoor, yCoor);
-        pointer = strtok(NULL, " ");            
-    }
-    else if(pointer==NULL){
-        auto_flag=0;
-        gpio_intr_disable(LEFT_ENCODERA);  //Disabled interrupt once done  
-    gpio_intr_disable(RIGHT_ENCODERA);
-        
+        break;
+        //pointer = strtok(NULL, " "); 
+
     }
 
+    else
+       {pointer = strtok(NULL, " ");
+        i=i+2;}
+    }
+  point_index=point_index+2;
 
 }
 /*Execute the local_flag th path*/ //auto mode, need to enable the interrupts and use the algorithm
 esp_err_t get_path(int local_flag){
+    
     char str[LINE_LEN], temp[500] = ""; // Change this temp to calloc
     int linectr = 0, count_flag = 1;
     
@@ -518,6 +525,8 @@ esp_err_t get_path(int local_flag){
 }
 
 void updateParams(double xd, double yd){
+    
+    ESP_LOGI(TAG,"I AM UPDATING THE POINT ");
     dist_required = sqrt(pow(yd - prev_point[1],2)+pow(xd - prev_point[0],2));  //Distance in meters
     /*The angle calculated here is absolute from positive x-axis, range is from +180 to -180. Clockwise -ve and anti +ve*/
     if (xd-prev_point[0] >= 0){
@@ -534,36 +543,36 @@ void updateParams(double xd, double yd){
     prev_point[1] = yd;
 
     dist_traversed = 0;
-    //run = 0;
 }
 
 void actuationAuto()
-{  dist_traversed=dist_traversed+lin_speed*timediff;
-   angle_rotated = angle_rotated + ang_speed*timediff;
+{  //dist_traversed=dist_traversed+lin_speed*timediff;
+   //angle_rotated = angle_rotated + ang_speed*timediff;
  
     //ESP_LOGI(TAG,"automode %d",auto_flag);
-    /*if (flag == 0)
-        dist_traversed = (leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick; //In meters //To know if the target has been reached
-    else if (flag == 1 || flag == 2){  //angle_rotated is a static variable and is not being reset to zero in between
+    if (flag == 0)    dist_traversed=dist_traversed+lin_speed*timediff;
+
+    //{   //dist_traversed = (leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick; //In meters //To know if the target has been reached
+       // }
+    if (flag == 1 || flag == 2) //angle_rotated is a static variable and is not being reset to zero in between
+    {  
         if (flag == 1) //anti clockwise for positive angle
-            angle_rotated = angle_rotated + ((leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick*2)/wheelbase; //Angle of the bot in radians
+           {angle_rotated = angle_rotated + ang_speed*timediff;}
+            //angle_rotated = angle_rotated + ((leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick*2)/wheelbase; //Angle of the bot in radians
         else           //Clockwise negative angle
-            angle_rotated = angle_rotated - ((leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick*2)/wheelbase; //Angle of the bot in radians
-    }*/
+            {angle_rotated = angle_rotated + ang_speed*timediff;}
+            //angle_rotated = angle_rotated - ((leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick*2)/wheelbase; //Angle of the bot in radians
+    }
     current_point[0] = stop_point[0] + dist_traversed*cos(angle_rotated); //calculates co-ordinates of the current point using the 
     current_point[1] = stop_point[1] + dist_traversed*sin(angle_rotated); //point where the orientation of the bot was last changed
-    ESP_LOGI(TAG,"current x: %f current y: %f",current_point[0],current_point[1]);
-    if(detect_flag==0 && prev_time>=time_flag+1)
-    	{normal_motion();
-        //ESP_LOGI(TAG,"I AM GOING TO NORMAL MOTION");
-        }
-    if((prev_time>=time_flag+0.5) && (prev_time<time_flag+1))  //this for moving forward slowly after sensing for 
-        { printf("1");
-            forwardSlow(1);}
 
-    else if(detect_flag==1 && prev_time>=time_flag+1)
-    {
-        printf("2");
+    if((prev_time>=time_flag+0.5) && (prev_time<time_flag+1))  //this for moving forward slowly after sensing for 
+        forwardSlow(1);
+    if(detect_flag==0 && prev_time>=time_flag+1)
+    	{normal_motion();   
+         ESP_LOGI(TAG,"rotation: %d distre: %f flag: %d current (x,y): (%f,%f) stop point(x,y): %f  %f  angle rotated: %f",rotating_flag,dist_required,flag,current_point[0],current_point[1],prev_point[0],prev_point[1],dist_traversed);
+        }
+    else if(detect_flag==1 && prev_time>=time_flag+1){
         if(obstacle_flag[1]==1 && obstacle_flag[3]==0){
 	    	time_flag = prev_time;
 	    	rotateSlow(-1);
@@ -602,6 +611,33 @@ void actuationAuto()
 void normal_motion(){
     lin_speed = DEFAULT_LIN_SPEED;
     ang_speed = DEFAULT_ANG_SPEED;
+    if(rotating_flag==1){
+        //double val = get_PID_angle(angle_rotated, angle_required);
+        if(doneFlag==1){
+            init_pid();
+            flag=-1;
+            rotating_flag = 0;
+        }else{
+            rotate();
+        }
+    }else{
+        //double val = get_PID_dist(dist_traversed, dist_required);
+        if(doneFlag==1){
+            init_pid();
+            flag=-1;
+            point_update();
+            update_stopPoint();
+            rotating_flag = 1;
+        }else{
+            forward();
+        }
+    }
+}
+
+/*
+void normal_motion(){
+    lin_speed = DEFAULT_LIN_SPEED;
+    ang_speed = DEFAULT_ANG_SPEED;
 
     if(rotating_flag == 1){
         if(doneFlag == 1){
@@ -614,6 +650,7 @@ void normal_motion(){
     }
     else{
         if(doneFlag == 1){
+            ESP_LOGI(TAG,"DONE WITH GOAL POINT");
             init_pid();
             flag = -1;
             point_update();
@@ -623,20 +660,22 @@ void normal_motion(){
         else
             forward();
     }
-}
+}*/
 
-void rotate(){
-    if((angle_required - angle_rotated*180/M_PI) > 0)
+void rotate()
+{
+    if((angle_required - angle_rotated*180/M_PI) > 0.5)
         flag = 1;    //If diff is positive, then left(+ve for anticlockwise)
-    else
+    else if((angle_required - angle_rotated*180/M_PI) < -0.5)
         flag = 2; 
-    if((angle_required - angle_rotated*180/M_PI) < 0.5)  //set some threshold after which it can move 
+    if((angle_required - angle_rotated*180/M_PI) > -0.5 && (angle_required - angle_rotated*180/M_PI) < 0.5)  //set some threshold after which it can move 
         doneFlag = 1;
+
 }
 
 void forward(){
     flag = 0; 
-    if((dist_required - dist_traversed)< 0.1)  //set some threshold after which it can move 
+    if((dist_required - dist_traversed)> -0.1 && (dist_required - dist_traversed)<0.1)  //set some threshold after which it can move 
         doneFlag = 1;
 }
 
@@ -646,7 +685,8 @@ void update_stopPoint(){
 }
 
 void recalculate(){
-    dist_required = sqrt(pow(prev_point[1]-current_point[1], 2) + pow(prev_point[0]-current_point[0], 2));    
+    dist_required = sqrt(pow(prev_point[1]-current_point[1], 2) + pow(prev_point[0]-current_point[0], 2)); 
+
     if(prev_point[0]-current_point[0] >= 0){
         angle_required = atan((prev_point[1]-current_point[1])/(prev_point[0]-current_point[0]))*180/M_PI;
     }
@@ -677,7 +717,7 @@ void sensing(){
    	obstacle_flag[4] = !gpio_get_level(ULTRA5);
     */
     detect_flag = obstacle_flag[1] | obstacle_flag[2] | obstacle_flag[3];
-    ESP_LOGI(TAG," DETECTION FLAG: %d",detect_flag);
+    //ESP_LOGI(TAG," DETECTION FLAG: %d",detect_flag);
 }
 
 void forwardSlow(int num){

@@ -583,6 +583,7 @@ void Task1code( void * pvParameters ){
 	init_pwm();     //Initialize PWM channel
    
     while(1){  
+        //ESP_LOGI(TAG,"Auto mode flag: %d",auto_flag);
         if(auto_flag == 1){
             
             actuationAuto();
