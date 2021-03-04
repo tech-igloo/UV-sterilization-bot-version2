@@ -2057,7 +2057,7 @@ char* get_stop()
     strcat(ptr, "</html>\n");
     return ptr;
 }
-
+// strcat(ptr, "<p>Click to Stop</p><a class=\"button button-on\" href=\"/stop\">STOP</a>\n");//Button for stopping the path recording
 /*Starts the webserver that is hosted on the ESP-32*/
 httpd_handle_t start_webserver(void)
 {

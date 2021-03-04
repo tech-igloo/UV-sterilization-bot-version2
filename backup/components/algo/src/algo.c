@@ -41,8 +41,7 @@ static double current_point[2] = {0};            //current co-ordinates of the b
 static double dist_traversed = 0;                //distance travlled by bot along straight line(+ve for forward and -ve for negative)
 static double angle_rotated = 0;                 //angle rotated by bot(+ve for clockwise and -ve for anticlockwise)
 static int doneFlag = 0;
-
-static int timediff=0;
+double timediff;
 static double current_time=0; // needed wehn for time based approach
 static double prev_time = 0;                     //stores the previous time step, gets updated to current time after sysCall_sensing
 static double time_flag = 0;
@@ -445,9 +444,12 @@ void point_update()
         //printf("%s",temp);
     }
     char* pointer = strtok(temp, " ");
+    //printf(strlen(temp));
     while(pointer!=NULL){
-    //ESP_LOGE(TAG, "path from pathpoint: %s",temp);
-
+    if(point_index >= strlen(temp)/2-1){
+        auto_flag=0;
+        break;
+    }
     if(point_index == i )					//iterate through each of the elements
     {
         double xCoor = atof(pointer);       //Convert the value from string to float
@@ -514,7 +516,7 @@ esp_err_t get_path(int local_flag){
         return ESP_FAIL;
     }
     fprintf(f_w, "%s",temp);
-    ESP_LOGI(TAG, "path selected: %s", temp);
+    ESP_LOGI(TAG, "path selected: %s length: %d", temp, strlen(temp));
     fclose(f_w);
     auto_flag = 1;    
     flag = -1; 
@@ -525,7 +527,8 @@ esp_err_t get_path(int local_flag){
     return ESP_OK;
 }
 
-void updateParams(double xd, double yd){
+void updateParams(double xd, double yd)
+{
     
     ESP_LOGI(TAG,"I AM UPDATING THE POINT ");
     dist_required = sqrt(pow(yd - prev_point[1],2)+pow(xd - prev_point[0],2));  //Distance in meters
@@ -547,31 +550,40 @@ void updateParams(double xd, double yd){
 }
 
 void actuationAuto()
-{  //dist_traversed=dist_traversed+lin_speed*timediff;
-   //angle_rotated = angle_rotated + ang_speed*timediff;
- 
-    //ESP_LOGI(TAG,"automode %d",auto_flag);
-    if (flag == 0)    dist_traversed=dist_traversed+lin_speed*timediff;
+{  
+    //dist_traversed=dist_traversed+lin_speed*timediff;
 
+    //ESP_LOGI(TAG,"automode %d",auto_flag);
+    if (flag == 0)    {dist_traversed=dist_traversed+lin_speed*timediff;
+    }
+    else if (flag == 1) {
+           angle_rotated = (angle_rotated + (ang_speed*timediff)*180/M_PI);
+
+    }
+    else if(flag==2){
+        angle_rotated = (angle_rotated - (ang_speed*timediff)*180/M_PI);
+    }
     //{   //dist_traversed = (leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick; //In meters //To know if the target has been reached
        // }
-    if (flag == 1 || flag == 2) //angle_rotated is a static variable and is not being reset to zero in between
-    {  
-        if (flag == 1) //anti clockwise for positive angle
-           {angle_rotated = angle_rotated + ang_speed*timediff;}
+    /*else if (flag == 1) //anti clockwise for positive angle
+           {//printf("hello");
+               angle_rotated = angle_rotated + ang_speed*timediff;
+               }
             //angle_rotated = angle_rotated + ((leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick*2)/wheelbase; //Angle of the bot in radians
-        else           //Clockwise negative angle
-            {angle_rotated = angle_rotated - ang_speed*timediff;}
+    else if (flag==2)          //Clockwise negative angle
+            {//printf("hello");
+            angle_rotated = angle_rotated - ang_speed*timediff;}*/
             //angle_rotated = angle_rotated - ((leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick*2)/wheelbase; //Angle of the bot in radians
-    }
+    
     current_point[0] = stop_point[0] + dist_traversed*cos(angle_rotated); //calculates co-ordinates of the current point using the 
     current_point[1] = stop_point[1] + dist_traversed*sin(angle_rotated); //point where the orientation of the bot was last changed
 
     if((prev_time>=time_flag+0.5) && (prev_time<time_flag+1))  //this for moving forward slowly after sensing for 
         forwardSlow(1);
     if(detect_flag==0 && prev_time>=time_flag+1)
-    	{normal_motion();   
-         ESP_LOGI(TAG,"rotation: %d distre: %f flag: %d current (x,y): (%f,%f) stop point(x,y): %f  %f  angle rotated: %f",rotating_flag,dist_required,flag,current_point[0],current_point[1],prev_point[0],prev_point[1],dist_traversed);
+    	{normal_motion();  
+        ESP_LOGI(TAG,"rota: %d distre:%f anreq:%f flag:%d current(x,y):(%f,%f) stop point(x,y):(%f,%f)angle rotat:%f timediff :%f angspeed:%f",rotating_flag,dist_required,angle_required,flag,current_point[0],current_point[1],prev_point[0],prev_point[1],angle_rotated,timediff,ang_speed);
+ 
         }
     else if(detect_flag==1 && prev_time>=time_flag+1){
         if(obstacle_flag[1]==1 && obstacle_flag[3]==0){
@@ -607,6 +619,7 @@ void actuationAuto()
     		detect_flag = 0;
     	}
     }
+    
 }
 
 void normal_motion(){
@@ -636,13 +649,15 @@ void normal_motion(){
 }
 
 void rotate()
-{
-    if((angle_required - angle_rotated*180/M_PI) > 0.5)
-        flag = 1;    //If diff is positive, then left(+ve for anticlockwise)
-    else if((angle_required - angle_rotated*180/M_PI) < -0.5)
-        flag = 2; 
-    if((angle_required - angle_rotated*180/M_PI) > -0.5 && (angle_required - angle_rotated*180/M_PI) < 0.5)  //set some threshold after which it can move 
+{   if((angle_required - angle_rotated) > -7 && (angle_required - angle_rotated) < 7)  //set some threshold after which it can move 
         doneFlag = 1;
+    if((angle_required - angle_rotated) > 5)
+       { //printf("data:%f",(angle_required - angle_rotated));
+        flag = 1; }   //If diff is positive, then left(+ve for anticlockwise)
+    else if((angle_required - angle_rotated) < -5)
+        {//printf("data:%f",(angle_required - angle_rotated));
+        flag = 2; }
+
 
 }
 
@@ -677,10 +692,11 @@ void recalculate(){
 }
 
 void sensing(){
-
     prev_time = esp_timer_get_time()/1000000;    //Getting current time in microseconds and storing in seconds
     timediff = prev_time-current_time;
     current_time=prev_time;
+    //prev_time = esp_timer_get_time()/1000000;    //Getting current time in microseconds and storing in seconds
+    
     // used to detect the obstacle as the ultrasonic sensors goes low when obstacle is present so is the obstacle flag 
     //register and resets back when the original state is returned
    	/*obstacle_flag[0] = !gpio_get_level(ULTRA1);
@@ -691,6 +707,8 @@ void sensing(){
     */
     detect_flag = obstacle_flag[1] | obstacle_flag[2] | obstacle_flag[3];
     //ESP_LOGI(TAG," DETECTION FLAG: %d",detect_flag);
+    
+
 }
 
 void forwardSlow(int num){
