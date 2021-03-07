@@ -1,6 +1,8 @@
 #include "server.h"
 #include "algo.h"
 
+int pause_flag=0;
+int stop_flag=0;
 /*The following are structures linking each web address with their corresponding callback functions
   Each structure contains the web address, the corresponding callback function, the HTTP method (HTTP_GET or HTTP_POST) and any user context(NULL for all the structures)*/
 httpd_uri_t uri_reset = {
@@ -30,6 +32,7 @@ httpd_uri_t uri_pause = {
     .handler  = handle_pause,
     .user_ctx = NULL
 };
+
 
 httpd_uri_t uri_auto = {
     .uri      = "/auto",
@@ -395,14 +398,78 @@ httpd_uri_t uri_sta_data5 = {
      .user_ctx = NULL
  };
 
+httpd_uri_t uri_auto_stop = {
+    .uri      = "/auto_stop",
+    .method   = HTTP_GET,
+    .handler  = handle_auto_stop,
+    .user_ctx = NULL
+};
+
+
+httpd_uri_t uri_auto_resume = {
+    .uri      = "/auto_resume",
+    .method   = HTTP_GET,
+    .handler  = handle_auto_resume,
+    .user_ctx = NULL
+};
+
+httpd_uri_t uri_auto_pause = {
+    .uri      = "/auto_pause",
+    .method   = HTTP_GET,
+    .handler  = handle_auto_pause,
+    .user_ctx = NULL
+};
+
 /*In all of the callback functions below, the HTML Code for displaying
   the webpage is passed using the 'resp' string variable*/
+
+esp_err_t handle_auto_pause(httpd_req_t *req)
+{
+    pause_flag = 1;
+    
+    //flag = -1;
+    char* resp = get_home(0); //Get the HTML Code
+    httpd_resp_send(req, resp, strlen(resp));  //Send the HTML Code to display
+    free(resp);
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /");
+    ESP_LOGI(TAG, "Callback Function called: handle_auto_pause");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: default_page()");
+    return ESP_OK;
+}
+esp_err_t handle_auto_resume(httpd_req_t *req)
+{
+    pause_flag = 0;
+    //flag = -1;
+    char* resp = get_home(0); //Get the HTML Code
+    httpd_resp_send(req, resp, strlen(resp));  //Send the HTML Code to display
+    free(resp);
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /");
+    ESP_LOGI(TAG, "Callback Function called: handle_auto_pause");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: default_page()");
+    return ESP_OK;
+}
+esp_err_t handle_auto_stop(httpd_req_t *req)
+{
+    stop_flag = 1;
+    //flag = -1;
+    char* resp = get_home(0); //Get the HTML Code
+    httpd_resp_send(req, resp, strlen(resp));  //Send the HTML Code to display
+    free(resp);
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /");
+    ESP_LOGI(TAG, "Callback Function called: handle_auto_pause");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: default_page()");
+    return ESP_OK;
+}
 
 /*Callback function whenever "/" is accessed*/
 esp_err_t handle_OnConnect(httpd_req_t *req)
 {
     manual_flag = 0;
     flag = -1;
+    stop_flag=0;
     char* resp = default_page(); //Get the HTML Code
     httpd_resp_send(req, resp, strlen(resp));  //Send the HTML Code to display
     free(resp);
@@ -448,7 +515,7 @@ esp_err_t handle_start(httpd_req_t *req)
 
 /*Callback function whenever "/path1" is accessed*/
 esp_err_t handle_path1(httpd_req_t *req)
-{
+{   
     ESP_ERROR_CHECK(get_path(1)); //Execute Path 1
     char* resp = get_home(0);   //Get the HTML Code to display
     httpd_resp_send(req, resp, strlen(resp));   //Display the HTML Code
@@ -902,8 +969,8 @@ esp_err_t handle_stop(httpd_req_t *req)
      time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
      ESP_LOGI(TAG,"%c%f",det,time_duration);
      prev_mili = esp_timer_get_time();
-    /*Code when interrupts are implemented
-    if(flag == 0 || flag == 3){                      //for forward and backward
+    //Code when interrupts are implemented
+    /*if(flag == 0 || flag == 3){                      //for forward and backward
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead as well
     }
     else if(flag == 1 || flag == 2){                  //to calculated angle
@@ -945,6 +1012,7 @@ esp_err_t handle_stop(httpd_req_t *req)
     return ESP_OK;
 }
 
+
 /*Callback function whenever "/pause" is accessed*/
 esp_err_t handle_pause(httpd_req_t *req)
 {
@@ -953,7 +1021,7 @@ esp_err_t handle_pause(httpd_req_t *req)
      time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
      ESP_LOGI(TAG,"%c%f",det,time_duration);
      prev_mili = esp_timer_get_time();
-    /*Code when interrupts are implemented*/
+    //Code when interrupts are implemented
     /*if(flag == 0 || flag == 3){                      //for forward and backward
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead as well
     }
@@ -1104,7 +1172,7 @@ esp_err_t handle_modify1(httpd_req_t *req)
 
 /*Callback function whenever "/sta_delete_1 is accessed"*/
 esp_err_t handle_delete1(httpd_req_t *req)
-{ auto_flag=0;
+{   auto_flag=0;
     char* resp = get_home(2);	//Get the HTML Code, this 2 is not related to the Network number	
     httpd_resp_send(req, resp, strlen(resp));	//Display the webpage
     free(resp);
@@ -1861,6 +1929,7 @@ char* get_path_specific(int local_flag)
     strcat(ptr, "<p>Press to execute this path</p><a class=\"button button-on\" href=\"/path");
     strcat(ptr, str); //Go to "/path1" or "/path2" and so on
     strcat(ptr, "\">Execute</a>\n");
+    printf("inside get path specific");
     strcat(ptr, "<p>Press to delete this path</p><a class=\"button button-on\" href=\"/delete_path");
     strcat(ptr, str); //Go to "/delete_path1" or "/delete_path2" and so on
     strcat(ptr, "\">Delete</a>\n");
@@ -1903,8 +1972,24 @@ char* get_home(int local_flag)
     else if(local_flag == 4)
         strcat(ptr, "<h3>Added Successfully</h3>\n");
     strcat(ptr, "<p>Press to return to home</p><a class=\"button button-on\" href=\"/\">HOME</a>\n");
+    //strcat(ptr, "<p>Press to pause auto mode</p><a class=\"button button-on\" href=\"/\">pause</a>\n");
+    if ( pause_flag ==1){
+    strcat(ptr, "<p>Pause: ON (Press to Pause)</p><a class=\"button button-off\" href=\"/auto_resume\">OFF</a>\n");}
+    else {
+    strcat(ptr, "<p>Pause: OFF (Press to resume)</p><a class=\"button button-on\" href=\"/auto_pause\">ON</a>\n");
+    //strcat(ptr, "<p>Pause: OFF (Press to resume)</p><a class=\"button button-off\" href=\"/auto_pause\">ON</a>\n");
+    }
+    if ( stop_flag ==1){
+    strcat(ptr, "<p>Stop: ON (Press home and restart auto mode)</p><a class=\"button button-off\" href=\"/auto_stop\">OFF</a>\n");}
+    else {
+    strcat(ptr, "<p>Stop: OFF (Press to Stop auto mode)</p><a class=\"button button-on\" href=\"/auto_stop\">ON</a>\n");
+    //strcat(ptr, "<p>Pause: OFF (Press to resume)</p><a class=\"button button-off\" href=\"/auto_pause\">ON</a>\n");
+    }
+
+
     strcat(ptr, "</body>\n");
     strcat(ptr, "</html>\n");
+
     return ptr; 
 }
 
@@ -2069,6 +2154,9 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &uri_home);
         httpd_register_uri_handler(server, &uri_manual);
         httpd_register_uri_handler(server, &uri_pause);
+        httpd_register_uri_handler(server, &uri_auto_pause);
+        httpd_register_uri_handler(server, &uri_auto_resume);
+        httpd_register_uri_handler(server, &uri_auto_stop);
         httpd_register_uri_handler(server, &uri_auto);
         httpd_register_uri_handler(server, &uri_forward);
         httpd_register_uri_handler(server, &uri_left);

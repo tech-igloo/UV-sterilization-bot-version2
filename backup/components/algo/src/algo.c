@@ -446,8 +446,10 @@ void point_update()
     char* pointer = strtok(temp, " ");
     //printf(strlen(temp));
     while(pointer!=NULL){
-    if(point_index >= strlen(temp)/2-1){
+    if(point_index >= strlen(temp)/2-1)
+    {
         auto_flag=0;
+        point_index=0;
         break;
     }
     if(point_index == i )					//iterate through each of the elements
@@ -468,12 +470,24 @@ void point_update()
        pointer = strtok(NULL, " ");
         i=i+2;}
     }
-  point_index=point_index+2;
-
+}
+void reset_automode_values(){
+    angle_rotated=0;
+    dist_traversed=0;
+    angle_required = 0;                //angle that the bot needs to rotate to align itself with its destination point
+    dist_required = 0; 
+    current_time=0; // needed wehn for time based approach
+    prev_time = 0;                     //stores the previous time step, gets updated to current time after sysCall_sensing
+    time_flag = 0;
+    current_point[0]=current_point[1]=0;
+    stop_point[0] =  stop_point[1] = 0;
+    prev_point[0] =prev_point[1]=0 ;               //the next point that the bot needs to travel to    flag = -1; 
 }
 /*Execute the local_flag th path*/ //auto mode, need to enable the interrupts and use the algorithm
-esp_err_t get_path(int local_flag){
-    
+esp_err_t get_path(int local_flag)
+{
+    reset_automode_values();
+
     char str[LINE_LEN], temp[500] = ""; // Change this temp to calloc
     int linectr = 0, count_flag = 1;
     
@@ -518,9 +532,8 @@ esp_err_t get_path(int local_flag){
     fprintf(f_w, "%s",temp);
     ESP_LOGI(TAG, "path selected: %s length: %d", temp, strlen(temp));
     fclose(f_w);
-    auto_flag = 1;    
-    flag = -1; 
     point_update();
+    auto_flag = 1;
     /*gpio_intr_disable(LEFT_ENCODERA);  //Disabled interrupt once done  
     gpio_intr_disable(RIGHT_ENCODERA);*/
 
@@ -528,7 +541,8 @@ esp_err_t get_path(int local_flag){
 }
 
 void updateParams(double xd, double yd)
-{
+{   point_index=point_index+2;
+
     
     ESP_LOGI(TAG,"I AM UPDATING THE POINT ");
     dist_required = sqrt(pow(yd - prev_point[1],2)+pow(xd - prev_point[0],2));  //Distance in meters
