@@ -69,10 +69,6 @@ struct httpd_uri_t {                     //structure intialization for all the s
     void *user_ctx;
 };
 
-esp_err_t handle_auto_stop(httpd_req_t *req);
-esp_err_t handle_auto_resume(httpd_req_t *req);
-esp_err_t handle_auto_pause(httpd_req_t *req);
-
 esp_err_t handle_OnConnect(httpd_req_t *req);
 esp_err_t handle_reset(httpd_req_t *req);
 esp_err_t handle_start(httpd_req_t *req);

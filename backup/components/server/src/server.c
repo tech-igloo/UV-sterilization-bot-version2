@@ -3,6 +3,7 @@
 
 int pause_flag=0;
 int stop_flag=0;
+int path_flag=0;
 /*The following are structures linking each web address with their corresponding callback functions
   Each structure contains the web address, the corresponding callback function, the HTTP method (HTTP_GET or HTTP_POST) and any user context(NULL for all the structures)*/
 httpd_uri_t uri_reset = {
@@ -398,35 +399,9 @@ httpd_uri_t uri_sta_data5 = {
      .user_ctx = NULL
  };
 
-httpd_uri_t uri_auto_stop = {
-    .uri      = "/auto_stop",
-    .method   = HTTP_GET,
-    .handler  = handle_auto_stop,
-    .user_ctx = NULL
-};
-
-
-httpd_uri_t uri_auto_resume = {
-    .uri      = "/auto_resume",
-    .method   = HTTP_GET,
-    .handler  = handle_auto_resume,
-    .user_ctx = NULL
-};
-
-httpd_uri_t uri_auto_pause = {
-    .uri      = "/auto_pause",
-    .method   = HTTP_GET,
-    .handler  = handle_auto_pause,
-    .user_ctx = NULL
-};
-
-/*In all of the callback functions below, the HTML Code for displaying
-  the webpage is passed using the 'resp' string variable*/
-
 esp_err_t handle_auto_pause(httpd_req_t *req)
 {
     pause_flag = 1;
-    
     //flag = -1;
     char* resp = get_home(0); //Get the HTML Code
     httpd_resp_send(req, resp, strlen(resp));  //Send the HTML Code to display
@@ -453,7 +428,9 @@ esp_err_t handle_auto_resume(httpd_req_t *req)
 esp_err_t handle_auto_stop(httpd_req_t *req)
 {
     stop_flag = 1;
-    //flag = -1;
+    flag = -1;
+    auto_flag=0;
+    remove("/spiffs/currentpath.txt");
     char* resp = get_home(0); //Get the HTML Code
     httpd_resp_send(req, resp, strlen(resp));  //Send the HTML Code to display
     free(resp);
@@ -463,6 +440,52 @@ esp_err_t handle_auto_stop(httpd_req_t *req)
     ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: default_page()");
     return ESP_OK;
 }
+
+esp_err_t handle_auto_stop_path(httpd_req_t *req)
+{
+    flag = -1;
+    auto_flag=0;
+    remove("/spiffs/currentpath.txt");
+    char* resp = get_path_specific(path_flag); //Get the HTML Code
+    httpd_resp_send(req, resp, strlen(resp));  //Send the HTML Code to display
+    free(resp);
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /");
+    ESP_LOGI(TAG, "Callback Function called: handle_auto_pause");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: default_page()");
+    return ESP_OK;
+}
+
+httpd_uri_t uri_auto_stop = {
+    .uri      = "/auto_stop",
+    .method   = HTTP_GET,
+    .handler  = handle_auto_stop,
+    .user_ctx = NULL
+};
+
+
+httpd_uri_t uri_auto_resume = {
+    .uri      = "/auto_resume",
+    .method   = HTTP_GET,
+    .handler  = handle_auto_resume,
+    .user_ctx = NULL
+};
+
+httpd_uri_t uri_auto_pause = {
+    .uri      = "/auto_pause",
+    .method   = HTTP_GET,
+    .handler  = handle_auto_pause,
+    .user_ctx = NULL
+};
+httpd_uri_t uri_auto_stop_path = {
+    .uri      = "/auto_stop_path",
+    .method   = HTTP_GET,
+    .handler  = handle_auto_stop_path,
+    .user_ctx = NULL
+};
+
+/*In all of the callback functions below, the HTML Code for displaying
+  the webpage is passed using the 'resp' string variable*/
 
 /*Callback function whenever "/" is accessed*/
 esp_err_t handle_OnConnect(httpd_req_t *req)
@@ -614,7 +637,7 @@ esp_err_t handle_manual(httpd_req_t *req)
 /*Callback function whenever "/path_details1" is accessed
   All of the handle_specific_path() functions below are similar, only difference is the values passed to the HTML generator function*/
 esp_err_t handle_specific_path1(httpd_req_t *req)
-{
+{ path_flag=1;
     char* resp = get_path_specific(1);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -628,7 +651,7 @@ esp_err_t handle_specific_path1(httpd_req_t *req)
 
 /*Callback function whenever "/path_details2" is accessed*/
 esp_err_t handle_specific_path2(httpd_req_t *req)
-{
+{   path_flag=2;
     char* resp = get_path_specific(2);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -642,7 +665,7 @@ esp_err_t handle_specific_path2(httpd_req_t *req)
 
 /*Callback function whenever "/path_details3" is accessed*/
 esp_err_t handle_specific_path3(httpd_req_t *req)
-{
+{   path_flag=3;
     char* resp = get_path_specific(3);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -656,7 +679,7 @@ esp_err_t handle_specific_path3(httpd_req_t *req)
 
 /*Callback function whenever "/path_details4" is accessed*/
 esp_err_t handle_specific_path4(httpd_req_t *req)
-{
+{   path_flag=4;
     char* resp = get_path_specific(4);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -670,7 +693,7 @@ esp_err_t handle_specific_path4(httpd_req_t *req)
 
 /*Callback function whenever "/path_details5" is accessed*/
 esp_err_t handle_specific_path5(httpd_req_t *req)
-{
+{   path_flag=5;
     char* resp = get_path_specific(5);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -1922,6 +1945,14 @@ char* get_path_specific(int local_flag)
     else{
         strcat(ptr, "<h3>Using Station(STA) Mode</h3>\n");
     }
+    if (auto_flag==1)
+    {   printf("here1");
+        strcat(ptr, "<h3>currently executing a path press stop and then press execute</h3>\n");
+    }
+   /* else{
+         strcat(ptr, "<h3>no path is being executed</h3>\n");
+    }*/
+  
     sprintf(str, "%d", local_flag);
     strcat(ptr, "<h3>PATH: ");
     strcat(ptr, str);
@@ -1929,10 +1960,16 @@ char* get_path_specific(int local_flag)
     strcat(ptr, "<p>Press to execute this path</p><a class=\"button button-on\" href=\"/path");
     strcat(ptr, str); //Go to "/path1" or "/path2" and so on
     strcat(ptr, "\">Execute</a>\n");
-    printf("inside get path specific");
+
+    //printf("inside get path specific");
     strcat(ptr, "<p>Press to delete this path</p><a class=\"button button-on\" href=\"/delete_path");
     strcat(ptr, str); //Go to "/delete_path1" or "/delete_path2" and so on
     strcat(ptr, "\">Delete</a>\n");
+    if (auto_flag==1){
+    strcat(ptr, "<p>Press to stop auto mode</p><a class=\"button button-on\" href=\"/auto_stop_path");
+    strcat(ptr, "\">STOP</a>\n");
+    }
+    
     strcat(ptr, "<p>Press to return to home</p><a class=\"button button-on\" href=\"/\">HOME</a>\n");
     strcat(ptr, "</body>\n");
     strcat(ptr, "</html>\n");
@@ -1958,6 +1995,7 @@ char* get_home(int local_flag)
     strcat(ptr, "</head>\n");
     strcat(ptr, "<body>\n");
     strcat(ptr, "<h1>ESP32 Web Server</h1>\n");
+
     if(conn_flag == 0)
         strcat(ptr, "<h3>Using Access Point(AP) Mode</h3>\n");
     else
@@ -1974,9 +2012,9 @@ char* get_home(int local_flag)
     strcat(ptr, "<p>Press to return to home</p><a class=\"button button-on\" href=\"/\">HOME</a>\n");
     //strcat(ptr, "<p>Press to pause auto mode</p><a class=\"button button-on\" href=\"/\">pause</a>\n");
     if ( pause_flag ==1){
-    strcat(ptr, "<p>Pause: ON (Press to Pause)</p><a class=\"button button-off\" href=\"/auto_resume\">OFF</a>\n");}
+    strcat(ptr, "<p>Pause: ON (Press to resume)</p><a class=\"button button-off\" href=\"/auto_resume\">OFF</a>\n");}
     else {
-    strcat(ptr, "<p>Pause: OFF (Press to resume)</p><a class=\"button button-on\" href=\"/auto_pause\">ON</a>\n");
+    strcat(ptr, "<p>Pause: OFF (Press to pause)</p><a class=\"button button-on\" href=\"/auto_pause\">ON</a>\n");
     //strcat(ptr, "<p>Pause: OFF (Press to resume)</p><a class=\"button button-off\" href=\"/auto_pause\">ON</a>\n");
     }
     if ( stop_flag ==1){
@@ -2157,6 +2195,7 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &uri_auto_pause);
         httpd_register_uri_handler(server, &uri_auto_resume);
         httpd_register_uri_handler(server, &uri_auto_stop);
+        httpd_register_uri_handler(server, &uri_auto_stop_path);
         httpd_register_uri_handler(server, &uri_auto);
         httpd_register_uri_handler(server, &uri_forward);
         httpd_register_uri_handler(server, &uri_left);

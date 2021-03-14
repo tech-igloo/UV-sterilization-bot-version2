@@ -577,13 +577,13 @@ void wifi_init_sta(void)
 
 /*Function that will run parallely on Core 1*/
 void Task1code( void * pvParameters ){
-    uint32_t io_num;
+    //uint32_t io_num;
 
     init_gpio();    //Initialize encoder and sensor pins
 	init_pwm();     //Initialize PWM channel
    
     while(1){  
-        //ESP_LOGI(TAG,"Auto mode flag: %d",auto_flag);
+        //ESP_LOGI(TAG,"Auto mode flag: %d manual mode: %d",auto_flag,manual_flag);
         if(auto_flag == 1){
             
             actuationAuto();
@@ -602,7 +602,7 @@ void Task1code( void * pvParameters ){
             else if(flag == 3) move_back();
             else move_stop();
             
-            if(xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
+            /*if(xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
                 printf("GPIO[%d] intr, val: %d\n", io_num, gpio_get_level(io_num)); 
                 if (io_num == LEFT_ENCODERA){
                     leftTicks++;
@@ -638,9 +638,9 @@ void Task1code( void * pvParameters ){
                     // }else if (rightTicks <= (-1*ENCODERresolution)){
                     //     rightRot--;                         
                     //     rightTicks=0;
-                    // }
+                    //}
                 }
-            }      
+            }*/      
         }
         else
             move_stop();
@@ -663,7 +663,6 @@ void app_main(void)
         init_sap();				//Start SAP mode
     else
         wifi_init_sta();		//Start STA mode
-    server = start_webserver(); //Start the web server
     sensor_initilize();
     xTaskCreatePinnedToCore(    //Pinning a task in core 1
                     Task1code,   /* Task function. */
@@ -674,6 +673,7 @@ void app_main(void)
                     &Task1,      /* Task handle to keep track of created task */
                     1);          /* pin task to core 1 */                  
   	//delay(500);
+    server = start_webserver(); //Start the web server
     ESP_ERROR_CHECK(update_paths());    //Update the variables related to paths.txt
     ESP_ERROR_CHECK(mdns_init());       //Initialize MDNS Service
     ESP_ERROR_CHECK(mdns_hostname_set("esp32"));    //Set hostname to esp32. Now you can either type the IP Address or "esp32.local" for a device which has MDNS
