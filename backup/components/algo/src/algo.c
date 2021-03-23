@@ -420,6 +420,72 @@ esp_err_t convert_paths(int n){
     rename("/spiffs/temp.txt", "/spiffs/paths.txt");
     return ESP_OK;
 }
+
+void batter_low()
+{  
+    double reverse[LINE_LEN];
+    char data[LINE_LEN];
+    char buf[20];
+    FILE* f_a = fopen("/spiffs/currentpath.txt", "r");
+
+    if(f_a == NULL){
+        ESP_LOGE(TAG, "Error opening file temp.txt\n");
+        return ESP_FAIL;
+    }
+    char str[LINE_LEN];
+    char temp[500] = "";
+
+    while(!feof(f_a))
+    {     
+        strcpy(str, "\0");
+        fgets(str, LINE_LEN, f_a);
+        //printf("%s",str);
+        strcat(temp, str);  
+        if (strchr(str, '\n'))
+        {      //We only increment the linectr when we have \n, because of a single path having multiple lines
+            strcat(temp,"");
+        }
+        //printf("%s",temp);
+    }
+    char* pointer = strtok(temp, " ");
+    int i=0;
+    while(pointer!=NULL)
+    {     
+    if(i<=point_index)					//iterate through each of the elements
+    {
+        reverse[i] = atof(pointer);       //Convert the value from string to float
+        pointer = strtok(NULL, " ");             //Get the next element
+        reverse[i+1] = atof(pointer); 
+        pointer = strtok(NULL, " "); 
+        i=i+2;
+    }
+    break;
+    }
+    fclose(f_a);
+    remove("/spiffs/currentpath.txt");
+    for(i=0;i<point_index;i++){
+        sprintf(buf, "%f", reverse[point_index-i-1]);//convert (i+1) to string
+        strcat(buf," ");
+        strcat(data,buf);
+    }
+    FILE* f_w =fopen("/spiffs/currentpath.txt", "w");
+    if (f_w == NULL) {
+        ESP_LOGE(TAG, "Failed to open file for reading");
+        return ESP_FAIL;
+    }
+    fprintf(f_w, "%s",data);
+    ESP_LOGI(TAG, "path selected: %s length: %d", data, strlen(data));
+    fclose(f_w);
+    point_index=0;
+    rotating_flag=1;
+    angle_rotated=dist_traversed=0;
+    point_update();
+    auto_flag=1;
+    
+
+
+
+}
 void point_update()
 { //auto_flag=1;
     int i=0;
@@ -475,21 +541,22 @@ void point_update()
         }
     }
 }
-void reset_automode_values(){
+void reset_automode_values()
+{
     angle_rotated=0;
     dist_traversed=0;
-     angle_required = 0;                //angle that the bot needs to rotate to align itself with its destination point
+    angle_required = 0;                //angle that the bot needs to rotate to align itself with its destination point
     dist_required = 0; 
-   current_time=0; // needed wehn for time based approach
- prev_time = 0;                     //stores the previous time step, gets updated to current time after sysCall_sensing
-time_flag = 0;
-current_point[0]=current_point[1]=0;
- stop_point[0] =  stop_point[1] = 0;
- prev_point[0] =prev_point[1]=0 ;               //the next point that the bot needs to travel to    flag = -1; 
+    current_time=0; // needed wehn for time based approach
+    prev_time = 0;                     //stores the previous time step, gets updated to current time after sysCall_sensing
+    time_flag = 0;
+    current_point[0]=current_point[1]=0;
+    stop_point[0] =  stop_point[1] = 0;
+    prev_point[0] =prev_point[1]=0 ;               //the next point that the bot needs to travel to    flag = -1; 
 }
 /*Execute the local_flag th path*/ //auto mode, need to enable the interrupts and use the algorithm
 esp_err_t get_path(int local_flag)
-{
+{   remove("/spiffs/currentpath.txt");
     reset_automode_values();
 
     char str[LINE_LEN], temp[500] = ""; // Change this temp to calloc
@@ -725,8 +792,6 @@ void sensing(){
     */
     detect_flag = obstacle_flag[1] | obstacle_flag[2] | obstacle_flag[3];
     //ESP_LOGI(TAG," DETECTION FLAG: %d",detect_flag);
-    
-
 }
 
 void forwardSlow(int num){

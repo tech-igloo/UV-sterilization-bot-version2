@@ -402,7 +402,7 @@ httpd_uri_t uri_sta_data5 = {
 esp_err_t handle_auto_pause(httpd_req_t *req)
 {
     pause_flag = 1;
-    //flag = -1;
+    auto_flag=0;
     char* resp = get_home(0); //Get the HTML Code
     httpd_resp_send(req, resp, strlen(resp));  //Send the HTML Code to display
     free(resp);
@@ -415,7 +415,8 @@ esp_err_t handle_auto_pause(httpd_req_t *req)
 esp_err_t handle_auto_resume(httpd_req_t *req)
 {
     pause_flag = 0;
-    //flag = -1;
+    current_time=esp_timer_get_time()/1000000;
+    auto_flag=1;
     char* resp = get_home(0); //Get the HTML Code
     httpd_resp_send(req, resp, strlen(resp));  //Send the HTML Code to display
     free(resp);
@@ -430,8 +431,7 @@ esp_err_t handle_auto_stop(httpd_req_t *req)
     stop_flag = 1;
     flag = -1;
     auto_flag=0;
-    remove("/spiffs/currentpath.txt");
-    char* resp = get_home(0); //Get the HTML Code
+    char* resp = default_page(); //Get the HTML Code
     httpd_resp_send(req, resp, strlen(resp));  //Send the HTML Code to display
     free(resp);
     //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
@@ -451,7 +451,7 @@ esp_err_t handle_auto_stop_path(httpd_req_t *req)
     free(resp);
     //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     ESP_LOGI(TAG, "Now displaying /");
-    ESP_LOGI(TAG, "Callback Function called: handle_auto_pause");
+    ESP_LOGI(TAG, "Callback Function called: handle_auto_stop_path");
     ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: default_page()");
     return ESP_OK;
 }
@@ -1789,7 +1789,7 @@ char* get_sta()
     strcat(ptr, "<title>Choose Direction</title>\n");
     strcat(ptr, "<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\n");
     strcat(ptr, "body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;} h3 {color: #444444;margin-bottom: 50px;}\n");
-    strcat(ptr, ".button {display: block;width: 100px;background-color: #3498db;border: none;color: white;padding: 13px 30px;text-decoration: none;font-size: 25px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n");
+    strcat(ptr, ".button {display: block;width: 100px;background-color: #3498db;border: none;color: white;padding: 13px 40px;text-decoration: none;font-size: 20px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n");
     strcat(ptr, ".button-on {background-color: #3498db;}\n");
     strcat(ptr, ".button-on:active {background-color: #2980b9;}\n");
     strcat(ptr, ".button-off {background-color: #34495e;}\n");
@@ -1810,8 +1810,8 @@ char* get_sta()
         sprintf(str, "%d", i+1);//convert (i+1) to string
         strcat(ptr, "<p>Press for more options</p><a class=\"button button-on\" href=\"/sta");
         strcat(ptr, str); //On clicking go to "/sta1" or "/sta2" or so on dependingon value of (i+1)
-        strcat(ptr, "\">Network ");
-        strcat(ptr, str); //For displaying "Network 1" or "Network 2" and so on
+        strcat(ptr, "\">SSID: \n");
+        strcat(ptr,ssid[i]);
         strcat(ptr, "</a>\n");
     }
     strcat(ptr, "<p>Press to go back</p><a class=\"button button-on\" href=\"/choose\">BACK</a>\n");
@@ -1852,6 +1852,7 @@ char* get_sta_data(int local_flag) //local_flag min value is 1
     strcat(ptr, "\">MODIFY</a>\n");
     strcat(ptr, "<p>Press to delete</p><a class=\"button button-on\" href=\"/sta_delete_");
     strcat(ptr, str);
+    
     strcat(ptr, "\">DELETE</a>\n");
     strcat(ptr, "<p>Press to connect</p><a class=\"button button-on\" href=\"/sta_choose_");
     strcat(ptr, str);
@@ -1946,7 +1947,7 @@ char* get_path_specific(int local_flag)
         strcat(ptr, "<h3>Using Station(STA) Mode</h3>\n");
     }
     if (auto_flag==1)
-    {   printf("here1");
+    {   
         strcat(ptr, "<h3>currently executing a path press stop and then press execute</h3>\n");
     }
    /* else{
@@ -1957,22 +1958,41 @@ char* get_path_specific(int local_flag)
     strcat(ptr, "<h3>PATH: ");
     strcat(ptr, str);
     strcat(ptr, "</h3>\n");
+
+    if(auto_flag==0)
+    {
     strcat(ptr, "<p>Press to execute this path</p><a class=\"button button-on\" href=\"/path");
     strcat(ptr, str); //Go to "/path1" or "/path2" and so on
     strcat(ptr, "\">Execute</a>\n");
+    }
 
     //printf("inside get path specific");
     strcat(ptr, "<p>Press to delete this path</p><a class=\"button button-on\" href=\"/delete_path");
     strcat(ptr, str); //Go to "/delete_path1" or "/delete_path2" and so on
     strcat(ptr, "\">Delete</a>\n");
     if (auto_flag==1){
-    strcat(ptr, "<p>Press to stop auto mode</p><a class=\"button button-on\" href=\"/auto_stop_path");
-    strcat(ptr, "\">STOP</a>\n");
+    strcat(ptr, "<p>Press to stop auto mode</p><a class=\"button button-on\" href=\"/auto_stop_path\">STOP</a>\n");
+    //strcat(ptr, "\">STOP</a>\n");
     }
-    
     strcat(ptr, "<p>Press to return to home</p><a class=\"button button-on\" href=\"/\">HOME</a>\n");
     strcat(ptr, "</body>\n");
     strcat(ptr, "</html>\n");
+    return ptr;
+}
+/*Get the HTML form for submitting Network Credential Data*/
+char* get_form_path(int local_flag)  //local_flag min value is 1.
+{
+    char str[2];
+    sprintf(str, "%d", local_flag);
+    char* ptr = (char *)calloc(2048, sizeof(char));
+    strcat(ptr, "<form action=\"/data_"); //On submitting form, go to "/data_1" or "/data_2" or "/data_3" or "/data_4" or "/data_5" according to local_flag value
+    strcat(ptr, str);
+    strcat(ptr, "\" method = \"post\">\n");
+    strcat(ptr, "<label for=\"path\">name</label><br>\n");
+    strcat(ptr, "<input type=\"text\" id=\"ssid\" name=\"ssid\" maxlength=SSID_LEN><br>\n");
+    strcat(ptr, "<input type=\"submit\" value=\"Submit\">\n");
+
+    strcat(ptr, "</form>");
     return ptr;
 }
 
@@ -2011,27 +2031,18 @@ char* get_home(int local_flag)
         strcat(ptr, "<h3>Added Successfully</h3>\n");
     strcat(ptr, "<p>Press to return to home</p><a class=\"button button-on\" href=\"/\">HOME</a>\n");
     //strcat(ptr, "<p>Press to pause auto mode</p><a class=\"button button-on\" href=\"/\">pause</a>\n");
-    if ( pause_flag ==1){
-    strcat(ptr, "<p>Pause: ON (Press to resume)</p><a class=\"button button-off\" href=\"/auto_resume\">OFF</a>\n");}
-    else {
-    strcat(ptr, "<p>Pause: OFF (Press to pause)</p><a class=\"button button-on\" href=\"/auto_pause\">ON</a>\n");
-    //strcat(ptr, "<p>Pause: OFF (Press to resume)</p><a class=\"button button-off\" href=\"/auto_pause\">ON</a>\n");
+    if (auto_flag ==1)
+    {
+    if ( pause_flag ==1)strcat(ptr, "<p>Pause: ON (Press to resume)</p><a class=\"button button-off\" href=\"/auto_resume\">OFF</a>\n");
+    else strcat(ptr, "<p>Pause: OFF (Press to pause)</p><a class=\"button button-on\" href=\"/auto_pause\">ON</a>\n");
+    strcat(ptr, "<p>Press stop to end auto_mode</p><a class=\"button button-on\"  href=\"/auto_stop\">STOP</a>\n");
     }
-    if ( stop_flag ==1){
-    strcat(ptr, "<p>Stop: ON (Press home and restart auto mode)</p><a class=\"button button-off\" href=\"/auto_stop\">OFF</a>\n");}
-    else {
-    strcat(ptr, "<p>Stop: OFF (Press to Stop auto mode)</p><a class=\"button button-on\" href=\"/auto_stop\">ON</a>\n");
-    //strcat(ptr, "<p>Pause: OFF (Press to resume)</p><a class=\"button button-off\" href=\"/auto_pause\">ON</a>\n");
-    }
-
-
     strcat(ptr, "</body>\n");
     strcat(ptr, "</html>\n");
 
     return ptr; 
 }
-
-/*HTML Code for displaying "/manual" or "/pause" page (same for both)*/
+/*HTML Code which displays different text depending on local_flag and contains only a sin*/
 char* manual_mode()
 {
     char* ptr = (char*)calloc(2048, sizeof(char));
