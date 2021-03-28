@@ -61,6 +61,7 @@ char copy[DATA_LEN];                     //Used for extracting password from POS
 char line_str[LINE_LEN];                 //Used for extracting lines from stored files
 char ssid[WIFI_NUM][SSID_LEN];           //Store all the network ssids that the ESP can use in STA mode
 char pass[WIFI_NUM][PASS_LEN];           //Store all the network passwords that the ESP can use in STA mode
+extern char pathn[5][32];                       //path name
 
 struct httpd_uri_t {                     //structure intialization for all the structure pointer
     const char       *uri;               //linking web addresses and corresponding call back functions
@@ -149,6 +150,7 @@ esp_err_t delete_specific_path(int n);
 esp_err_t delete_paths(int n);
 esp_err_t update_wifi();
 esp_err_t update_paths();
+esp_err_t update_pathname();
 
 #endif
 // WE should only declare the vars in .h and define it in any one c file

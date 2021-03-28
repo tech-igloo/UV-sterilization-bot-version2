@@ -18,6 +18,7 @@ int total_paths = 0;                     //Total number of paths stored till now
 int auto_flag =0;                       //Denote whether auto mode is on or off
 int manual_flag = 0;                     //To check if it is in manual motion mode
 static TaskHandle_t Task1;                      //Task handle to keep track of created task running on Core 1
+char pathn[5][32] = {0};
 
 
 /*Replaces the nth line in the file /wifi_conf.txt with the line supplied in the argument
@@ -61,6 +62,28 @@ esp_err_t replace_wifi(char* line, int n)
     rename("/spiffs/temp.txt", "/spiffs/wifi_conf.txt");
     return ESP_OK;  
 }
+
+esp_err_t update_pathname()
+{
+    char str[LINE_LEN];
+    FILE* f_r = fopen("/spiffs/pathname.txt", "r");
+    if(f_r == NULL){
+        printf("Error opening file paths.txt\n");
+        return ESP_FAIL;
+    }
+    for (int i = 0; i < total_paths; i++)
+    {   
+        strcpy(str, "\0");					//initialize to null string
+        fgets(str, LINE_LEN, f_r);
+        printf("name : %s",str);
+        strcpy(pathn[i], str);
+
+    } 
+
+    fclose(f_r);
+    return ESP_OK; 
+}
+
 
 /*Update the total number of Valid Paths by n (n can be positive or negative)*/
 esp_err_t update_number(int n){
@@ -106,6 +129,7 @@ esp_err_t update_number(int n){
     fclose(f_w);
     remove("/spiffs/paths.txt");
     rename("/spiffs/temp.txt", "/spiffs/paths.txt");
+    
     return ESP_OK;
 }
 
@@ -155,9 +179,12 @@ esp_err_t delete(int n)
 esp_err_t delete_specific_path(int n)
 {
     char str[LINE_LEN];
-    int linectr = 0, count_flag = 1;
+    char str1[LINE_LEN];
+    int linectr = 0, count_flag = 1,linectr2=0;
     FILE* f_r = fopen("/spiffs/paths.txt", "r");
     FILE* f_w = fopen("/spiffs/temp.txt", "w");
+    FILE* f_r1 = fopen("/spiffs/pathname.txt", "r");
+    FILE* f_w1 = fopen("/spiffs/temp1.txt", "w");  
     if(f_r == NULL){
         ESP_LOGE(TAG, "Error opening file paths.txt\n");
         return ESP_FAIL;
@@ -166,10 +193,24 @@ esp_err_t delete_specific_path(int n)
         ESP_LOGE(TAG, "Error opening file temp.txt\n");
         return ESP_FAIL;
     }
+    if(f_r1 == NULL){
+        ESP_LOGE(TAG, "Error opening file paths.txt\n");
+        return ESP_FAIL;
+    }
+    if(f_w1 == NULL){
+        ESP_LOGE(TAG, "Error opening file temp.txt\n");
+        return ESP_FAIL;
+    }
     while(!feof(f_r))
     {
         strcpy(str, "\0");
+        strcpy(str1, "\0");
         fgets(str, LINE_LEN, f_r);
+        fgets(str1, LINE_LEN, f_r1);
+        if (linectr2 != n-1){
+            fprintf(f_w1, "%s", str1);
+        }
+        linectr2++;
         if(!feof(f_r)){
 
             if (count_flag){
@@ -184,12 +225,18 @@ esp_err_t delete_specific_path(int n)
             }
             else
                 fprintf(f_w, "%s", str);
-        }
+    }
+
     }
     fclose(f_r);
     fclose(f_w);
+    fclose(f_r1);
+    fclose(f_w1);
     remove("/spiffs/paths.txt");
+    remove("/spiffs/pathname.txt");
     rename("/spiffs/temp.txt", "/spiffs/paths.txt");
+    rename("/spiffs/temp1.txt", "/spiffs/pathname.txt");
+    update_pathname();
     return ESP_OK;  
 }
 
@@ -371,6 +418,25 @@ int main_update()
         FILE* f = fopen("/spiffs/paths.txt", "r");              //This means the file is present. Open it in reading mode
         if(f == NULL)
             ESP_LOGE(TAG, "Failed to open path.txt for reading");
+        pos = strchr(line, '\n');                               //Get the 1st line
+        if(pos){
+            *pos = '\0';                                        //Put the terminating character in the appropriate place                                         
+        }
+        total_paths = atoi(line);                               //Convert from string to int and Update the total number of valid paths
+        fclose(f);
+    }
+    if (stat("/spiffs/pathname.txt", &st1) != 0){                  //Check if paths.txt is absent. This is for when the ESP is booted for the 1st time
+        FILE* f = fopen("/spiffs/pathname.txt", "w");              //Create paths.txt in writing mode
+        if(f == NULL)
+            ESP_LOGE(TAG, "Failed to open pathname.txt for writing");
+        fprintf(f, "0\n");                                      //Put 0 because there are 0 valid paths stored till now
+        fclose(f);
+        total_paths = 0;                                        //Update the total number of valid paths
+    }
+    else{
+        FILE* f = fopen("/spiffs/pathname.txt", "r");              //This means the file is present. Open it in reading mode
+        if(f == NULL)
+            ESP_LOGE(TAG, "Failed to open pathname.txt for reading");
         pos = strchr(line, '\n');                               //Get the 1st line
         if(pos){
             *pos = '\0';                                        //Put the terminating character in the appropriate place                                         
@@ -600,58 +666,13 @@ void Task1code( void * pvParameters ){
             else if(flag == 1) move_left();
             else if(flag == 2) move_right();
             else if(flag == 3) move_back();
-            else move_stop();
-            
-            /*if(xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
-                printf("GPIO[%d] intr, val: %d\n", io_num, gpio_get_level(io_num)); 
-                if (io_num == LEFT_ENCODERA){
-                    leftTicks++;
-                    if (leftTicks >= ENCODERresolution){
-                        leftRot++;                         
-                        leftTicks=0;
-                    }
-                    // if (flag == 0 || flag == 2)   //commenting this cause we don't really need ve- ticks
-                    //     leftTicks++;
-                    // else if (flag == 3 || flag == 1)
-                    //     leftTicks--;
-                    // if (leftTicks >= ENCODERresolution){
-                    //     leftRot++;                         
-                    //     leftTicks=0;
-                    // }else if (leftTicks <= (-1*ENCODERresolution)){
-                    //     leftRot--;                         
-                    //     leftTicks=0;
-                    // }
-                }
-                else if (io_num == RIGHT_ENCODERA){
-                    rightTicks++;
-                    if (rightTicks >= ENCODERresolution){
-                        rightRot++;
-                        rightTicks=0;
-                    }
-                    // if (flag == 0 || flag == 1)
-                    //     rightTicks++;
-                    // else if (flag == 3 || flag == 2)
-                    //     rightTicks--;
-                    // if (rightTicks >= ENCODERresolution){
-                    //     rightRot++;
-                    //     rightTicks=0;
-                    // }else if (rightTicks <= (-1*ENCODERresolution)){
-                    //     rightRot--;                         
-                    //     rightTicks=0;
-                    //}
-                }
-            }*/      
+            else move_stop();      
         }
         else
             move_stop();
     }
 }
 
-void IRAM_ATTR gpio_encoder_isr_handler(void* arg)
-{
-    uint32_t gpio_num = (uint32_t) arg;
-    xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
-}
 
 /*Main function that gets called once at the start when ESP boots*/
 void app_main(void)
@@ -675,6 +696,7 @@ void app_main(void)
   	//delay(500);
     server = start_webserver(); //Start the web server
     ESP_ERROR_CHECK(update_paths());    //Update the variables related to paths.txt
+    ESP_ERROR_CHECK(update_pathname()); //:This will update the pathn[] array by reading all the path's last element
     ESP_ERROR_CHECK(mdns_init());       //Initialize MDNS Service
     ESP_ERROR_CHECK(mdns_hostname_set("esp32"));    //Set hostname to esp32. Now you can either type the IP Address or "esp32.local" for a device which has MDNS
     ESP_LOGI(TAG, "mdns hostname set to: [esp32]");

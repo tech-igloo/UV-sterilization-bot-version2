@@ -66,7 +66,7 @@ extern double prev_errorL;                    //error in the previous time step
 extern double accumulated_errorR;             
 extern double current_errorR;                 
 extern double prev_errorR;                    
-
+extern double prev_time;
 //extern int pid_flag;                        //flag that signifies that the PID controller's job is done
 
 extern double Kp;                //Common gains for now
@@ -115,5 +115,7 @@ void recalculate();
 void sensing();
 void forwardSlow(int);
 void rotateSlow(int);
+void point_update();
+void batter_low();
 
 #endif

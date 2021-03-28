@@ -43,7 +43,7 @@ static double angle_rotated = 0;                 //angle rotated by bot(+ve for 
 static int doneFlag = 0;
 double timediff;
 static double current_time=0; // needed wehn for time based approach
-static double prev_time = 0;                     //stores the previous time step, gets updated to current time after sysCall_sensing
+ double prev_time = 0;                     //stores the previous time step, gets updated to current time after sysCall_sensing
 static double time_flag = 0;
 
 static int detect_flag = 0;
@@ -52,6 +52,36 @@ static int obstacle_flag[5] = {0};              //To record ultrasonic value
 
 xQueueHandle gpio_evt_queue = NULL;
 char enpwmcmd[7]={0x44,0x00,0x55,0x01,0x99,0x02,0xaa}; // sensor commands
+
+void IRAM_ATTR gpio_encoder_isr_handler(void* arg)
+{
+    uint32_t gpio_num = (uint32_t) arg;
+    xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
+}
+void InterruptEncoder(void* arg)
+{
+    uint32_t io_num;
+    ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    for(;;) {
+        if(xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
+            //printf("GPIO[%d] intr, val: %d\n", io_num, gpio_get_level(io_num)); 
+            if (io_num == LEFT_ENCODERA){
+                leftTicks++;
+                if (leftTicks >= ENCODERresolution){
+                    leftRot++;                         
+                    leftTicks=0;
+                }
+            }
+            else if (io_num == RIGHT_ENCODERA){
+                rightTicks++;
+                if (rightTicks >= ENCODERresolution){
+                    rightRot++;
+                    rightTicks=0;
+                }
+            }
+        }   
+    }
+}
 
 /*To initialize the motor direction, encoder, and sensor I/O pins*/ 
 void init_gpio()
@@ -362,7 +392,7 @@ esp_err_t convert_paths(int n){
                     token++;
                     val = atof(token);    //val is in meters 
                     if(ch == 'f'){
-                        val = DEFAULT_LIN_SPEED * val/1000.0;// for time based approach 
+                       // val = DEFAULT_LIN_SPEED * val/1000.0;// for time based approach 
 
                         current.x = prev.x + val*cos(prev.theta);
                         current.y = prev.y + val*sin(prev.theta);
@@ -379,7 +409,7 @@ esp_err_t convert_paths(int n){
                         prev = current;
                     }
                     else if(ch == 'b'){
-                        val = DEFAULT_LIN_SPEED * val/1000.0;// for time based approach 
+                        //val = DEFAULT_LIN_SPEED * val/1000.0;// for time based approach 
 
                         current.x = prev.x - val*cos(prev.theta);  //don't convert as already in radians when using encoders
                         current.y = prev.y - val*sin(prev.theta);
@@ -427,7 +457,6 @@ void batter_low()
     char data[LINE_LEN];
     char buf[20];
     FILE* f_a = fopen("/spiffs/currentpath.txt", "r");
-
     if(f_a == NULL){
         ESP_LOGE(TAG, "Error opening file temp.txt\n");
         return ESP_FAIL;
@@ -481,11 +510,8 @@ void batter_low()
     angle_rotated=dist_traversed=0;
     point_update();
     auto_flag=1;
-    
-
-
-
 }
+
 void point_update()
 { //auto_flag=1;
     int i=0;
