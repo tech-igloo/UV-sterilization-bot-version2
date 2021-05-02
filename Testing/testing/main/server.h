@@ -52,6 +52,7 @@ extern int conn_flag;                      //Denote which Wifi mode the ESP is u
 extern int auto_flag;                       //Denote whether auto mode is on or off
 extern int manual_flag;
 extern int total ;                           //Total number of network credentials for STA mode stored till now
+extern int stop_flag;
 extern int total_paths;                     //Total number of paths stored till now
 extern int64_t prev_mili;                   //Used for determining the time duration between 2 commands while controlling the bot in manual mode
 extern int64_t curr_mili;                   //Used for determining the time duration between 2 commands while controlling the bot in manual mode
@@ -62,7 +63,7 @@ char line_str[LINE_LEN];                 //Used for extracting lines from stored
 char ssid[WIFI_NUM][SSID_LEN];           //Store all the network ssids that the ESP can use in STA mode
 char pass[WIFI_NUM][PASS_LEN];           //Store all the network passwords that the ESP can use in STA mode
 extern char pathn[5][32];                       //path name
-
+extern int path_flag;
 struct httpd_uri_t {                     //structure intialization for all the structure pointer
     const char       *uri;               //linking web addresses and corresponding call back functions
     httpd_method_t    method; 
@@ -134,6 +135,8 @@ char* get_sta_data(int local_flag);
 char* get_form(int local_flag);  
 char* get_auto();
 char* get_path_specific(int local_flag);
+char* get_home1();
+
 char* get_home(int local_flag);
 char* manual_mode();
 char* SendHTML(uint8_t local_flag);

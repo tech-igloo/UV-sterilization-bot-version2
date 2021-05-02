@@ -402,8 +402,6 @@ httpd_uri_t uri_sta_data5 = {
 
 
 
-
-
 /*form for wifi network 1 and needs to be saved"*/
 esp_err_t handle_path_name(httpd_req_t *req)
 {  
@@ -427,7 +425,7 @@ esp_err_t handle_path_name(httpd_req_t *req)
     path_name = strtok(NULL, "=");          //ssid_data now contains "[ssid]"
     
     FILE* f_r = fopen("/spiffs/pathname.txt", "r");
-    FILE* f_w = fopen("/spiffs/temp.txt", "w");
+    FILE* f_w = fopen("/spiffs/temperary.txt", "w");
 
     if (f_r == NULL) {
         ESP_LOGE(TAG, "Failed to open file for writing");
@@ -459,7 +457,7 @@ esp_err_t handle_path_name(httpd_req_t *req)
     fclose(f_r);
     fclose(f_w);
     remove("/spiffs/pathname.txt");
-    rename("/spiffs/temp.txt", "/spiffs/pathname.txt");
+    rename("/spiffs/temperary.txt", "/spiffs/pathname.txt");
     update_number(1); //total_paths is updated in paths.txt and the global variable is also updated
     ESP_ERROR_CHECK(convert_paths(total_paths+1));  //convert the saved path into co-ordinate based representation, you can comment this part out
     update_pathname(); //:This will update the pathn[] array by reading all the path's last element
@@ -512,7 +510,7 @@ esp_err_t handle_auto_stop(httpd_req_t *req)
     free(resp);
     //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     ESP_LOGI(TAG, "Now displaying /");
-    ESP_LOGI(TAG, "Callback Function called: handle_auto_pause");
+    ESP_LOGI(TAG, "Callback Function called: handle_stop");
     ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: default_page()");
     return ESP_OK;
 }
@@ -531,6 +529,26 @@ esp_err_t handle_auto_stop_path(httpd_req_t *req)
     ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: default_page()");
     return ESP_OK;
 }
+
+esp_err_t handle_docking(httpd_req_t *req)
+{
+    stop_flag=0;
+    printf("point_index: %d",point_index);
+    char* resp = get_home1();
+    httpd_resp_send(req, resp, strlen(resp));  //Send the HTML Code to display
+    free(resp);
+    battery_low();
+    //ESP_ERROR_CHECK(battery_low());  //convert the saved path into co-ordinate based representation, you can comment this part out
+    ESP_LOGI(TAG, "Now displaying /docking");
+    ESP_LOGI(TAG, "Callback Function called: handle_docking");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: default_page()");
+
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+
+    return ESP_OK;
+}
+
+
 httpd_uri_t uri_path_name = {
      .uri      = "/pathname",
      .method   = HTTP_POST,      //POST is used for extra security since wifi credentials are passed through the form
@@ -566,15 +584,24 @@ httpd_uri_t uri_auto_stop_path = {
     .user_ctx = NULL
 };
 
+httpd_uri_t uri_docking = {
+     .uri      = "/docking",
+     .method   = HTTP_GET,      //POST is used for extra security since wifi credentials are passed through the form
+     .handler  = handle_docking,
+     .user_ctx = NULL
+ };
 
 /*In all of the callback functions below, the HTML Code for displaying
   the webpage is passed using the 'resp' string variable*/
 
 /*Callback function whenever "/" is accessed*/
+
 esp_err_t handle_OnConnect(httpd_req_t *req)
 {
-    manual_flag = 0;
+    manual_flag = 1;
     flag = -1;
+    //if (stop_flag==1){battery_low();} 
+    //stop_flag=0;
     char* resp = default_page(); //Get the HTML Code
     httpd_resp_send(req, resp, strlen(resp));  //Send the HTML Code to display
     free(resp);
@@ -605,10 +632,14 @@ esp_err_t handle_reset(httpd_req_t *req)
 /*Callback function whenever "/start" is accessed*/
 esp_err_t handle_start(httpd_req_t *req)
 {
+
+    gpio_intr_enable(LEFT_ENCODERA);    //Enabled when in active mode(ready to move)
+    gpio_intr_enable(RIGHT_ENCODERA);
+    init_pid();
     record_flag = 1; //record_flag is changed to 1 to denote that recording has started
     manual_flag = 0;
     flag = -1;       //-1 denotes stop
-
+    
     ESP_LOGI(TAG, "Record Flag: %d", record_flag);
     char* resp = manual_mode();
     httpd_resp_send(req, resp, strlen(resp));
@@ -627,6 +658,7 @@ esp_err_t handle_path1(httpd_req_t *req)
     char* resp = get_home(0);   //Get the HTML Code to display
     httpd_resp_send(req, resp, strlen(resp));   //Display the HTML Code
     free(resp);
+
     //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     ESP_LOGI(TAG, "Now displaying /path1");
     ESP_LOGI(TAG, "Callback Function called: handle_path1()");
@@ -692,7 +724,10 @@ esp_err_t handle_path5(httpd_req_t *req)
 
 /*Callback function whenever "/manual" is accessed*/
 esp_err_t handle_manual(httpd_req_t *req)
-{   
+{   init_pid();
+    gpio_intr_enable(LEFT_ENCODERA);    //Enabled when in active mode(ready to move)
+    gpio_intr_enable(RIGHT_ENCODERA);
+    
     manual_flag = 1; //only when in manual mode, set to 0 again if start(recording) is pressed
     record_flag = 0; //recording has not yet started
     
@@ -721,7 +756,7 @@ esp_err_t handle_manual(httpd_req_t *req)
 /*Callback function whenever "/path_details1" is accessed
   All of the handle_specific_path() functions below are similar, only difference is the values passed to the HTML generator function*/
 esp_err_t handle_specific_path1(httpd_req_t *req)
-{ path_flag=1;
+{   path_flag=1;
     char* resp = get_path_specific(1);
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
@@ -868,7 +903,7 @@ esp_err_t handle_delete_path5(httpd_req_t *req)
 /*Callback function whenever "/auto" is accessed*/
 esp_err_t handle_auto(httpd_req_t *req)
 {
-    flag = 4;
+    //flag = 4;
     lin_speed = DEFAULT_LIN_SPEED;
     ang_speed = DEFAULT_ANG_SPEED;
     //auto_flag = 1; //activates only when execute is pressed
@@ -886,23 +921,23 @@ esp_err_t handle_auto(httpd_req_t *req)
 esp_err_t handle_forward(httpd_req_t *req)
 {
     char det = determine(flag);     //determine the direction it was going earlier
-    
+
      //Previously implemented to test without encoders
-     curr_mili = esp_timer_get_time();
-     time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
-     ESP_LOGI(TAG,"%c%f",det,time_duration);
-     prev_mili = esp_timer_get_time();
+     //curr_mili = esp_timer_get_time();
+     //time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
+     //ESP_LOGI(TAG,"%c%f",det,time_duration);
+     //prev_mili = esp_timer_get_time();
     
 
     //Code when interrupts are implemented 
-    /*if(flag == 0 || flag == 3){                      //for forward and backward
-        time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead as well
+    if(flag == 0 || flag == 3){                      //for forward and backward
+        time_duration = (abs(leftRotd)*ENCODERresolution + abs(leftTicksd))*wheeldist_perTick;  //Could have checked right instead as well
     }
     else if(flag == 1 || flag == 2){                  //to calculated angle
-        time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead here as well, this gives us the arc length
+        time_duration = (abs(leftRotd)*ENCODERresolution + abs(leftTicksd))*wheeldist_perTick;  //Could have checked right instead here as well, this gives us the arc length
         time_duration = (time_duration*2)/wheelbase;  //angle= arc/radius gives angle in radians
         time_duration = fmod(time_duration, 2*M_PI);      //if more than 2pi then take the remainder
-    }*/
+    }
     ESP_LOGI(TAG,"%c%f",det,time_duration);
     
     init_pid();                    //reset the PID variables
@@ -936,19 +971,20 @@ esp_err_t handle_forward(httpd_req_t *req)
 esp_err_t handle_left(httpd_req_t *req)
 {
     char det = determine(flag);     //determine the direction it was going earlier
-     curr_mili = esp_timer_get_time();
-     time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
-     ESP_LOGI(TAG,"%c%f",det,time_duration);
-     prev_mili = esp_timer_get_time();
+    // curr_mili = esp_timer_get_time();
+     //time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
+     //ESP_LOGI(TAG,"%c%f",det,time_duration);
+     //prev_mili = esp_timer_get_time();
+
     //Code when interrupts are implemented
-    /*if(flag == 0 || flag == 3){                      //for forward and backward
-        time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead as well
+    if(flag == 0 || flag == 3){                      //for forward and backward
+        time_duration = (abs(leftRotd)*ENCODERresolution + abs(leftTicksd))*wheeldist_perTick;  //Could have checked right instead as well
     }
     else if(flag == 1 || flag == 2){                  //to calculated angle
-        time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead here as well, this gives us the arc length
+        time_duration = (abs(leftRotd)*ENCODERresolution + abs(leftTicksd))*wheeldist_perTick;  //Could have checked right instead here as well, this gives us the arc length
         time_duration = (time_duration*2)/wheelbase;  //angle= arc/radius gives angle in radians
         time_duration = fmod(time_duration, 2*M_PI);
-    }*/
+    }
     ESP_LOGI(TAG,"%c%f",det,time_duration);
 
     init_pid();
@@ -981,20 +1017,21 @@ esp_err_t handle_left(httpd_req_t *req)
 esp_err_t handle_right(httpd_req_t *req)
 {
     char det = determine(flag);
-     curr_mili = esp_timer_get_time();
-     time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
-     ESP_LOGI(TAG,"%c%f",det,time_duration);
-     prev_mili = esp_timer_get_time();
+    // curr_mili = esp_timer_get_time();
+     //time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
+     //ESP_LOGI(TAG,"%c%f",det,time_duration);
+     //prev_mili = esp_timer_get_time();
+
     /*Code when interrupts are implemented*/
     //Dis is stored in meters and angle in radians
-    /*if(flag == 0 || flag == 3){                      //for forward and backward
-        time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead as well
+    if(flag == 0 || flag == 3){                      //for forward and backward
+        time_duration = (abs(leftRotd)*ENCODERresolution + abs(leftTicksd))*wheeldist_perTick;  //Could have checked right instead as well
     }
     else if(flag == 1 || flag == 2){                  //to calculated angle
-        time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead here as well, this gives us the arc length
+        time_duration = (abs(leftRotd)*ENCODERresolution + abs(leftTicksd))*wheeldist_perTick;  //Could have checked right instead here as well, this gives us the arc length
         time_duration = (time_duration*2)/wheelbase;  //angle= arc/radius gives angle in radians
         time_duration = fmod(time_duration, 2*M_PI);
-    }*/
+    }
     ESP_LOGI(TAG,"%c%f",det,time_duration);
 
     init_pid();
@@ -1027,19 +1064,20 @@ esp_err_t handle_right(httpd_req_t *req)
 esp_err_t handle_back(httpd_req_t *req)
 {
     char det = determine(flag);
-     curr_mili = esp_timer_get_time();
+     /*curr_mili = esp_timer_get_time();
      time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
      ESP_LOGI(TAG,"%c%f",det,time_duration);
-     prev_mili = esp_timer_get_time();
+     prev_mili = esp_timer_get_time();*/
+
     /*Code when interrupts are implemented*/ 
-    /*if(flag == 0 || flag == 3){                      //for forward and backward
-        time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead as well
+    if(flag == 0 || flag == 3){                      //for forward and backward
+        time_duration = (abs(leftRotd)*ENCODERresolution + abs(leftTicksd))*wheeldist_perTick;  //Could have checked right instead as well
     }
     else if(flag == 1 || flag == 2){                  //to calculated angle
-        time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead here as well, this gives us the arc length
+        time_duration = (abs(leftRotd)*ENCODERresolution + abs(leftTicksd))*wheeldist_perTick;  //Could have checked right instead here as well, this gives us the arc length
         time_duration = (time_duration*2)/wheelbase;  //angle= arc/radius gives angle in radians
         time_duration = fmod(time_duration, 2*M_PI);
-    }*/
+    }
     ESP_LOGI(TAG,"%c%f",det,time_duration);
 
     init_pid();
@@ -1070,23 +1108,23 @@ esp_err_t handle_back(httpd_req_t *req)
 
 /*Callback function whenever "/stop is accessed"*/
 esp_err_t handle_stop(httpd_req_t *req)
-{
+{  
     char det = determine(flag);         //Note that total_paths is not updated here, it is only updated in "/save", because if the author chooses to discard this path then "/manual" will automatically delete this path
-     curr_mili = esp_timer_get_time();
+     /*curr_mili = esp_timer_get_time();
      time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
      ESP_LOGI(TAG,"%c%f",det,time_duration);
-     prev_mili = esp_timer_get_time();
-    /*Code when interrupts are implemented
+     prev_mili = esp_timer_get_time();*/
+    //Code when interrupts are implemented
     if(flag == 0 || flag == 3){                      //for forward and backward
-        time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead as well
+        time_duration = (abs(leftRotd)*ENCODERresolution + abs(leftTicksd))*wheeldist_perTick;  //Could have checked right instead as well
     }
     else if(flag == 1 || flag == 2){                  //to calculated angle
-        time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead here as well, this gives us the arc length
+        time_duration = (abs(leftRotd)*ENCODERresolution + abs(leftTicksd))*wheeldist_perTick;  //Could have checked right instead here as well, this gives us the arc length
         time_duration = (time_duration*2)/wheelbase;  //angle= arc/radius gives angle in radians
         time_duration = fmod(time_duration, 2*M_PI);
     }
     else
-        time_duration = 0;    */                      //special case for stop
+        time_duration = 0;                         //special case for stop
     ESP_LOGI(TAG,"%c%f",det,time_duration);
     
     flag = -1;   //Stop the bot as well
@@ -1111,7 +1149,8 @@ esp_err_t handle_stop(httpd_req_t *req)
     char* resp = get_stop();
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    record_flag = 0;    //stop recording
+    manual_flag=1;
+    record_flag=0;
     //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     ESP_LOGI(TAG, "Now displaying /stop");
     ESP_LOGI(TAG, "Callback Function called: handle_stop()");
@@ -1123,20 +1162,20 @@ esp_err_t handle_stop(httpd_req_t *req)
 esp_err_t handle_pause(httpd_req_t *req)
 {
     char det = determine(flag); //Get which direction it was travelling earlier
-     curr_mili = esp_timer_get_time();
+    /* curr_mili = esp_timer_get_time();
      time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
      ESP_LOGI(TAG,"%c%f",det,time_duration);
-     prev_mili = esp_timer_get_time();
+     prev_mili = esp_timer_get_time();*/
 
     //Code when interrupts are implemented
-    /*if(flag == 0 || flag == 3){                      //for forward and backward
-        time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead as well
+    if(flag == 0 || flag == 3){                      //for forward and backward
+        time_duration = (abs(leftRotd)*ENCODERresolution + abs(leftTicksd))*wheeldist_perTick;  //Could have checked right instead as well
     }
     else if(flag == 1 || flag == 2){                  //to calculated angle
-        time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead here as well, this gives us the arc length
+        time_duration = (abs(leftRotd)*ENCODERresolution + abs(leftTicksd))*wheeldist_perTick;  //Could have checked right instead here as well, this gives us the arc length
         time_duration = (time_duration*2)/wheelbase;  //angle= arc/radius gives angle in radians
         time_duration = fmod(time_duration, 2*M_PI);
-    }*/
+    }
     ESP_LOGI(TAG,"%c%f",det,time_duration);
    
     flag = -1;
@@ -1177,12 +1216,13 @@ char* get_pathform()
 /*Callback function whenever "/save is accessed"*/
 esp_err_t handle_save(httpd_req_t *req)
 {
-    ESP_ERROR_CHECK(convert_paths(total_paths+1));  //convert the saved path into co-ordinate based representation, you can comment this part out
+    //ESP_ERROR_CHECK(convert_paths(total_paths+1));  //convert the saved path into co-ordinate based representation, you can comment this part out
     ESP_LOGI(TAG, "Now total paths---------------- %d", total_paths);
     char* resp = get_pathform();  //Link the name to the path
     httpd_resp_send(req, resp, strlen(resp));
     free(resp);
-    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    gpio_intr_disable(LEFT_ENCODERA);  //Disabled interrupt once done  
+    gpio_intr_disable(RIGHT_ENCODERA);    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     ESP_LOGI(TAG, "Now displaying /save");
     ESP_LOGI(TAG, "Callback Function called: handle_save()");
     ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_pathform(%d)", total_paths);
@@ -1830,8 +1870,8 @@ char* default_page()
     strcat(ptr, "<p>Press to select Manual mode</p><a class=\"button button-on\" href=\"/manual\">MANUAL</a>\n");//On clicking go to "/manual"
     strcat(ptr, "<p>Press to select Auto mode</p><a class=\"button button-on\" href=\"/auto\">AUTO</a>\n");//On clicking go to "/auto"
     strcat(ptr, "<p>Press to choose Connection Mode</p><a class=\"button button-on\" href=\"/choose\">SAP/STA</a>\n");//On clicking go to "/choose"
-    if (stop_flag ==1)
-        strcat(ptr, "<p>Press to select docking position</p><a class=\"button button-on\" href=\"/docking\">Docking</a>\n");//On clicking go to "/manual"
+    if (stop_flag == 1)
+        strcat(ptr, "<p>Press to go to docking position</p><a class=\"button button-on\" href=\"/docking\">Docking</a>\n");//On clicking go to "/manual"
 
     strcat(ptr, "<p>Press to reset the ESP</p><a class=\"button button-on\" href=\"/reset\">FACTORY\nRESET</a>\n");//On clicking go to "/reset"
     strcat(ptr, "</body>\n");
@@ -2076,6 +2116,38 @@ char* get_path_specific(int local_flag)
 }
 
 /*HTML Code which displays different text depending on local_flag and contains only a single button for returning to home page "/"*/
+char* get_home1()
+{
+    char* ptr = (char*)calloc(2048, sizeof(char));
+    strcat(ptr, "<!DOCTYPE html> <html>\n");
+    strcat(ptr, "<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\">\n");
+    strcat(ptr, "<title>Choose Direction</title>\n");
+    strcat(ptr, "<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\n");
+    strcat(ptr, "body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;} h3 {color: #444444;margin-bottom: 50px;}\n");
+    strcat(ptr, ".button {display: block;width: 100px;background-color: #3498db;border: none;color: white;padding: 13px 30px;text-decoration: none;font-size: 25px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n");
+    strcat(ptr, ".button-on {background-color: #3498db;}\n");
+    strcat(ptr, ".button-on:active {background-color: #2980b9;}\n");
+    strcat(ptr, ".button-off {background-color: #34495e;}\n");
+    strcat(ptr, ".button-off:active {background-color: #2c3e50;}\n");
+    strcat(ptr, "p {font-size: 14px;color: #888;margin-bottom: 10px;}\n");
+    //strcat(ptr, "meta http-equiv=refresh content=30 \n");
+    strcat(ptr, "</style>\n");
+    strcat(ptr, "</head>\n");
+    strcat(ptr, "<body>\n");
+    strcat(ptr, "<h1>ESP32 Web Server</h1>\n");
+    if(conn_flag == 0)
+        strcat(ptr, "<h3>Using Access Point(AP) Mode</h3>\n");
+    else
+        strcat(ptr, "<h3>Using Station(STA) Mode</h3>\n");
+    strcat(ptr, "<p>Press to return to home</p><a class=\"button button-on\" href=\"/\">HOME</a>\n");
+
+    strcat(ptr, "</body>\n");
+    strcat(ptr, "</html>\n");
+
+    return ptr; 
+}
+
+/*HTML Code which displays different text depending on local_flag and contains only a single button for returning to home page "/"*/
 char* get_home(int local_flag)
 {
     char* ptr = (char*)calloc(2048, sizeof(char));
@@ -2090,6 +2162,7 @@ char* get_home(int local_flag)
     strcat(ptr, ".button-off {background-color: #34495e;}\n");
     strcat(ptr, ".button-off:active {background-color: #2c3e50;}\n");
     strcat(ptr, "p {font-size: 14px;color: #888;margin-bottom: 10px;}\n");
+    //strcat(ptr, "meta http-equiv=refresh content=30 \n");
     strcat(ptr, "</style>\n");
     strcat(ptr, "</head>\n");
     strcat(ptr, "<body>\n");
@@ -2270,7 +2343,7 @@ char* get_stop()
     strcat(ptr, "</html>\n");
     return ptr;
 }
-// strcat(ptr, "<p>Click to Stop</p><a class=\"button button-on\" href=\"/stop\">STOP</a>\n");//Button for stopping the path recording
+
 /*Starts the webserver that is hosted on the ESP-32*/
 httpd_handle_t start_webserver(void)
 {
@@ -2282,6 +2355,7 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &uri_home);
         httpd_register_uri_handler(server, &uri_manual);
         httpd_register_uri_handler(server, &uri_pause);
+        httpd_register_uri_handler(server, &uri_docking);
         httpd_register_uri_handler(server, &uri_path_name);
         httpd_register_uri_handler(server, &uri_auto_pause);
         httpd_register_uri_handler(server, &uri_auto_resume);
@@ -2343,7 +2417,6 @@ httpd_handle_t start_webserver(void)
     ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     return server;
 }
-
 /*Stops the webserver (Ref: Official Github Repo)*/
 void stop_webserver(httpd_handle_t server)
 {

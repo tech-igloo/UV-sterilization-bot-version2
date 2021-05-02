@@ -5,29 +5,28 @@
 #include "driver/ledc.h"
 #include "driver/uart.h"
 
+#define LEFT_MOTOR_DIRECTION_1 2 
+#define RIGHT_MOTOR_DIRECTION_1 4
+#define LEFT_MOTOR_PIN 25                        // PWM pin for left motor
+#define RIGHT_MOTOR_PIN 26                     // PWM pin for right motor
+#define LEFT_MOTOR_DIRECTION_2 33 
+#define RIGHT_MOTOR_DIRECTION_2 27
+
+#define LEFT_ENCODERA 39                       //Only signal A of both the motor is being used for now
+#define LEFT_ENCODERB 34                   //Change the GPIO ENCODER PIN SEL when using all the pins
+#define RIGHT_ENCODERA 36                      
+#define RIGHT_ENCODERB 35
+#define GPIO_ENCODER_PIN_SEL  ((1ULL<<LEFT_ENCODERA) | (1ULL<<RIGHT_ENCODERA))  //64 bit mask
+#define ESP_INTR_FLAG_DEFAULT 0
+
 /*
+
 #define LEFT_MOTOR_ENABLE 33 
 #define RIGHT_MOTOR_ENABLE 12
 #define LEFT_MOTOR_PIN 2   //27                       // PWM pin for left motor
 #define RIGHT_MOTOR_PIN 13                      // PWM pin for right motor
 #define LEFT_MOTOR_DIRECTION 32 
 #define RIGHT_MOTOR_DIRECTION 14
-*/
-#define LEFT_MOTOR_DIR1 32
-#define LEFT_MOTOR_DIR2 33
-#define LEFT_MOTOR_PWM 25
-
-#define RIGHT_MOTOR_DIR1 14
-#define RIGHT_MOTOR_DIR2 12
-#define RIGHT_MOTOR_PWM 13
-
-
-#define LEFT_ENCODERA 36                       //Only signal A of both the motor is being used for now
-#define LEFT_ENCODERB 39                   //Change the GPIO ENCODER PIN SEL when using all the pins
-#define RIGHT_ENCODERA 34                      
-#define RIGHT_ENCODERB 35
-#define GPIO_ENCODER_PIN_SEL  ((1ULL<<LEFT_ENCODERA) | (1ULL<<RIGHT_ENCODERA))  //64 bit mask
-#define ESP_INTR_FLAG_DEFAULT 0
 
 #define ULTRA1 25
 #define ULTRA2 26
@@ -35,16 +34,21 @@
 #define ULTRA4 2
 #define ULTRA5 15
 #define GPIO_ULTRASONIC_PIN_SEL ((1ULL<<ULTRA1) | (1ULL<<ULTRA2) | (1ULL<<ULTRA3) | (1ULL<<ULTRA4) | (1ULL<<ULTRA5))
-
+*/
 #define TXD_PIN (GPIO_NUM_17) // ULTRASONIC PINS for configuration 
 #define RXD_PIN (GPIO_NUM_16)
 
-#define ENCODERresolution 1200              //The resolution of encoder, current using any edge single channel
-#define wheeldist_perTick 0.000445          //in meters
-#define wheelbase 0.30                      //in meters
+//#define ENCODERresolution 1200              //The resolution of encoder, current using any edge single channel
 
-#define DEFAULT_LIN_SPEED 0.03              //meter/sec    
-#define DEFAULT_ANG_SPEED 0.2               //rad/sec   
+//#define wheeldist_perTick 0.000445          //in meters
+//#define wheelbase 0.30                     //in meters
+
+#define ENCODERresolution 55              //The resolution of encoder, current using 'any edge' single channel
+#define wheeldist_perTick 0.00343                   //in meters
+#define wheelbase 0.1475                      //in meters
+
+#define DEFAULT_LIN_SPEED 0.7             //meter/sec    
+#define DEFAULT_ANG_SPEED 0.3               //rad/sec   
 #define MIN_LINEAR_SPEED 0.005
 #define MIN_ANGULAR_SPEED 0.05
      
@@ -56,18 +60,24 @@ extern int Rpwm;
 
 extern int leftRot;                    //Variable to take care to the encoder feedback
 extern int leftTicks;
+extern int leftRotd;                    //Variable to take care to the encoder feedback
+extern int leftTicksd;
 extern int rightRot;
 extern int rightTicks;
+extern int leftRotd;
+extern int rightRotd;
 
 extern double left_vel;                //Variable that store instantaneous velocity
 extern double right_vel;
-extern double prev_disL;
-extern double prev_disR;
-
+extern double prev_lticks;
+extern double prev_rticks;
+extern int point_index;
 extern double lin_speed;
 extern double ang_speed;
 
 extern int64_t prev_tim;
+extern double current_point[2];            //current co-ordinates of the bot*/
+
 
 extern double accumulated_errorL;             //integral term in PID formula
 extern double current_errorL;                 //current error in PID formula
@@ -108,6 +118,7 @@ void init_pid();
 int pid_velLeft(double actualvel, double desiredvel);
 int pid_velRight(double actualvel, double desiredvel);
 int map1(float x, float in_min, float in_max, int out_min, int out_max);
+int map2(float x, float in_min, float in_max, int out_min, int out_max) ;
 
 char determine(int local_flag);
 esp_err_t convert_paths(int n);
@@ -124,7 +135,7 @@ void recalculate();
 void sensing();
 void forwardSlow(int);
 void rotateSlow(int);
-void point_update();
-void batter_low();
+esp_err_t point_update();
+void battery_low();
 
 #endif

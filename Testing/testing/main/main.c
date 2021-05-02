@@ -27,6 +27,7 @@ char pathn[5][32] = {0};
   The next line contains which Network is to be used (0 if SAP mode)
   the next line contains the total number of Valid Network Credentials
   Note: argument *line should not end with \n because it is added seperately*/
+
 esp_err_t replace_wifi(char* line, int n)
 {
     char str[LINE_LEN];
@@ -642,16 +643,14 @@ void wifi_init_sta(void)
 }
 
 /*Function that will run parallely on Core 1*/
-void Task1code( void * pvParameters ){
-    //uint32_t io_num;
-
+void Task1code( void * pvParameters )
+{
     init_gpio();    //Initialize encoder and sensor pins
 	init_pwm();     //Initialize PWM channel
    
     while(1){  
         //ESP_LOGI(TAG,"Auto mode flag: %d manual mode: %d",auto_flag,manual_flag);
         if(auto_flag == 1){
-            
             actuationAuto();
             sensing();
             if(flag == 0) move_forward();
@@ -662,11 +661,11 @@ void Task1code( void * pvParameters ){
         }  
     	//ESP_LOGI(TAG, "Infinite Loop running On core %d", xPortGetCoreID());
         if(record_flag == 1 || manual_flag == 1){					//manual_flag, record_flag, flag, auto_flag are updated in other portions of the code 
-            if(flag == 0) move_forward();
-            else if(flag == 1) move_left();
-            else if(flag == 2) move_right();
-            else if(flag == 3) move_back();
-            else move_stop();      
+            if(flag == 0) {move_forward();}
+            else if(flag == 1) {move_left();}
+            else if(flag == 2) {move_right();}
+            else if(flag == 3) {move_back();}
+            else{ move_stop(); } 
         }
         else
             move_stop();
@@ -684,7 +683,7 @@ void app_main(void)
         init_sap();				//Start SAP mode
     else
         wifi_init_sta();		//Start STA mode
-    sensor_initilize();
+    //sensor_initilize();
     xTaskCreatePinnedToCore(    //Pinning a task in core 1
                     Task1code,   /* Task function. */
                     "Task1",     /* name of task. */
