@@ -47,6 +47,7 @@
 /*The variables that keep track of various things while the code is running*/
 extern const char *TAG;                     //Name used for ESP_LOGI statements. Feel free to set it to whatever you want
 extern int flag;                           //Used for determining in which direction it is travelling 
+extern int pause_flag;
 extern int record_flag;                     //Denote whether path is being recorded or not
 extern int conn_flag;                      //Denote which Wifi mode the ESP is used : 0 = SAP, 1 to WIFI_NUM = STA wifi index
 extern int auto_flag;                       //Denote whether auto mode is on or off

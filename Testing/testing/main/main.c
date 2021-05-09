@@ -20,6 +20,8 @@ int manual_flag = 0;                     //To check if it is in manual motion mo
 static TaskHandle_t Task1;                      //Task handle to keep track of created task running on Core 1
 char pathn[5][32] = {0};
 
+int batteryPercent=0;
+static double last_time = 0;                   //flag that signifies whether the bot should rotate or move along a straight line
 
 /*Replaces the nth line in the file /wifi_conf.txt with the line supplied in the argument
   The 1st line contains "SAP" or "STA" to denote which connection mode to use
@@ -647,20 +649,25 @@ void Task1code( void * pvParameters )
 {
     init_gpio();    //Initialize encoder and sensor pins
 	init_pwm();     //Initialize PWM channel
-   
+    //long int last_time = 0;
+    
     while(1){  
+
         //ESP_LOGI(TAG,"Auto mode flag: %d manual mode: %d",auto_flag,manual_flag);
         if(auto_flag == 1){
             actuationAuto();
             sensing();
+            if (pause_flag == 1){move_stop();}
+            if (pause_flag == 0) {
             if(flag == 0) move_forward();
             else if(flag == 1) move_left();
             else if(flag == 2) move_right();
             else if(flag == 3) move_back();
             else move_stop();
+            }
         }  
     	//ESP_LOGI(TAG, "Infinite Loop running On core %d", xPortGetCoreID());
-        if(record_flag == 1 || manual_flag == 1){					//manual_flag, record_flag, flag, auto_flag are updated in other portions of the code 
+        else if(record_flag == 1 || manual_flag == 1){					//manual_flag, record_flag, flag, auto_flag are updated in other portions of the code 
             if(flag == 0) {move_forward();}
             else if(flag == 1) {move_left();}
             else if(flag == 2) {move_right();}
@@ -669,6 +676,16 @@ void Task1code( void * pvParameters )
         }
         else
             move_stop();
+        if ((esp_timer_get_time()-last_time) > ADC_SAMPLING_FREQ ){
+            int raw = 0;
+            for (int ch = 0; ch < ADC_AVERAGING_FREQ; ch++){
+                raw += adc1_get_raw(ADC1_CHANNEL_6);
+            }
+            raw /= 10; 
+            batteryPercent = raw/40.95;  //in percentage, display on webpage
+            printf("Battery Percent: %d\n", batteryPercent);
+            last_time = esp_timer_get_time();
+        } 
     }
 }
 
@@ -683,7 +700,7 @@ void app_main(void)
         init_sap();				//Start SAP mode
     else
         wifi_init_sta();		//Start STA mode
-    //sensor_initilize();
+    sensor_initilize();
     xTaskCreatePinnedToCore(    //Pinning a task in core 1
                     Task1code,   /* Task function. */
                     "Task1",     /* name of task. */

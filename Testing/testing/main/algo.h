@@ -4,6 +4,8 @@
 #include "driver/gpio.h"
 #include "driver/ledc.h"
 #include "driver/uart.h"
+#include "driver/adc.h"
+#include "esp_adc_cal.h"
 
 #define LEFT_MOTOR_DIRECTION_1 2 
 #define RIGHT_MOTOR_DIRECTION_1 4
@@ -48,20 +50,23 @@
 #define wheelbase 0.1475                      //in meters
 
 #define DEFAULT_LIN_SPEED 0.7             //meter/sec    
-#define DEFAULT_ANG_SPEED 0.3               //rad/sec   
+#define DEFAULT_ANG_SPEED 0.4               //rad/sec   
 #define MIN_LINEAR_SPEED 0.005
 #define MIN_ANGULAR_SPEED 0.05
      
 #define sampleTime 100000                   //in microsec
 #define sampleTimeInSec 0.1
 
+#define ADC_SAMPLING_FREQ 1000000
+#define ADC_AVERAGING_FREQ 10
+
 extern int Lpwm;                       //Variables to pass pwm to the LEDC set duty function
 extern int Rpwm;  
 
 extern int leftRot;                    //Variable to take care to the encoder feedback
 extern int leftTicks;
-extern int leftRotd;                    //Variable to take care to the encoder feedback
-extern int leftTicksd;
+
+
 extern int rightRot;
 extern int rightTicks;
 extern int leftRotd;
@@ -86,11 +91,13 @@ extern double accumulated_errorR;
 extern double current_errorR;                 
 extern double prev_errorR;                    
 extern double prev_time;
+extern int batteryPercent;
 //extern int pid_flag;                        //flag that signifies that the PID controller's job is done
 
 extern double Kp;                //Common gains for now
 extern double Kd;
 extern double Ki;
+
 
 
 extern xQueueHandle gpio_evt_queue;

@@ -5,15 +5,10 @@ int Lpwm = 0;
 int Rpwm = 0;     //Always remember you can't define the variable in .h file     
 
 int leftRot = 0;
-
-int leftRotd=0;    //used for calculating the distance until the direction has changed
-int rightRotd=0;
-
 int leftTicks = 0;
 int rightRot = 0;
-int leftTicksd = 0;
-int rightTicksd = 0;
 int rightTicks = 0;
+
 double left_vel = 0;
 double right_vel = 0;
 double prev_disL = 0;
@@ -24,7 +19,6 @@ double ang_speed = DEFAULT_ANG_SPEED;
 int64_t prev_tim = 0;
 
 int point_index=0;
-
 double current_errorL = 0;
 double accumulated_errorL = 0;
 double prev_errorL = 0;
@@ -62,15 +56,16 @@ static double angle_rotated = 0;                 //angle rotated by bot(+ve for 
 static int doneFlag = 0;
 double timediff;
 static double current_time=0; // needed wehn for time based approach
- double prev_time = 0;                     //stores the previous time step, gets updated to current time after sysCall_sensing
+double prev_time = 0;                     //stores the previous time step, gets updated to current time after sysCall_sensing
 static double time_flag = 0;
+
 
 static int detect_flag = 0;
 //static int run = 0;
 static int obstacle_flag[5] = {0};              //To record ultrasonic value
 
 xQueueHandle gpio_evt_queue = NULL;
-char enpwmcmd[7]={0x44,0x00,0x55,0x01,0x99,0x02,0xaa}; // sensor commands
+char enpwmcmd[7]={0x44,0x55,0xaa,0x43}; // sensor commands
 
 void IRAM_ATTR gpio_encoder_isr_handler(void* arg)
 {
@@ -87,33 +82,35 @@ void InterruptEncoder(void* arg)
             if (io_num == LEFT_ENCODERA)
             {
                 leftTicks++;
-                leftTicksd++;
                 if (leftTicks >= ENCODERresolution)
                 {
                     leftRot++;   
                     leftTicks=0;
                 }
-                if (leftTicksd >= ENCODERresolution)
-                {
-                    leftRotd++;   
-                    leftTicksd=0;
-                }
+
             }
             else if (io_num == RIGHT_ENCODERA){
                 rightTicks++;
-                rightTicksd++;
                 if (rightTicks >= ENCODERresolution){
                     rightRot++;
                     rightTicks=0;
                 }
-                if (rightTicksd >= ENCODERresolution){
-                    rightRotd++;
-                    rightTicksd=0;
-                }
+
             }
+
         //printf("left: %d right:%d \n",leftRotd,rightRotd);   
         }
-
+        // if ((esp_timer_get_time()-last_time) > ADC_SAMPLING_FREQ )
+        // {   
+        //     int raw = 0;
+        //     for (int ch = 0; ch < ADC_AVERAGING_FREQ; ch++){
+        //         raw += adc1_get_raw(ADC1_CHANNEL_6);
+        //     }
+        //     raw /= 10; 
+        //     batteryPercent = raw/40.95;  //in percentage, display on webpage
+        //     printf("Battery Percent: %d\n", batteryPercent);
+        //     last_time = esp_timer_get_time();
+        // }
     }
 }
 
@@ -152,9 +149,12 @@ void init_gpio()
     ULTRASONIC.pin_bit_mask = GPIO_ULTRASONIC_PIN_SEL; 
     !< GPIO pin: set with bit mask, each bit maps to a GPIO 
     gpio_config(&ULTRASONIC);*/
+    
+    adc1_config_width(ADC_WIDTH_BIT_12);   // 0-4095 not linear range, testing and filtering req
+    adc1_config_channel_atten(ADC_CHANNEL_6, ADC_ATTEN_DB_11); //ADC1-CH6 corresponds to pin 34
 }
 //UART sensor initlisation by installing the drivers and deleting them after that to save the resources
-/*void sensor_initilize()
+void sensor_initilize()
 {
      const uart_config_t uart_config = {
         .baud_rate = 115200,
@@ -177,7 +177,7 @@ void init_gpio()
     uart_driver_delete(UART_NUM_2);
 
 }
-*/
+
 /*Used for setting up PWM Channel (Ref: Official Github Repo)*/
 void init_pwm()
 {
@@ -212,21 +212,17 @@ void move_forward()
 { 
  if((esp_timer_get_time() - prev_tim) >= sampleTime) //Running the PID at a specific frequency
     {
-        // left_vel = ((leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick - prev_disL)/sampleTimeInSec;  // 9Current_dis-prev_dis)/time VELCOTIY IN m/sec
-        // right_vel = ((rightRot*ENCODERresolution + rightTicks)*wheeldist_perTick - prev_disR)/sampleTimeInSec;
-        // prev_disL = left_vel*sampleTimeInSec + prev_disL;
-        // prev_disR = right_vel*sampleTimeInSec + prev_disR;
-        left_vel = (leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick/sampleTimeInSec;
-        right_vel = (rightRot*ENCODERresolution + rightTicks)*wheeldist_perTick/sampleTimeInSec;
+         left_vel = ((leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick - prev_disL)/sampleTimeInSec;  // 9Current_dis-prev_dis)/time VELCOTIY IN m/sec
+         right_vel = ((rightRot*ENCODERresolution + rightTicks)*wheeldist_perTick - prev_disR)/sampleTimeInSec;
+         prev_disL = left_vel*sampleTimeInSec + prev_disL;
+         prev_disR = right_vel*sampleTimeInSec + prev_disR;
+        /*left_vel = (leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick/sampleTimeInSec;
+        right_vel = (rightRot*ENCODERresolution + rightTicks)*wheeldist_perTick/sampleTimeInSec;*/
         Lpwm = pid_velLeft(left_vel, lin_speed);     //values after being mapped to PWM range
         Rpwm = pid_velRight(right_vel, lin_speed);
         prev_tim = esp_timer_get_time();
         //printf("here");
         //ESP_LOGI(TAG, "Left wheel velocity:%f, right wheel velocity:%f", left_vel, right_vel);
-        leftRot = 0;
-        rightRot = 0;
-        leftTicks = 0;
-        rightTicks = 0;
     }
    /* gpio_set_level(LEFT_MOTOR_DIRECTION, 1);    //BOTH IN SAME DIRECTION
     gpio_set_level(RIGHT_MOTOR_DIRECTION, 1);
@@ -245,25 +241,22 @@ void move_forward()
     ledc_update_duty(motorR.speed_mode, motorR.channel);
 }                                                                       
 
-void move_left()
+void move_right()
 {  
-    ESP_LOGI(TAG,"left");   
+    //ESP_LOGI(TAG,"left");   
     if((esp_timer_get_time() - prev_tim) >= sampleTime) //Running the PID at a specific frequency
     {
-        // left_vel = ((leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick - prev_disL)/sampleTimeInSec;  // 9Current_dis-prev_dis)/time VELCOTIY IN m/sec
-        // right_vel = ((rightRot*ENCODERresolution + rightTicks)*wheeldist_perTick - prev_disR)/sampleTimeInSec;
-        // prev_disL = left_vel*sampleTimeInSec + prev_disL;
-        // prev_disR = right_vel*sampleTimeInSec + prev_disR;
-        left_vel = (leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick/sampleTimeInSec;
-        right_vel = (rightRot*ENCODERresolution + rightTicks)*wheeldist_perTick/sampleTimeInSec;
+        left_vel = ((leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick - prev_disL)/sampleTimeInSec;  // 9Current_dis-prev_dis)/time VELCOTIY IN m/sec
+        right_vel = ((rightRot*ENCODERresolution + rightTicks)*wheeldist_perTick - prev_disR)/sampleTimeInSec;
+        prev_disL = left_vel*sampleTimeInSec + prev_disL;
+        prev_disR = right_vel*sampleTimeInSec + prev_disR;
+        /*left_vel = (leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick/sampleTimeInSec;
+        right_vel = (rightRot*ENCODERresolution + rightTicks)*wheeldist_perTick/sampleTimeInSec;*/
         Lpwm = pid_velLeft(left_vel, ang_speed);     //values after being mapped to PWM range
         Rpwm = pid_velRight(right_vel, ang_speed);
         prev_tim = esp_timer_get_time();
         //ESP_LOGI(TAG, "Left wheel velocity:%f, right wheel velocity:%f", left_vel, right_vel);
-        leftRot = 0;
-        rightRot = 0;
-        leftTicks = 0;
-        rightTicks = 0;
+
     }
     gpio_set_level(LEFT_MOTOR_DIRECTION_1, 1);    //IN OPP DIRECTION
     gpio_set_level(LEFT_MOTOR_DIRECTION_2, 0);    //BOTH IN SAME DIRECTION
@@ -283,25 +276,22 @@ void move_left()
     ledc_update_duty(motorR.speed_mode, motorR.channel);*/
 }
 
-void move_right()
-{   ESP_LOGI(TAG,"right");
+void move_left()
+{   //ESP_LOGI(TAG,"right");
     //ESP_LOGI(TAG,"FORWARD :CURRENT(x,y):%f %f path point(x,y): %f  %f ",current_point[0],current_point[1],stop_point[0],stop_point[1]);    
     if((esp_timer_get_time() - prev_tim) >= sampleTime) //Running the PID at a specific frequency
     {
-        // left_vel = ((leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick - prev_disL)/sampleTimeInSec;  // 9Current_dis-prev_dis)/time VELCOTIY IN m/sec
-        // right_vel = ((rightRot*ENCODERresolution + rightTicks)*wheeldist_perTick - prev_disR)/sampleTimeInSec;
-        // prev_disL = left_vel*sampleTimeInSec + prev_disL;
-        // prev_disR = right_vel*sampleTimeInSec + prev_disR;
-        left_vel = (leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick/sampleTimeInSec;
-        right_vel = (rightRot*ENCODERresolution + rightTicks)*wheeldist_perTick/sampleTimeInSec;
+        left_vel = ((leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick - prev_disL)/sampleTimeInSec;  // 9Current_dis-prev_dis)/time VELCOTIY IN m/sec
+        right_vel = ((rightRot*ENCODERresolution + rightTicks)*wheeldist_perTick - prev_disR)/sampleTimeInSec;
+        prev_disL = left_vel*sampleTimeInSec + prev_disL;
+        prev_disR = right_vel*sampleTimeInSec + prev_disR;
+        /*left_vel = (leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick/sampleTimeInSec;
+        right_vel = (rightRot*ENCODERresolution + rightTicks)*wheeldist_perTick/sampleTimeInSec;*/
         Lpwm = pid_velLeft(left_vel, ang_speed);     //values after being mapped to PWM range
         Rpwm = pid_velRight(right_vel, ang_speed);
         prev_tim = esp_timer_get_time();
         //ESP_LOGI(TAG, "Left wheel velocity:%f, right wheel velocity:%f", left_vel, right_vel);
-        leftRot = 0;
-        rightRot = 0;
-        leftTicks = 0;
-        rightTicks = 0;
+
     }   
     gpio_set_level(LEFT_MOTOR_DIRECTION_1, 0);    //IN OPP DIRECTION
     gpio_set_level(LEFT_MOTOR_DIRECTION_2, 1);    //BOTH IN SAME DIRECTION
@@ -322,24 +312,21 @@ void move_right()
 }
 
 void move_back()
-{   ESP_LOGI(TAG,"back");
+{   //ESP_LOGI(TAG,"back");
     //ESP_LOGI(TAG,"FORWARD :CURRENT(x,y):%f %f path point(x,y): %f %f ",current_point[0],current_point[1],stop_point[0],stop_point[1]);   
     if((esp_timer_get_time() - prev_tim) >= sampleTime) //Running the PID at a specific frequency
     {
-        // left_vel = ((leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick - prev_disL)/sampleTimeInSec;  // 9Current_dis-prev_dis)/time VELCOTIY IN m/sec
-        // right_vel = ((rightRot*ENCODERresolution + rightTicks)*wheeldist_perTick - prev_disR)/sampleTimeInSec;
-        // prev_disL = left_vel*sampleTimeInSec + prev_disL;
-        // prev_disR = right_vel*sampleTimeInSec + prev_disR;
-        left_vel = (leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick/sampleTimeInSec;
-        right_vel = (rightRot*ENCODERresolution + rightTicks)*wheeldist_perTick/sampleTimeInSec;
-        Lpwm = pid_velLeft(left_vel, lin_speed);     //values after being mapped to PWM range
-        Rpwm = pid_velRight(right_vel, lin_speed);
+        left_vel = ((leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick - prev_disL)/sampleTimeInSec;  // 9Current_dis-prev_dis)/time VELCOTIY IN m/sec
+        right_vel = ((rightRot*ENCODERresolution + rightTicks)*wheeldist_perTick - prev_disR)/sampleTimeInSec;
+        prev_disL = left_vel*sampleTimeInSec + prev_disL;
+        prev_disR = right_vel*sampleTimeInSec + prev_disR;
+        /*left_vel = (leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick/sampleTimeInSec;
+        right_vel = (rightRot*ENCODERresolution + rightTicks)*wheeldist_perTick/sampleTimeInSec;*/
+        Lpwm = pid_velLeft(left_vel, 0.5);     //values after being mapped to PWM range
+        Rpwm = pid_velRight(right_vel, 0.5);
         prev_tim = esp_timer_get_time();
         //ESP_LOGI(TAG, "Left wheel velocity:%f, right wheel velocity:%f", left_vel, right_vel);
-        leftRot = 0;
-        rightRot = 0;
-        leftTicks = 0;
-        rightTicks = 0;
+
     }
 
     gpio_set_level(LEFT_MOTOR_DIRECTION_1, 0);    //IN OPP DIRECTION
@@ -365,6 +352,7 @@ void move_stop()
     ledc_update_duty(motorL.speed_mode, motorL.channel);
     ledc_set_duty(motorR.speed_mode, motorR.channel, 0);
     ledc_update_duty(motorR.speed_mode, motorR.channel);
+    //vTaskDelay(500 / portTICK_PERIOD_MS);
     // for finalbot
     /*
     init_pid();
@@ -392,10 +380,6 @@ void init_pid(){
     leftTicks = 0;
     rightRot = 0;
     rightTicks = 0;
-    leftRotd=0;
-    rightRotd=0;
-    leftTicksd = 0;
-    rightTicksd = 0;
    
 }
 /*Simple PID funtions, can be upgraded while testing according to the performance. Like integral windup etc.*/
@@ -665,7 +649,6 @@ void battery_low()
     {   //a= atof(pointer);
         reverse[i] = atof(pointer);       //Convert the value from string to float
         //printf("%f",a);
-
         pointer = strtok(NULL, " ");  //Get the next element
         /*a=  atof(pointer);         
         printf("%f",a);*/
@@ -723,7 +706,7 @@ void battery_low()
     fclose(f_w);
     point_index=0;
     rotating_flag=1;
-    angle_rotated=dist_traversed=0;
+    dist_traversed=0;
     ESP_ERROR_CHECK(point_update());
     auto_flag=1;
    // return ESP_OK;
@@ -769,6 +752,7 @@ esp_err_t point_update()
         printf("breaking");
         stop_flag=0;
         auto_flag=0;
+        flag=-1;
         fclose(f_a);
         gpio_intr_disable(LEFT_ENCODERA);  //Disabled interrupt once done  
         gpio_intr_disable(RIGHT_ENCODERA);
@@ -781,6 +765,7 @@ esp_err_t point_update()
         {printf("breaking");
         stop_flag=0;
         auto_flag=0;
+        flag=-1;
         fclose(f_a);
         gpio_intr_disable(LEFT_ENCODERA);  //Disabled interrupt once done  
         gpio_intr_disable(RIGHT_ENCODERA);
@@ -808,7 +793,8 @@ esp_err_t point_update()
 }
 
 void reset_automode_values()
-{
+{  printf("here \n");
+
     angle_rotated=0;
     dist_traversed=0;
     angle_required = 0;                //angle that the bot needs to rotate to align itself with its destination point
@@ -825,11 +811,13 @@ void reset_automode_values()
 
 /*Execute the local_flag th path*/ //auto mode, need to enable the interrupts and use the algorithm
 esp_err_t get_path(int local_flag)
-{   lin_speed = DEFAULT_LIN_SPEED;
+{   
+    lin_speed = DEFAULT_LIN_SPEED;
     ang_speed = DEFAULT_ANG_SPEED;
     remove("/spiffs/currentpath.txt");
     point_index=0;
     reset_automode_values();
+    init_pid();
 
     char str[LINE_LEN], temp[500] = ""; // Change this temp to calloc
     int linectr = 0, count_flag = 1;
@@ -905,29 +893,11 @@ void updateParams(double xd, double yd)
 }
 
 void actuationAuto()
-{  
-    /*if(flag ==0){dist_traversed=dist_traversed+lin_speed*timediff;}
-
-    if (flag == 1) {
-           angle_rotated = (angle_rotated + (ang_speed*timediff)*180/M_PI);
-
-    }
-    else if(flag==2){
-        angle_rotated = (angle_rotated - (ang_speed*timediff)*180/M_PI);
-    }*/
-
-
-    if (flag ==0) dist_traversed = (leftRotd*ENCODERresolution + leftTicksd)*wheeldist_perTick; //In meters //To know if the target has been reached
-    else if (flag == 1)angle_rotated = angle_rotated + ((leftRotd*ENCODERresolution + leftTicksd)*wheeldist_perTick*2)/wheelbase; //Angle of the bot in radians
-    else if (flag==2) angle_rotated = angle_rotated - ((leftRotd*ENCODERresolution + leftTicksd)*wheeldist_perTick*2)/wheelbase; //Angle of the bot in radians
-    
-    //anti clockwise for positive angle
-    //printf("hello");
-    //angle_rotated = angle_rotated + ang_speed*timediff;
-    //Clockwise negative angle
-    //{//printf("hello");
-    //angle_rotated = angle_rotated - ang_speed*timediff;}
-    //angle_rotated = angle_rotated - ((leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick*2)/wheelbase; //Angle of the bot in radians
+{ 
+    //encoder based 
+    if (flag ==0) dist_traversed = (leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick; //In meters //To know if the target has been reached
+    else if (flag == 1)angle_rotated = angle_rotated + ((leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick*2)/wheelbase; //Angle of the bot in radians
+    else if (flag==2) angle_rotated = angle_rotated - ((leftRot*ENCODERresolution + leftTicks)*wheeldist_perTick*2)/wheelbase; //Angle of the bot in radians
     
     current_point[0] = stop_point[0] + dist_traversed*cos(angle_rotated*M_PI/180); //calculates co-ordinates of the current point using the 
     current_point[1] = stop_point[1] + dist_traversed*sin(angle_rotated*M_PI/180); //point where the orientation of the bot was last changed
@@ -985,11 +955,14 @@ void normal_motion()
         /*int val = get_pid_angle(angle_rotated, angle_required);
         Lpwm = Rpwm = val;*/
         if(doneFlag==1){
+
             init_pid();
             rotating_flag = 0;
             doneFlag=0;
             flag=-1;
             printf("rotation done \n");
+            vTaskDelay(200 / portTICK_PERIOD_MS);
+
         }
         else{printf("rotating \n");
             rotate();
@@ -1006,6 +979,9 @@ void normal_motion()
             update_stopPoint();
             rotating_flag = 1;
             doneFlag=0;
+            vTaskDelay(200 / portTICK_PERIOD_MS);
+
+
         }
         else{
             forward();
