@@ -1,9 +1,10 @@
 #include "server.h"
 #include "algo.h"
 
-int pause_flag=0;
-int stop_flag=0;
-int path_flag=0;
+int pause_flag=0;    // used to sense if the user pressed pause button or not 
+int stop_flag=0;    // stop flag used in auto mode to eneble docking button 
+int path_flag=0;    
+int max_path_flag=0;     // is max number of path has reached we disabled the path recording so that the user can only use the robot in manaul mode
 
 /*The following are structures linking each web address with their corresponding callback functions
   Each structure contains the web address, the corresponding callback function, the HTTP method (HTTP_GET or HTTP_POST) and any user context(NULL for all the structures)*/
@@ -400,167 +401,6 @@ httpd_uri_t uri_sta_data5 = {
      .user_ctx = NULL
  };
 
-
-
-/*form for wifi network 1 and needs to be saved"*/
-esp_err_t handle_path_name(httpd_req_t *req)
-{  
-
-    strcpy(line_str, "");   //Initialize it to empty string
-    int len = req->content_len;     //Get the length of the header
-    int ret, remaining = req->content_len;      //Get how much length is left to be read
-    while (remaining > 0) {									//this method of taking the data was taken from online
-        if ((ret = httpd_req_recv(req, buf, len)) <= 0) {   //Store len lngth of data from the header in the string variable "buf" 
-            if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
-                continue;
-            }
-            return ESP_FAIL;
-        }
-        remaining -= ret;
-    }
-    buf[len] = '\0';                        //Put terminating character in proper place
-    ESP_LOGI(TAG, "Buffer: %s", buf);
-    // we need to change the format of path.txt or creat some space for path name, also after receiving we need to update it in the file.
-    char* path_name = strtok(buf, "=");   //ssid_data now contains "SSID"
-    path_name = strtok(NULL, "=");          //ssid_data now contains "[ssid]"
-    
-    FILE* f_r = fopen("/spiffs/pathname.txt", "r");
-    FILE* f_w = fopen("/spiffs/temperary.txt", "w");
-
-    if (f_r == NULL) {
-        ESP_LOGE(TAG, "Failed to open file for writing");
-        return ESP_FAIL;
-    }
-    if (f_w == NULL) {
-        ESP_LOGE(TAG, "Failed to open file for writing");
-        return ESP_FAIL;
-    }
-    char str[LINE_LEN];
-    int linectr = 0;
-    while(1)
-    {
-        strcpy(str, "\0");		//intialize to empty string
-        fgets(str, LINE_LEN, f_r);
-        printf("pathname: %s\n",str);
-        if (linectr == total_paths)
-        { printf("%s\n",path_name);
-            fprintf(f_w,"%s",path_name);
-            fputc('\n', f_w);
-            break;
-        }
-        else{
-            fprintf(f_w,"%s",str);
-        }
-        linectr++;
-    }
-
-    fclose(f_r);
-    fclose(f_w);
-    remove("/spiffs/pathname.txt");
-    rename("/spiffs/temperary.txt", "/spiffs/pathname.txt");
-    update_number(1); //total_paths is updated in paths.txt and the global variable is also updated
-    ESP_ERROR_CHECK(convert_paths(total_paths+1));  //convert the saved path into co-ordinate based representation, you can comment this part out
-    update_pathname(); //:This will update the pathn[] array by reading all the path's last element
-    ESP_LOGI(TAG, "Now total paths---------------- %d", total_paths);
-    printf(pathn[total_paths-1]);
-    char* resp = get_home(3);  //Link the name to the path
-    httpd_resp_send(req, resp, strlen(resp));
-    free(resp);
-    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
-    ESP_LOGI(TAG, "Now displaying /pathname");
-    ESP_LOGI(TAG, "Callback Function called: handle_pathname()");
-    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_home(3)");
-    return ESP_OK;
-}
-
-esp_err_t handle_auto_pause(httpd_req_t *req)
-{
-    pause_flag = 1;
-    char* resp = get_home(0); //Get the HTML Code
-    httpd_resp_send(req, resp, strlen(resp));  //Send the HTML Code to display
-    free(resp);
-    gpio_intr_disable(LEFT_ENCODERA);  //Disabled interrupt once done  
-    gpio_intr_disable(RIGHT_ENCODERA);
-    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
-    ESP_LOGI(TAG, "Now displaying /");
-    ESP_LOGI(TAG, "Callback Function called: handle_auto_pause");
-    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: default_page()");
-    return ESP_OK;
-}
-esp_err_t handle_auto_resume(httpd_req_t *req)
-{
-    pause_flag = 0;
-    prev_time=esp_timer_get_time()/1000000;
-    auto_flag=1;
-    char* resp = get_home(0); //Get the HTML Code
-    httpd_resp_send(req, resp, strlen(resp));  //Send the HTML Code to display
-    free(resp);
-    gpio_intr_enable(LEFT_ENCODERA);    //Enabled when in active mode(ready to move)
-    gpio_intr_enable(RIGHT_ENCODERA);
-    
-    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
-    ESP_LOGI(TAG, "Now displaying /");
-    ESP_LOGI(TAG, "Callback Function called: handle_auto_pause");
-    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: default_page()");
-    return ESP_OK;
-}
-esp_err_t handle_auto_stop(httpd_req_t *req)
-{
-    stop_flag = 1;
-    auto_flag=0;
-    flag=-1;
-    char* resp = default_page(); //Get the HTML Code
-    httpd_resp_send(req, resp, strlen(resp));  //Send the HTML Code to display
-    free(resp);
-    
-    gpio_intr_disable(LEFT_ENCODERA);  //Disabled interrupt once done  
-    gpio_intr_disable(RIGHT_ENCODERA);
-    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
-    ESP_LOGI(TAG, "Now displaying /");
-    ESP_LOGI(TAG, "Callback Function called: handle_auto_stop");
-    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: default_page()");
-    return ESP_OK;
-}
-
-esp_err_t handle_auto_stop_path(httpd_req_t *req)
-{
-    flag = -1;
-    auto_flag=0;
-    remove("/spiffs/currentpath.txt");
-    char* resp = get_path_specific(path_flag); //Get the HTML Code
-    httpd_resp_send(req, resp, strlen(resp));  //Send the HTML Code to display
-    free(resp);
-    gpio_intr_disable(LEFT_ENCODERA);  //Disabled interrupt once done  
-    gpio_intr_disable(RIGHT_ENCODERA);
-    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
-    ESP_LOGI(TAG, "Now displaying /");
-    ESP_LOGI(TAG, "Callback Function called: handle_auto_stop_path");
-    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: default_page()");
-    return ESP_OK;
-}
-
-esp_err_t handle_docking(httpd_req_t *req)
-{
-    stop_flag=0;
-    printf("point_index: %d",point_index);
-    char* resp = get_home1();
-    httpd_resp_send(req, resp, strlen(resp));  //Send the HTML Code to display
-    free(resp);
-    
-    gpio_intr_enable(LEFT_ENCODERA);    //Enabled when in active mode(ready to move)
-    gpio_intr_enable(RIGHT_ENCODERA);
-    battery_low();
-    //ESP_ERROR_CHECK(battery_low());  //convert the saved path into co-ordinate based representation, you can comment this part out
-    ESP_LOGI(TAG, "Now displaying /docking");
-    ESP_LOGI(TAG, "Callback Function called: handle_docking");
-    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: default_page()");
-
-    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
-
-    return ESP_OK;
-}
-
-
 httpd_uri_t uri_path_name = {
      .uri      = "/pathname",
      .method   = HTTP_POST,      //POST is used for extra security since wifi credentials are passed through the form
@@ -606,6 +446,181 @@ httpd_uri_t uri_docking = {
 /*In all of the callback functions below, the HTML Code for displaying
   the webpage is passed using the 'resp' string variable*/
 
+
+/*form for storing the wifi names and calling the convert path function which converts 
+the encoder based path to grid based coordinate ssystem
+*/
+esp_err_t handle_path_name(httpd_req_t *req)
+{  
+
+    strcpy(line_str, "");   //Initialize it to empty string
+    int len = req->content_len;     //Get the length of the header
+    int ret, remaining = req->content_len;      //Get how much length is left to be read
+    while (remaining > 0) {									//this method of taking the data was taken from online
+        if ((ret = httpd_req_recv(req, buf, len)) <= 0) {   //Store len lngth of data from the header in the string variable "buf" 
+            if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
+                continue;
+            }
+            return ESP_FAIL;
+        }
+        remaining -= ret;
+    }
+    buf[len] = '\0';                        //Put terminating character in proper place
+    ESP_LOGI(TAG, "Buffer: %s", buf);
+    // we need to change the format of path.txt or creat some space for path name, also after receiving we need to update it in the file.
+    char* path_name = strtok(buf, "=");   //ssid_data now contains "SSID"
+    path_name = strtok(NULL, "=");          //ssid_data now contains "[ssid]"
+    
+    FILE* f_r = fopen("/spiffs/pathname.txt", "r");   // opening the pathname.txt to read 
+    FILE* f_w = fopen("/spiffs/temperary.txt", "w");   // opening the temperarty.txt to write the path names 
+
+    if (f_r == NULL) {           // if the pathname.txt fialed to create the simply return with esp fail message 
+        ESP_LOGE(TAG, "Failed to open file for reading");
+        return ESP_FAIL;
+    }
+    if (f_w == NULL) {          // if the temperary.txt fialed to create the simply return with esp fail message 
+        ESP_LOGE(TAG, "Failed to open file for writing");
+        return ESP_FAIL;
+    }
+    //go through the pathname.txt file and store the data in str variable
+    char str[LINE_LEN];
+    int linectr = 0;
+    while(1)
+    {
+        strcpy(str, "\0");		//intialize to empty string
+        fgets(str, LINE_LEN, f_r);
+        printf("pathname: %s\n",str);
+        if (linectr == total_paths) // append the new path name to the str varaible and copy that to the file 
+        {   
+            printf("%s\n",path_name);
+            fprintf(f_w,"%s",path_name);    
+            fputc('\n', f_w);
+            break;
+        }
+        else
+        {
+            fprintf(f_w,"%s",str);   // if they are not of new path name  then just copy them to file 
+        }
+        linectr++;
+    }
+    // close bot the files
+    fclose(f_r);
+    fclose(f_w);
+    remove("/spiffs/pathname.txt");     // remove the non update file with pathname.txr
+    rename("/spiffs/temperary.txt", "/spiffs/pathname.txt");        // rename temperary.txt to pathname.txr
+    update_number(1); //total_paths is updated in paths.txt and the global variable is also updated
+    ESP_ERROR_CHECK(convert_paths(total_paths+1));  //convert the saved path into co-ordinate based representation, you can comment this part out
+    update_pathname(); //:This will update the pathn[] array by reading all the path's last element
+    ESP_LOGI(TAG, "Now total paths---------------- %d", total_paths);
+    printf(pathn[total_paths-1]);
+    char* resp = get_home(3);                       //Link the name to the path
+    httpd_resp_send(req, resp, strlen(resp));       // displaying the webpage 
+    free(resp);
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /pathname");
+    ESP_LOGI(TAG, "Callback Function called: handle_pathname()");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: get_home(3)");
+    return ESP_OK;
+
+}
+
+// handle pause in automode
+esp_err_t handle_auto_pause(httpd_req_t *req)
+{
+    pause_flag = 1;
+    char* resp = get_home(0); //Get the HTML Code
+    httpd_resp_send(req, resp, strlen(resp));  //Send the HTML Code to display
+    free(resp);
+    gpio_intr_disable(LEFT_ENCODERA);  //Disabled interrupt once done  
+    gpio_intr_disable(RIGHT_ENCODERA);
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /");
+    ESP_LOGI(TAG, "Callback Function called: handle_auto_pause");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: default_page()");
+    return ESP_OK;
+}
+
+// handling auto mode resume  feature 
+esp_err_t handle_auto_resume(httpd_req_t *req)
+{
+    pause_flag = 0;
+    prev_time=esp_timer_get_time()/1000000;
+    auto_flag=1;
+    char* resp = get_home(0); //Get the HTML Code
+    httpd_resp_send(req, resp, strlen(resp));  //Send the HTML Code to display
+    free(resp);
+    gpio_intr_enable(LEFT_ENCODERA);    //Enabled when in active mode(ready to move)
+    gpio_intr_enable(RIGHT_ENCODERA);
+    
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /");
+    ESP_LOGI(TAG, "Callback Function called: handle_auto_pause");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: default_page()");
+    return ESP_OK;
+}
+
+// used to stop auto mode when the orbot is naviaging autonomusly if the user is not in the specific path page 
+esp_err_t handle_auto_stop(httpd_req_t *req)
+{
+    stop_flag = 1;
+    auto_flag=0;
+    flag=-1;
+    char* resp = default_page(); //Get the HTML Code
+    httpd_resp_send(req, resp, strlen(resp));  //Send the HTML Code to display
+    free(resp);
+    
+    gpio_intr_disable(LEFT_ENCODERA);  //Disabled interrupt once done  
+    gpio_intr_disable(RIGHT_ENCODERA);
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /");
+    ESP_LOGI(TAG, "Callback Function called: handle_auto_stop");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: default_page()");
+    return ESP_OK;
+}
+
+
+// used to stop auto mode when the orbot is naviaging autonomusly if the user is in the specific path page 
+esp_err_t handle_auto_stop_path(httpd_req_t *req)
+{
+    flag = -1;
+    auto_flag=0;
+    remove("/spiffs/currentpath.txt");
+    char* resp = get_path_specific(path_flag); //Get the HTML Code
+    httpd_resp_send(req, resp, strlen(resp));  //Send the HTML Code to display
+    free(resp);
+    gpio_intr_disable(LEFT_ENCODERA);  //Disabled interrupt once done  
+    gpio_intr_disable(RIGHT_ENCODERA);
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+    ESP_LOGI(TAG, "Now displaying /");
+    ESP_LOGI(TAG, "Callback Function called: handle_auto_stop_path");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: default_page()");
+    return ESP_OK;
+}
+
+
+// if the user stops the robot in auto mode and wants to get the robot back to home position he has to press docking button
+esp_err_t handle_docking(httpd_req_t *req)
+{
+    stop_flag=0; 
+    printf("point_index: %d",point_index);
+    char* resp = get_home1();
+    httpd_resp_send(req, resp, strlen(resp));  //Send the HTML Code to display
+    free(resp);
+    
+    gpio_intr_enable(LEFT_ENCODERA);    //Enabled when in active mode(ready to move)
+    gpio_intr_enable(RIGHT_ENCODERA);
+    battery_low();                        // this function basically reverse thepath execuited till the presnt and puts back the robot in auto mode
+    //ESP_ERROR_CHECK(battery_low());  //convert the saved path into co-ordinate based representation, you can comment this part out
+    ESP_LOGI(TAG, "Now displaying /docking");
+    ESP_LOGI(TAG, "Callback Function called: handle_docking");
+    ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: default_page()");
+
+    //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
+
+    return ESP_OK;
+}
+
+
 /*Callback function whenever "/" is accessed*/
 
 esp_err_t handle_OnConnect(httpd_req_t *req)
@@ -631,7 +646,8 @@ esp_err_t handle_reset(httpd_req_t *req)
     remove("/spiffs/wifi_conf.txt"); //delete the files for fresh reboot
     remove("/spiffs/paths.txt");
     remove("/spiffs/pathname.txt");
-    //httpd_resp_send(req, "Device will restart now", strlen("Device will restart now"));//just send a line for displaying it in the webpage
+    main_update();
+    
     //ESP_LOGI(TAG, "On core %d", xPortGetCoreID());
     ESP_LOGI(TAG, "Now displaying /reset");
     ESP_LOGI(TAG, "Callback Function called: handle_reset()");
@@ -640,7 +656,7 @@ esp_err_t handle_reset(httpd_req_t *req)
     char* resp = default_page(); //Get the HTML Code
     httpd_resp_send(req, resp, strlen(resp));  //Send the HTML Code to display
     free(resp);
-    esp_restart(); //restart the ESP
+    //esp_restart(); //restart the ESP
 
     return ESP_OK;
 }
@@ -987,6 +1003,8 @@ esp_err_t handle_forward(httpd_req_t *req)
 esp_err_t handle_left(httpd_req_t *req)
 {
     char det = determine(flag);     //determine the direction it was going earlier
+   
+    // time based feedback 
     // curr_mili = esp_timer_get_time();
      //time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
      //ESP_LOGI(TAG,"%c%f",det,time_duration);
@@ -997,9 +1015,19 @@ esp_err_t handle_left(httpd_req_t *req)
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead as well
     }
     else if(flag == 1 || flag == 2){                  //to calculated angle
+        if(leftRot > rightRot){
+            printf("here left \n");
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead here as well, this gives us the arc length
         time_duration = (time_duration*2)/wheelbase;  //angle= arc/radius gives angle in radians
         time_duration = fmod(time_duration, 2*M_PI);
+        }
+        
+        else if(rightRot >leftRot){
+        printf("here right \n");
+        time_duration = (abs(rightRot)*ENCODERresolution + abs(rightTicks))*wheeldist_perTick;  //Could have checked right instead here as well, this gives us the arc length
+        time_duration = (time_duration*2)/wheelbase;  //angle= arc/radius gives angle in radians
+        time_duration = fmod(time_duration, 2*M_PI);
+        }
     }
     ESP_LOGI(TAG,"%c%f",det,time_duration);
 
@@ -1033,6 +1061,8 @@ esp_err_t handle_left(httpd_req_t *req)
 esp_err_t handle_right(httpd_req_t *req)
 {
     char det = determine(flag);
+    
+    // time based feedback
     // curr_mili = esp_timer_get_time();
      //time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
      //ESP_LOGI(TAG,"%c%f",det,time_duration);
@@ -1043,11 +1073,25 @@ esp_err_t handle_right(httpd_req_t *req)
     if(flag == 0 || flag == 3){                      //for forward and backward
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead as well
     }
-    else if(flag == 1 || flag == 2){                  //to calculated angle
+
+    else if(flag == 1 || flag == 2)
+    {                  //to calculated angle
+        if(leftRot >= rightRot)   // because of the hardware limitation used in testing we found that sometime the motors are not rsponding so to calculate the angle rotated we are considering the motor which has rotated more
+        {
+        printf("here left \n");
         time_duration = (abs(leftRot)*ENCODERresolution + abs(leftTicks))*wheeldist_perTick;  //Could have checked right instead here as well, this gives us the arc length
         time_duration = (time_duration*2)/wheelbase;  //angle= arc/radius gives angle in radians
         time_duration = fmod(time_duration, 2*M_PI);
+        }
+        
+        else if(rightRot >= leftRot){
+            printf("here right \n");
+        time_duration = (abs(rightRot)*ENCODERresolution + abs(rightTicks))*wheeldist_perTick;  //Could have checked right instead here as well, this gives us the arc length
+        time_duration = (time_duration*2)/wheelbase;  //angle= arc/radius gives angle in radians
+        time_duration = fmod(time_duration, 2*M_PI);
+        }
     }
+
     ESP_LOGI(TAG,"%c%f",det,time_duration);
 
     init_pid();
@@ -1080,6 +1124,8 @@ esp_err_t handle_right(httpd_req_t *req)
 esp_err_t handle_back(httpd_req_t *req)
 {
     char det = determine(flag);
+    
+    // time based feedback 
      /*curr_mili = esp_timer_get_time();
      time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
      ESP_LOGI(TAG,"%c%f",det,time_duration);
@@ -1126,6 +1172,8 @@ esp_err_t handle_back(httpd_req_t *req)
 esp_err_t handle_stop(httpd_req_t *req)
 {  
     char det = determine(flag);         //Note that total_paths is not updated here, it is only updated in "/save", because if the author chooses to discard this path then "/manual" will automatically delete this path
+    
+    // time based feedback
      /*curr_mili = esp_timer_get_time();
      time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
      ESP_LOGI(TAG,"%c%f",det,time_duration);
@@ -1178,6 +1226,8 @@ esp_err_t handle_stop(httpd_req_t *req)
 esp_err_t handle_pause(httpd_req_t *req)
 {
     char det = determine(flag); //Get which direction it was travelling earlier
+    
+    // used to pause auto mode
     /* curr_mili = esp_timer_get_time();
      time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
      ESP_LOGI(TAG,"%c%f",det,time_duration);
@@ -1219,16 +1269,7 @@ esp_err_t handle_pause(httpd_req_t *req)
     ESP_LOGI(TAG, "Webpage displayed using HTML Code returned by: manual_mode()");
     return ESP_OK;  
 }
-char* get_pathform()
-{
-    char* ptr = (char *)calloc(2048, sizeof(char));
-    strcat(ptr, "<form action=\"/pathname\" method = \"post\">\n"); 
-    strcat(ptr, "<label for=\"pname\">Path name:</label><br>\n");
-    strcat(ptr, "<input type=\"text\" id=\"pname\" name=\"pname\" maxlength=SSID_LEN><br>\n");
-    strcat(ptr, "<input type=\"submit\" value=\"Submit\">\n");
-    strcat(ptr, "</form>");
-    return ptr;
-}
+
 /*Callback function whenever "/save is accessed"*/
 esp_err_t handle_save(httpd_req_t *req)
 {
@@ -1286,7 +1327,7 @@ esp_err_t handle_sta(httpd_req_t *req)
     return ESP_OK;
 }
 
-/*Callback function whenever "/new is accessed"*/
+/*Callback function whenever "/new is accessed (for wifi crediantials)"*/
 esp_err_t handle_new(httpd_req_t *req)
 {
     if(total == WIFI_NUM)   //If maximum number of wifi credentials has been reached
@@ -1878,19 +1919,15 @@ char* default_page()
     strcat(ptr, "p {font-size: 14px;color: #888;margin-bottom: 10px;}\n");
     strcat(ptr, "</style>\n");
     strcat(ptr, "</head>\n");
-    strcat(ptr,"<head>");
-    strcat(ptr,"<meta http-equiv= refresh content= 5 >");
+    strcat(ptr,"<head>");  // this head is used in updating the webpage for every 5 sec as  we need to display battery percentage
+    strcat(ptr,"<meta http-equiv= refresh content= 5 >"); // This method is used in updating the web page fr every 5 sec
     strcat(ptr,"</head> \n");
     strcat(ptr, "<body>\n");
     strcat(ptr,"<h4>Battery Percent:");
     sprintf(str,"%d",batteryPercent);
     strcat(ptr,str);
     strcat(ptr," % </h3>\n");
-    /*strcat(ptr,"<label for = battery > battery Percent: </label>\n");
-    sprintf(str,"%d",i);
-    strcat(ptr,"<meter id =battery value = ");
-    strcat(ptr,str);
-    strcat(ptr,">50%</meter>\n");*/
+
     strcat(ptr, "<h1>ESP32 Web Server</h1>\n");
     if(conn_flag == 0)  //For checking which mode the ESP is currently operating in
         strcat(ptr, "<h3>Using Access Point(AP) Mode</h3>\n");
@@ -1899,7 +1936,7 @@ char* default_page()
     strcat(ptr, "<p>Press to select Manual mode</p><a class=\"button button-on\" href=\"/manual\">MANUAL</a>\n");//On clicking go to "/manual"
     strcat(ptr, "<p>Press to select Auto mode</p><a class=\"button button-on\" href=\"/auto\">AUTO</a>\n");//On clicking go to "/auto"
     strcat(ptr, "<p>Press to choose Connection Mode</p><a class=\"button button-on\" href=\"/choose\">SAP/STA</a>\n");//On clicking go to "/choose"
-    if (stop_flag == 1)
+    if (stop_flag == 1 && doneFlag==0)
         strcat(ptr, "<p>Press to go to docking position</p><a class=\"button button-on\" href=\"/docking\">Docking</a>\n");//On clicking go to "/manual"
 
     strcat(ptr, "<p>Press to reset the ESP</p><a class=\"button button-on\" href=\"/reset\">FACTORY\nRESET</a>\n");//On clicking go to "/reset"
@@ -2222,6 +2259,7 @@ char* get_home(int local_flag)
 
     return ptr; 
 }
+
 /*HTML Code which displays different text depending on local_flag and contains only a sin*/
 char* manual_mode()
 {   char* ptr = (char*)calloc(2048, sizeof(char));
@@ -2247,8 +2285,13 @@ char* manual_mode()
     else
         strcat(ptr, "<h3>Using Station(STA) Mode</h3>\n");
 
-    if(total_paths == PATH_NUM){ //Check if maximum number of valid paths have been reached
+    if(total_paths == PATH_NUM){
+        max_path_flag=1; //Check if maximum number of valid paths have been reached
         strcat(ptr, "<h3>Maximum number of stored paths reached. Please delete saved paths to store new paths</h3>\n");
+        strcat(ptr, "<p>Forward: OFF</p><a class=\"button button-on\" href=\"/forward\">ON</a>\n");
+        strcat(ptr, "<p>Left: OFF</p><a class=\"button button-on\" href=\"/left\">ON</a>\n");
+        strcat(ptr, "<p>Right: OFF</p><a class=\"button button-on\" href=\"/right\">ON</a>\n");
+        strcat(ptr, "<p>Back: OFF</p><a class=\"button button-on\" href=\"/back\">ON</a>\n");
         strcat(ptr, "<p>Click to return to home page</p><a class=\"button button-on\" href=\"/\">HOME</a>\n");
         strcat(ptr, "</body>\n");
         strcat(ptr, "</html>\n");
@@ -2265,6 +2308,7 @@ char* manual_mode()
         strcat(ptr, "</h3>\n");
         strcat(ptr, "<p>Click to Stop</p><a class=\"button button-on\" href=\"/stop\">STOP</a>\n");//Button for stopping the path recording
     }
+    
     strcat(ptr, "<p>Forward: OFF</p><a class=\"button button-on\" href=\"/forward\">ON</a>\n");
     strcat(ptr, "<p>Left: OFF</p><a class=\"button button-on\" href=\"/left\">ON</a>\n");
     strcat(ptr, "<p>Right: OFF</p><a class=\"button button-on\" href=\"/right\">ON</a>\n");
@@ -2303,9 +2347,9 @@ char* SendHTML(uint8_t local_flag)
     else
         strcat(ptr, "<h3>Using Station(STA) Mode</h3>\n");
 
-    if(record_flag == 0)
+    if(record_flag == 0 && max_path_flag==0)
         strcat(ptr, "<p>Click to Start</p><a class=\"button button-on\" href=\"/start\">START</a>\n");
-    else{
+    else if(record_flag==1 && max_path_flag==0){
         strcat(ptr, "<h3>Now recording Path: ");
         strcat(ptr, str);
         strcat(ptr, "</h3>\n");
@@ -2332,10 +2376,22 @@ char* SendHTML(uint8_t local_flag)
     else
     {strcat(ptr, "<p>Backwards: OFF</p><a class=\"button button-on\" href=\"/back\">ON</a>\n");}
 
-    if(record_flag == 0)
+    if(record_flag == 0 || max_path_flag==1)
         strcat(ptr, "<p>Click to return to home page</p><a class=\"button button-on\" href=\"/\">HOME</a>\n");
     strcat(ptr, "</body>\n");
     strcat(ptr, "</html>\n");
+    return ptr;
+}
+
+// form for path name
+char* get_pathform()
+{
+    char* ptr = (char *)calloc(2048, sizeof(char));
+    strcat(ptr, "<form action=\"/pathname\" method = \"post\">\n"); 
+    strcat(ptr, "<label for=\"pname\">Path name:</label><br>\n");
+    strcat(ptr, "<input type=\"text\" id=\"pname\" name=\"pname\" maxlength=SSID_LEN><br>\n");
+    strcat(ptr, "<input type=\"submit\" value=\"Submit\">\n");
+    strcat(ptr, "</form>");
     return ptr;
 }
 

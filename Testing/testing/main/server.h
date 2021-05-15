@@ -72,6 +72,12 @@ struct httpd_uri_t {                     //structure intialization for all the s
     void *user_ctx;
 };
 
+esp_err_t handle_auto_pause(httpd_req_t *req);
+esp_err_t handle_auto_resume(httpd_req_t *req);
+esp_err_t handle_auto_stop(httpd_req_t *req);
+esp_err_t handle_auto_stop_path(httpd_req_t *req);
+esp_err_t handle_path_name(httpd_req_t *req);
+esp_err_t handle_docking(httpd_req_t *req);
 esp_err_t handle_OnConnect(httpd_req_t *req);
 esp_err_t handle_reset(httpd_req_t *req);
 esp_err_t handle_start(httpd_req_t *req);
@@ -129,6 +135,7 @@ esp_err_t handle_data_3(httpd_req_t *req);
 esp_err_t handle_data_4(httpd_req_t *req);
 esp_err_t handle_data_5(httpd_req_t *req);
 
+// html code for handling the wbepages
 char* default_page();
 char* choose_page();
 char* get_sta();
@@ -137,16 +144,18 @@ char* get_form(int local_flag);
 char* get_auto();
 char* get_path_specific(int local_flag);
 char* get_home1();
-
 char* get_home(int local_flag);
 char* manual_mode();
 char* SendHTML(uint8_t local_flag);
 char* get_stop();
+char* get_pathform();
 
-httpd_handle_t start_webserver(void);
+
+httpd_handle_t start_webserver(void);   // start the web server
 void stop_webserver(httpd_handle_t server);
 /* All the above functions defined in "server.c" file */
 
+// brlow functions are define in main.c
 esp_err_t replace_wifi(char* line, int n);
 esp_err_t update_number(int n);
 esp_err_t delete(int n);
@@ -155,6 +164,7 @@ esp_err_t delete_paths(int n);
 esp_err_t update_wifi();
 esp_err_t update_paths();
 esp_err_t update_pathname();
+int main_update();
 
 #endif
 // WE should only declare the vars in .h and define it in any one c file

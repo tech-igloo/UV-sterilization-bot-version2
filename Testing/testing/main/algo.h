@@ -7,6 +7,8 @@
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
 
+
+//configure the motor pins and encoder pins  change the pin numbers to associated pin numbers 
 #define LEFT_MOTOR_DIRECTION_1 2 
 #define RIGHT_MOTOR_DIRECTION_1 4
 #define LEFT_MOTOR_PIN 25                        // PWM pin for left motor
@@ -28,15 +30,17 @@
 #define LEFT_MOTOR_PIN 2   //27                       // PWM pin for left motor
 #define RIGHT_MOTOR_PIN 13                      // PWM pin for right motor
 #define LEFT_MOTOR_DIRECTION 32 
-#define RIGHT_MOTOR_DIRECTION 14
+#define RIGHT_MOTOR_DIRECTION 14 */
 
+
+// configuring the ultrasonic pins if needed change the pin numbers where the sensors are connected
 #define ULTRA1 25
 #define ULTRA2 26
 #define ULTRA3 4
 #define ULTRA4 2
 #define ULTRA5 15
 #define GPIO_ULTRASONIC_PIN_SEL ((1ULL<<ULTRA1) | (1ULL<<ULTRA2) | (1ULL<<ULTRA3) | (1ULL<<ULTRA4) | (1ULL<<ULTRA5))
-*/
+
 #define TXD_PIN (GPIO_NUM_17) // ULTRASONIC PINS for configuration 
 #define RXD_PIN (GPIO_NUM_16)
 
@@ -50,7 +54,7 @@
 #define wheelbase 0.1475                      //in meters
 
 #define DEFAULT_LIN_SPEED 0.7             //meter/sec    
-#define DEFAULT_ANG_SPEED 0.4               //rad/sec   
+#define DEFAULT_ANG_SPEED 0.45               //rad/sec   
 #define MIN_LINEAR_SPEED 0.005
 #define MIN_ANGULAR_SPEED 0.05
      
@@ -63,41 +67,53 @@
 extern int Lpwm;                       //Variables to pass pwm to the LEDC set duty function
 extern int Rpwm;  
 
+// the following parameters are used for encoder feedback
+
 extern int leftRot;                    //Variable to take care to the encoder feedback
 extern int leftTicks;
-
-
 extern int rightRot;
 extern int rightTicks;
-extern int leftRotd;
-extern int rightRotd;
 
-extern double left_vel;                //Variable that store instantaneous velocity
-extern double right_vel;
-extern double prev_lticks;
-extern double prev_rticks;
-extern int point_index;
-extern double lin_speed;
+
+extern double left_vel;                // left motor instantaneous velocity 
+extern double right_vel;                // right motor instantaneous velocity
+
+
+extern int point_index;                 // used to keep track of goal point position
+
+ // used to set the lin and angular velocities of the robot
+extern double lin_speed;               
 extern double ang_speed;
 
 extern int64_t prev_tim;
 extern double current_point[2];            //current co-ordinates of the bot*/
 
-
+// pid loop parameters
 extern double accumulated_errorL;             //integral term in PID formula
 extern double current_errorL;                 //current error in PID formula
 extern double prev_errorL;                    //error in the previous time step
 extern double accumulated_errorR;             
 extern double current_errorR;                 
-extern double prev_errorR;                    
-extern double prev_time;
-extern int batteryPercent;
-//extern int pid_flag;                        //flag that signifies that the PID controller's job is done
+extern double prev_errorR;
 
+extern double prev_time;               //stores the previous time step, gets updated to current time after sysCall_sensing
+extern int batteryPercent;              // used to store the battery percentage which is displayed on the web page
+extern int doneFlag;                   // used for checking if the robot has reached desired distance and orientaion with the goal point  
+
+/* uncomment only if you r sure that the both motor responce is ideal and want to use one single pid loop do necessary changes to the algo.c code as well
 extern double Kp;                //Common gains for now
 extern double Kd;
 extern double Ki;
+*/
 
+// PID gain parameters for left and right motor
+extern double Kpl;                //Common gains for now
+extern double Kdl;
+extern double Kil;
+
+extern double Kpr;                //Common gains for now
+extern double Kdr;
+extern double Kir;
 
 
 extern xQueueHandle gpio_evt_queue;
@@ -125,7 +141,6 @@ void init_pid();
 int pid_velLeft(double actualvel, double desiredvel);
 int pid_velRight(double actualvel, double desiredvel);
 int map1(float x, float in_min, float in_max, int out_min, int out_max);
-int map2(float x, float in_min, float in_max, int out_min, int out_max) ;
 
 char determine(int local_flag);
 esp_err_t convert_paths(int n);

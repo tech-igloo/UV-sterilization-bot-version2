@@ -66,6 +66,7 @@ esp_err_t replace_wifi(char* line, int n)
     return ESP_OK;  
 }
 
+// handle function used toupdate the pathname.txt file and store them in char arry to display then in auto mode to select the required path
 esp_err_t update_pathname()
 {
     char str[LINE_LEN];
@@ -74,6 +75,7 @@ esp_err_t update_pathname()
         printf("Error opening file paths.txt\n");
         return ESP_FAIL;
     }
+    // goes through each and every line of file and stors the path names in  array pathn
     for (int i = 0; i < total_paths; i++)
     {   
         strcpy(str, "\0");					//initialize to null string
@@ -83,7 +85,7 @@ esp_err_t update_pathname()
 
     } 
 
-    fclose(f_r);
+    fclose(f_r); // close the file
     return ESP_OK; 
 }
 
@@ -336,6 +338,8 @@ int main_update()
         fprintf(f, "0\n0\n");                                   //The 1st zero = which wifi credential is used (0 because SAP mode is used), the 2nd Zero = total number of valid wifi credentials
         fclose(f);
         ESP_LOGI(TAG, "File written");
+        memset(ssid,0,sizeof(ssid));
+        total=0;
     }
     else{                                                       //This means file is present
         FILE* f = fopen("/spiffs/wifi_conf.txt", "r");          //Return 0 if failed to open for any reason
@@ -676,16 +680,23 @@ void Task1code( void * pvParameters )
         }
         else
             move_stop();
-        if ((esp_timer_get_time()-last_time) > ADC_SAMPLING_FREQ ){
-            int raw = 0;
+
+        if ((esp_timer_get_time()-last_time) > ADC_SAMPLING_FREQ ) // the battery voltage is monitored at designed frequency 
+        {                                                          // As esp uses successive approximation to estimate the battery voltge to minimise the noise 
+            int raw = 0;                                           // we estimate the avaerage os the adc values 
             for (int ch = 0; ch < ADC_AVERAGING_FREQ; ch++){
                 raw += adc1_get_raw(ADC1_CHANNEL_6);
             }
             raw /= 10; 
-            batteryPercent = raw/40.95;  //in percentage, display on webpage
+            batteryPercent = raw/40.95;                            // has to be changes based on the attery pack sepecifications
             printf("Battery Percent: %d\n", batteryPercent);
             last_time = esp_timer_get_time();
         } 
+        /*if (batteryPercent <=40){
+            flag =-1
+            auto_flag =0;
+            battery_low():
+        }*/
     }
 }
 
