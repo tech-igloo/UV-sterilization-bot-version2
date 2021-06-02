@@ -953,7 +953,7 @@ esp_err_t handle_auto(httpd_req_t *req)
 esp_err_t handle_forward(httpd_req_t *req)
 {
     char det = determine(flag);     //determine the direction it was going earlier
-
+    pwm_min = 1800;
      //Previously implemented to test without encoders
      //curr_mili = esp_timer_get_time();
      //time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
@@ -1003,7 +1003,7 @@ esp_err_t handle_forward(httpd_req_t *req)
 esp_err_t handle_left(httpd_req_t *req)
 {
     char det = determine(flag);     //determine the direction it was going earlier
-   
+    pwm_min=2300;
     // time based feedback 
     // curr_mili = esp_timer_get_time();
      //time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
@@ -1061,7 +1061,7 @@ esp_err_t handle_left(httpd_req_t *req)
 esp_err_t handle_right(httpd_req_t *req)
 {
     char det = determine(flag);
-    
+    pwm_min=2300;
     // time based feedback
     // curr_mili = esp_timer_get_time();
      //time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)
@@ -1124,7 +1124,7 @@ esp_err_t handle_right(httpd_req_t *req)
 esp_err_t handle_back(httpd_req_t *req)
 {
     char det = determine(flag);
-    
+    pwm_min=1800;
     // time based feedback 
      /*curr_mili = esp_timer_get_time();
      time_duration = (curr_mili - prev_mili)/1000;;      //the time for which it was going in the previous direction(in ms)

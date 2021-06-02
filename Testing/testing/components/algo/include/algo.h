@@ -16,27 +16,17 @@
 #define RIGHT_MOTOR_DIRECTION_2 27
 
 #define LEFT_ENCODERA 39                       //Only signal A of both the motor is being used for now
-#define LEFT_ENCODERB 34                   //Change the GPIO ENCODER PIN SEL when using all the pins
 #define RIGHT_ENCODERA 36                      
-#define RIGHT_ENCODERB 35
 #define GPIO_ENCODER_PIN_SEL  ((1ULL<<LEFT_ENCODERA) | (1ULL<<RIGHT_ENCODERA))  //64 bit mask
 #define ESP_INTR_FLAG_DEFAULT 0
 
-/*
-
-#define LEFT_MOTOR_ENABLE 33 
-#define RIGHT_MOTOR_ENABLE 12
-#define LEFT_MOTOR_PIN 2   //27                       // PWM pin for left motor
-#define RIGHT_MOTOR_PIN 13                      // PWM pin for right motor
-#define LEFT_MOTOR_DIRECTION 32 
-#define RIGHT_MOTOR_DIRECTION 14 */
 
 
 // configuring the ultrasonic pins if needed change the pin numbers where the sensors are connected
-#define ULTRA1 25
-#define ULTRA2 26
-#define ULTRA3 4
-#define ULTRA4 2
+#define ULTRA1 12
+#define ULTRA2 13
+#define ULTRA3 14
+#define ULTRA4 32
 #define ULTRA5 15
 #define GPIO_ULTRASONIC_PIN_SEL ((1ULL<<ULTRA1) | (1ULL<<ULTRA2) | (1ULL<<ULTRA3) | (1ULL<<ULTRA4) | (1ULL<<ULTRA5))
 
@@ -53,7 +43,7 @@
 #define wheelbase 0.1475                      //in meters
 
 #define DEFAULT_LIN_SPEED 0.7             //meter/sec    
-#define DEFAULT_ANG_SPEED 0.45               //rad/sec   
+#define DEFAULT_ANG_SPEED 0.5               //rad/sec   
 #define MIN_LINEAR_SPEED 0.005
 #define MIN_ANGULAR_SPEED 0.05
      
@@ -72,7 +62,7 @@ extern int leftRot;                    //Variable to take care to the encoder fe
 extern int leftTicks;
 extern int rightRot;
 extern int rightTicks;
-
+extern int pwm_min;
 
 extern double left_vel;                // left motor instantaneous velocity 
 extern double right_vel;                // right motor instantaneous velocity
@@ -99,11 +89,6 @@ extern double prev_time;               //stores the previous time step, gets upd
 extern int batteryPercent;              // used to store the battery percentage which is displayed on the web page
 extern int doneFlag;                   // used for checking if the robot has reached desired distance and orientaion with the goal point  
 
-/* uncomment only if you r sure that the both motor responce is ideal and want to use one single pid loop do necessary changes to the algo.c code as well
-extern double Kp;                //Common gains for now
-extern double Kd;
-extern double Ki;
-*/
 
 // PID gain parameters for left and right motor
 extern double Kpl;                //Common gains for now

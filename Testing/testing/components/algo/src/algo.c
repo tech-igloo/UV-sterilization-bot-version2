@@ -3,6 +3,7 @@
 
 int Lpwm = 0; 
 int Rpwm = 0;     //Always remember you can't define the variable in .h file     
+int pwm_min=1800;
 
 // the following parameters are used for encoder feedback
 int leftRot = 0;    
@@ -33,11 +34,7 @@ double current_error=0;
 double accumulated_error=0;
 double prev_error=0;
 
-/*
-double Kp = 1;                   //common gains for both the PID blocks for now
-double Kd = 1/sampleTimeInSec;
-double Ki = 1*sampleTimeInSec;
-*/
+
 
 double Kpl = 1;                   //common gains for both the PID blocks for now
 double Kdl = 0.02/sampleTimeInSec;
@@ -140,16 +137,14 @@ void init_gpio()
     gpio_set_direction(LEFT_MOTOR_DIRECTION_2, GPIO_MODE_OUTPUT);
     gpio_set_direction(RIGHT_MOTOR_DIRECTION_2, GPIO_MODE_OUTPUT);
 
-    /*gpio_set_direction(RIGHT_MOTOR_DIRECTION, GPIO_MODE_OUTPUT);
-    gpio_set_direction(LEFT_MOTOR_DIRECTION, GPIO_MODE_OUTPUT);
+    
 
     ULTRASONIC.intr_type = 0;      //Change according to the resolution, anyedge for quadrature when using both the pins
     ULTRASONIC.mode = GPIO_MODE_INPUT;
     ULTRASONIC.pull_down_en = 0;
     ULTRASONIC.pull_up_en = 0;
-    ULTRASONIC.pin_bit_mask = GPIO_ULTRASONIC_PIN_SEL; 
-    !< GPIO pin: set with bit mask, each bit maps to a GPIO 
-    gpio_config(&ULTRASONIC);*/
+    ULTRASONIC.pin_bit_mask = GPIO_ULTRASONIC_PIN_SEL;  //!< GPIO pin: set with bit mask, each bit maps to a GPIO 
+    gpio_config(&ULTRASONIC);  
     
     adc1_config_width(ADC_WIDTH_BIT_12);   // 0-4095 not linear range, testing and filtering req
     adc1_config_channel_atten(ADC_CHANNEL_6, ADC_ATTEN_DB_11); //ADC1-CH6 corresponds to pin 34
@@ -226,12 +221,7 @@ void move_forward()
         //printf("here");
         //ESP_LOGI(TAG, "Left wheel velocity:%f, right wheel velocity:%f", left_vel, right_vel);
     }
-   /* gpio_set_level(LEFT_MOTOR_DIRECTION, 1);    //BOTH IN SAME DIRECTION
-    gpio_set_level(RIGHT_MOTOR_DIRECTION, 1);
-    ledc_set_duty(motorL.speed_mode, motorL.channel,Lpwm);   //Update the PWM value to be used by this lED Channel.
-    ledc_update_duty(motorL.speed_mode, motorL.channel);      //Use the Updated PWM values
-    ledc_set_duty(motorR.speed_mode, motorR.channel, Rpwm);
-    ledc_update_duty(motorR.speed_mode, motorR.channel);*/
+
    
     gpio_set_level(LEFT_MOTOR_DIRECTION_1, 1);    //BOTH IN SAME DIRECTION
     gpio_set_level(LEFT_MOTOR_DIRECTION_2, 0);    //BOTH IN SAME DIRECTION
@@ -240,6 +230,7 @@ void move_forward()
     ledc_set_duty(motorL.speed_mode, motorL.channel, Lpwm);   //Update the PWM value to be used by this lED Channel.
     ledc_update_duty(motorL.speed_mode, motorL.channel);      //Use the Updated PWM values
     ledc_set_duty(motorR.speed_mode, motorR.channel, Rpwm);
+    
     ledc_update_duty(motorR.speed_mode, motorR.channel);
 } 
 
@@ -272,13 +263,7 @@ void move_right()
     ledc_set_duty(motorR.speed_mode, motorR.channel, Rpwm);
     ledc_update_duty(motorR.speed_mode, motorR.channel);
 
-    /*gpio_set_level(LEFT_MOTOR_DIRECTION, 1);    //IN OPP DIRECTION
-    gpio_set_level(RIGHT_MOTOR_DIRECTION, 0);
 
-    ledc_set_duty(motorL.speed_mode, motorL.channel, Lpwm);
-    ledc_update_duty(motorL.speed_mode, motorL.channel);
-    ledc_set_duty(motorR.speed_mode, motorR.channel, Rpwm);
-    ledc_update_duty(motorR.speed_mode, motorR.channel);*/
 }
 
 //used to manupulate the robot in left direction and also compute the velocity control loop
@@ -311,12 +296,7 @@ void move_left()
     ledc_update_duty(motorR.speed_mode, motorR.channel);
 
 
-    /*gpio_set_level(LEFT_MOTOR_DIRECTION, 0);    //IN OPP DIRECTION
-    gpio_set_level(RIGHT_MOTOR_DIRECTION, 1);
-    ledc_set_duty(motorL.speed_mode, motorL.channel, Lpwm);
-    ledc_update_duty(motorL.speed_mode, motorL.channel);
-    ledc_set_duty(motorR.speed_mode, motorR.channel, Rpwm);
-    ledc_update_duty(motorR.speed_mode, motorR.channel);*/
+
 }
 
 //used to manupulate the robot in back direction and also compute the velocity control loop
@@ -347,12 +327,7 @@ void move_back()
     ledc_set_duty(motorR.speed_mode, motorR.channel, Rpwm);
     ledc_update_duty(motorR.speed_mode, motorR.channel);
 
-    /*gpio_set_level(LEFT_MOTOR_DIRECTION, 0);    //BOTH IN SAME DIRECTION
-    gpio_set_level(RIGHT_MOTOR_DIRECTION, 0);
-    ledc_set_duty(motorL.speed_mode, motorL.channel, Lpwm);
-    ledc_update_duty(motorL.speed_mode, motorL.channel);
-    ledc_set_duty(motorR.speed_mode, motorR.channel, Rpwm);
-    ledc_update_duty(motorR.speed_mode, motorR.channel);*/
+
 }
 
 //used to stop the robot
@@ -362,16 +337,7 @@ void move_stop()
     ledc_update_duty(motorL.speed_mode, motorL.channel);
     ledc_set_duty(motorR.speed_mode, motorR.channel, 0);
     ledc_update_duty(motorR.speed_mode, motorR.channel);
-    //vTaskDelay(500 / portTICK_PERIOD_MS);
-    // for finalbot
-    /*
-    init_pid();
-    gpio_set_level(LEFT_MOTOR_ENABLE,0);
-    gpio_set_level(RIGHT_MOTOR_ENABLE,0);
-    ledc_set_duty(motorL.speed_mode, motorL.channel, 0);
-    ledc_update_duty(motorL.speed_mode, motorL.channel);
-    ledc_set_duty(motorR.speed_mode, motorR.channel, 0);
-    ledc_update_duty(motorR.speed_mode, motorR.channel);*/
+
 }
 
 /*To reset the PID error variable*/ 
@@ -407,7 +373,7 @@ int pid_velLeft(double actualvel, double desiredvel){
     else if (pid<0)
          pid=0;
     prev_errorL = current_errorL;
-    return map1(pid, 0, 2.5, 2200, 4095);   //set maximum PWM as the top speed required
+    return map1(pid, 0, 2.5, pwm_min, 4095);   //set maximum PWM as the top speed required
 }
 // simple pid for right motor
 int pid_velRight(double actualvel, double desiredvel){
@@ -420,7 +386,7 @@ int pid_velRight(double actualvel, double desiredvel){
          pid=0;
     prev_errorR = current_errorR;
     //Main part after this is finding the maximum value of PID(after capping) and mapping it to the PWM 
-    return map1(pid, 0, 2.5, 2200, 4095);
+    return map1(pid, 0, 2.5, pwm_min, 4095);
 }
 
 
@@ -448,7 +414,8 @@ char determine(int local_flag)
 
 /*Algorithm for converting path to co-ordinate based format
   Remove DEFAULT_LIN_SPEED and DEFAULT_ANG_SPEED if the stored format is in distance and not time*/
-esp_err_t convert_paths(int n){
+esp_err_t convert_paths(int n)
+{
     char str[LINE_LEN];
     char aux[500] = "", aux1[500] = "";
     int len = 0, linectr = 0, count_flag = 1;
@@ -470,7 +437,6 @@ esp_err_t convert_paths(int n){
     {
         strcpy(str, "\0");
         fgets(str, LINE_LEN, f_r);
-        printf("initial");
         ESP_LOGI(TAG, "%s", str);
         ESP_LOGI(TAG, "Length: %d", strlen(str));
         strcat(aux, str);
@@ -478,7 +444,8 @@ esp_err_t convert_paths(int n){
             linectr++;
             count_flag = 0;
         }              
-        if (strchr(str, '\n')){ //We only increment the linectr when we have \n, because of a single path having multiple lines
+        if (strchr(str, '\n'))
+        { //We only increment the linectr when we have \n, because of a single path having multiple lines
             if(linectr == n) //This before the reseting temp so that if deceted it should retain it
             {
                 strcpy(aux1,aux);
@@ -547,7 +514,7 @@ esp_err_t convert_paths(int n){
                 fprintf(f_w, "%s", result);
             }
             else
-                fprintf(f_w, "%s", aux);
+            fprintf(f_w, "%s", aux);
             count_flag=1;
             strcpy(aux, "");
         }
@@ -875,8 +842,8 @@ void actuationAuto()
         forwardSlow(1);
     if(detect_flag==0 && prev_time>=time_flag+1)       // if there is no obstacle and one second has as passed then call this function to update odemtry 
     	{normal_motion();  
-        //ESP_LOGI(TAG,"rota: %d distre:%f anreq:%f flag:%d current(x,y):(%f,%f) stop point(x,y):(%f,%f)angle:%f dist_tra:%f flag:%d doneflag:%d",rotating_flag,dist_required,angle_required,flag,current_point[0],current_point[1],prev_point[0],prev_point[1],angle_rotated,dist_traversed,flag,doneFlag);
-        ESP_LOGI(TAG,"rota: %d distre:%f anreq:%f flag:%d current(x,y):(%f,%f) stop point(x,y):(%f,%f)angle:%f dist_tra:%f flag:%d ",rotating_flag,dist_required,angle_required,flag,current_point[0],current_point[1],prev_point[0],prev_point[1],angle_rotated,dist_traversed,flag);
+        ESP_LOGI(TAG,"rota: %d distre:%f anreq:%f flag:%d current(x,y):(%f,%f) stop point(x,y):(%f,%f)angle:%f dist_tra:%f flag:%d doneflag:%d",rotating_flag,dist_required,angle_required,flag,current_point[0],current_point[1],prev_point[0],prev_point[1],angle_rotated,dist_traversed,flag,doneFlag);
+        //ESP_LOGI(TAG,"rota: %d distre:%f anreq:%f flag:%d current(x,y):(%f,%f) stop point(x,y):(%f,%f)angle:%f dist_tra:%f flag:%d ",rotating_flag,dist_required,angle_required,flag,current_point[0],current_point[1],prev_point[0],prev_point[1],angle_rotated,dist_traversed,flag);
         }
     // below condition are for obstacle avoidance it performs necessary actions based on the position of obstacle
     else if(detect_flag==1 && prev_time>=time_flag+1){
@@ -937,6 +904,7 @@ void normal_motion()
             flag=-1;
             printf("rotation done \n");
             vTaskDelay(200 / portTICK_PERIOD_MS);
+            pwm_min=1800;
 
         }
         else{printf("rotating \n"); // If the orienttaion of the orbot with the goal point is not complete then it will try orienting with the goal point by roataing
@@ -954,6 +922,7 @@ void normal_motion()
             rotating_flag = 1;
             doneFlag=0;
             vTaskDelay(200 / portTICK_PERIOD_MS);
+            pwm_min=2200;
 
         } 
         else{      // it menas the robot is not close enough to goal point so move toward the goal point
@@ -986,10 +955,14 @@ void rotate()
 else if the limit is not in the limit then simply move toward the goal point */
 void forward()
 {
-    flag = 0;    // flag is 0 so core 1 is calls move_forward motion 
-    if((dist_required - dist_traversed)> -0.01 && (dist_required - dist_traversed)<0.01)  //is the difference is with in the limit then update teh done flag
+    if((dist_required - dist_traversed)> -0.2 && (dist_required - dist_traversed)<0.2)  //is the difference is with in the limit then update teh done flag
         {doneFlag = 1;    // if done flag is 1 then it means that goal point has reached and the next step is that it updates teh stop point and goal point
         printf("forwardone");
+    }
+    else if ((dist_required - dist_traversed) < -0.2) doneFlag=1;
+    else{
+    flag = 0;    // flag is 0 so core 1 is calls move_forward motion 
+
     }
 }
 
@@ -1028,8 +1001,9 @@ void recalculate()
 // sensing function is maily used in detecting the presence of obstacle and update necessary flags
 void sensing(){
     prev_time = esp_timer_get_time()/1000000;    //Getting current time in microseconds and storing in seconds
-    /*timediff = prev_time-current_time;        // used for time based feedback approach
-    current_time=prev_time;*/
+   
+    //timediff = prev_time-current_time;        // used for time based feedback approach
+    //current_time=prev_time;
     //prev_time = esp_timer_get_time()/1000000;    //Getting current time in microseconds and storing in seconds
     
     // used to detect the obstacle as the ultrasonic sensors goes low when obstacle is present so is the obstacle flag 

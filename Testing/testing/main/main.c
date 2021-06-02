@@ -689,7 +689,7 @@ void Task1code( void * pvParameters )
             }
             raw /= 10; 
             batteryPercent = raw/40.95;                            // has to be changes based on the attery pack sepecifications
-            printf("Battery Percent: %d\n", batteryPercent);
+            //printf("Battery Percent: %d\n", batteryPercent);
             last_time = esp_timer_get_time();
         } 
         /*if (batteryPercent <=40){
