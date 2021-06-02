@@ -1,0 +1,30 @@
+# put here your custom config value
+menu "Example Configuration"
+config ESP_WIFI_SSID
+    string "WiFi SSID"
+    default "myssid"
+    help
+	SSID (network name) for the example to connect to.
+
+config ESP_WIFI_PASSWORD
+    string "WiFi Password"
+    default "mypassword"
+    help
+	WiFi password (WPA or WPA2) for the example to use.
+endmenu
+
+menu "HTTP Server"
+
+config HTTPD_MAX_REQ_HDR_LEN
+    int "Max HTTP Request Header Length"
+    default 512
+    help
+        This sets the maximum supported size of headers section in HTTP request packet to be processed by the server
+
+config HTTPD_MAX_URI_LEN
+    int "Max HTTP URI Length"
+    default 512
+    help
+        This sets the maximum supported size of HTTP request URI to be processed by the server
+
+endmenu
